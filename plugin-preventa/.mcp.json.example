@@ -1,0 +1,17 @@
+// EJEMPLO — NO SE LEE AUTOMÁTICAMENTE (Claude Code solo lee .mcp.json, que
+// debe ser JSON válido sin comentarios). Este archivo es documentación:
+// cuando llegue el webhook/API key de Bitrix24, copiá el bloque de abajo
+// (sin los comentarios "//") dentro de "mcpServers" en plugin-preventa/.mcp.json.
+//
+// No pegues el webhook/API key directamente en este archivo si vas a
+// commitear cambios al repo. Usá una variable de entorno (${BITRIX24_WEBHOOK_URL})
+// y definila localmente (fuera del repo, ver .env.example) o en la config
+// de Claude Code, nunca en texto plano dentro de un archivo versionado.
+{
+  "mcpServers": {
+    "bitrix24": {
+      "type": "http",
+      "url": "${BITRIX24_WEBHOOK_URL}"
+    }
+  }
+}

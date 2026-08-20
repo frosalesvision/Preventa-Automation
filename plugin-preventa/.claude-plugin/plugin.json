@@ -1,0 +1,9 @@
+{
+  "name": "preventa",
+  "version": "0.1.0",
+  "description": "Automatización del flujo de preventa de Grupo Visión: verificación de entorno, armado de cotizaciones, seguimiento por correo y sincronización con Bitrix24.",
+  "author": {
+    "name": "Fabián Rosales",
+    "email": "fabian7593@gmail.com"
+  }
+}

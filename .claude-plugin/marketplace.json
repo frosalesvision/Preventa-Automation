@@ -1,0 +1,14 @@
+{
+  "name": "preventa-automation",
+  "owner": {
+    "name": "Fabián Rosales",
+    "email": "fabian7593@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "preventa",
+      "source": "./plugin-preventa",
+      "description": "Automatización del flujo de trabajo de preventa (cotizaciones de sistemas de seguridad/cámaras) para Grupo Visión."
+    }
+  ]
+}

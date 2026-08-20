@@ -1,0 +1,46 @@
+# ============================================================
+# Datos reales de clientes - NUNCA se suben a este repo privado
+# ============================================================
+# Carpeta de trabajo con Excels reales que el usuario copia a mano
+# para referencia local (ver docs/notas-proceso.md)
+recursos-originales/
+
+# Cualquier archivo de Excel/CSV en cualquier carpeta (cotizaciones,
+# Excel maestro, matrices reales, exports). Si algún día se necesita
+# versionar una PLANTILLA sin datos reales, agregarla explícitamente
+# con "git add -f" y documentar por qué es segura.
+*.xlsx
+*.xlsm
+*.xlsb
+*.xls
+*.csv
+
+# Exports de cotizaciones (PDF final con datos de cliente)
+*.pdf
+
+# ============================================================
+# Credenciales y configuración sensible
+# ============================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets/
+credentials/
+**/.mcp.local.json
+**/*.local.json
+
+# ============================================================
+# Archivos temporales / SO / editores
+# ============================================================
+*.tmp
+*.temp
+*.log
+~$*
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
