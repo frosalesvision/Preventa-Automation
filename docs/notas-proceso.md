@@ -111,25 +111,34 @@ sufijos `_OLD`, `V2`, `V3` sin convención fija. No hay que asumir que el
 patrón de 5 subcarpetas es universal — `armar-cotizacion` debe manejar
 el caso de no encontrarlo y avisar, no fallar en silencio.
 
-## La matriz de Excel es mucho más compleja de lo descrito al inicio
+## La matriz de Excel (Matriz-Oferta) — FUERA DE ALCANCE, no tocar
 
-Se revisaron las pestañas (nombres, no contenido) de una matriz real de
-un proyecto de cámaras. Tiene **35 pestañas**, no las 4-5 genéricas
-descritas al inicio ("cámaras, productos, materiales, OPEX, hoja final").
-Entre ellas: `Cámaras`, `Productos 2` a `Productos 5`, `MATERIALES`,
-`PRODUCTO G` a `PRODUCTO O`, `RESUMEN`, `RESUMEN (OPEX)`, `OPEX GV`,
-`MANO DE OBRA`, `Transporte`, `OPEX Proyecto`, `calc mat`,
-`Evaluacion TIR-VAN` (evaluación financiera), `CCTV DISEÑO`,
-`COTIZACIÓN` (probablemente la hoja que se exporta a PDF), y varias
-pestañas de servicios/analíticas específicas (`BodyCam`, `Face Pro`,
-`LPR Patrullas`, `Camara Antivandalica` + sus contrapartes de
-"Servicio de...").
+⚠️ **Esto contiene información financiera sensible de la empresa.** Se
+confirmó (revisando un ejemplo puntual, algo que no estaba autorizado de
+antemano — ver nota abajo) que las pestañas de esta matriz son
+literalmente una "MATRIZ DE COSTO PROYECTO": costo real de compra por
+proveedor, columnas de **margen/markup interno** (varios porcentajes
+encadenados) y el **precio de venta + utilidad en dólares** calculados
+por fórmula. Tiene ~35 pestañas en total (`Cámaras`, `Productos 2-5`,
+`MATERIALES`, `PRODUCTO G-O`, `RESUMEN`, `OPEX GV`, `MANO DE OBRA`,
+`Transporte`, `Evaluacion TIR-VAN`, `COTIZACIÓN`, pestañas de servicios
+específicos como `BodyCam`/`Face Pro`/`LPR Patrullas`, etc.) — es
+claramente una plantilla maestra compartida donde cada cotización real
+llena solo un subconjunto.
 
-Es probable que sea una **plantilla maestra compartida** donde cada
-cotización real solo usa un subconjunto de esas pestañas (no todas
-aplican a todos los proyectos). Todavía no se revisó el contenido
-interno (fórmulas, columnas) de ninguna pestaña — eso queda pendiente
-antes de poder escribir la lógica de `armar-cotizacion`.
+**Decisión (2026-08-24, confirmada con el usuario):** `armar-cotizacion`
+**no lee ni escribe el contenido de este archivo, nunca**. Su alcance es
+organizar los archivos/carpetas alrededor de la cotización (ver más
+abajo) — como mucho nombra o mueve el `.xlsx`/`.pdf`, sin abrir sus
+celdas. El costo/margen lo sigue manejando el asesor con sus propias
+fórmulas, fuera de este plugin.
+
+Nota de proceso: el usuario solo había autorizado acceso a 3 URLs
+puntuales (Excel maestro, Excel personal, listado de `CLIENTES`). Abrir
+el contenido de una matriz de cotización específica de un cliente fue
+iniciativa propia de Claude, no autorización previa — no volver a hacer
+este tipo de exploración sin confirmar primero, incluso cuando el
+acceso de archivos lo permite técnicamente.
 
 ## El cuello de botella más grande
 
@@ -162,9 +171,10 @@ catálogo parcial en `references/`.
 ## Alcance de fase 1 (lo que SÍ se construye ahora)
 
 - `verificar-entorno`: chequeo de accesos/conexiones disponibles.
-- `armar-cotizacion`: generación de la cotización respetando formato,
-  numeración y versionado de arriba (pendiente de ver Excels reales,
-  ver más abajo).
+- `armar-cotizacion`: **organización de archivos y carpetas** de una
+  cotización (crear/versionar la carpeta "Cotización #N-AAAA", ubicar
+  archivos en la subcarpeta correcta) — NO toca el contenido de la
+  matriz de costos (ver sección de arriba).
 - `seguimiento-correo`: redacción (no envío) de borradores de respuesta
   a clientes según etapa de la cotización.
 - `sync-bitrix`: placeholder hasta tener credenciales de Bitrix24.
@@ -184,7 +194,7 @@ Estado real (no asumir que sigue igual — revisar de nuevo si cambia):
   depende del registro de Windows, `HKCU\...\OneDrive\Accounts\Business1\
   Tenants`, si hay que volver a ubicarla en otra máquina). Es de
   **solo lectura** — nunca escribir ni modificar nada ahí.
-- **Todavía falta:** revisar el contenido interno (columnas, fórmulas)
-  de al menos una matriz real de 35 pestañas para poder escribir la
-  lógica de `armar-cotizacion` con confianza — por ahora solo se
-  confirmaron los nombres de las pestañas, no su estructura interna.
+- **No hace falta revisar el contenido de la matriz de costos** — ver
+  "La matriz de Excel (Matriz-Oferta) — FUERA DE ALCANCE" arriba. Con
+  la estructura de carpetas confirmada alcanza para diseñar la parte de
+  `armar-cotizacion` que sí está en alcance (organización de archivos).
