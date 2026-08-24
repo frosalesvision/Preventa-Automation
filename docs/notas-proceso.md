@@ -36,11 +36,13 @@ Lo que se dijo al inicio ("consecutivo por cliente, formato T0010") no es
 exacto. Revisando el Excel maestro real y las carpetas compartidas hay
 **dos numeraciones separadas**:
 
-1. **"Cotización #N" (numeración de carpeta):** consecutivo por cliente
-   — a veces por cliente+año, la convención de agrupado por año varía
-   por cliente (ver más abajo). Este SÍ es el "consecutivo por cliente"
-   simple que se describió al inicio. Es un número interno de
-   organización de carpetas, asignado a mano.
+1. **"Cotización #N" (numeración de carpeta):** consecutivo por cliente,
+   asignado a mano — pero **no todos los clientes lo llevan igual**: se
+   confirmó al menos un caso donde es continuo entre años (2024 llega a
+   #28, 2025 sigue 28-63, 2026 sigue en #64+) y otro donde parece
+   reiniciar cada año (2025 tiene #1, 2026 vuelve a #1). No hay una
+   regla única — `armar-cotizacion` calcula ambos candidatos y pregunta
+   si no coinciden, en vez de asumir uno.
 2. **"Número de oferta" real (el que ve el cliente):** formato
    `T{prefijo}-{7 dígitos}-{año}` (ej. `T4-0000006-26`, `T5-0000003-26`).
    Solo se encontraron los prefijos **T1, T4, T5** en el Excel maestro.

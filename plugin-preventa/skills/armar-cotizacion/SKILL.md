@@ -34,11 +34,15 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    - Si el cliente es completamente nuevo (sin cotizaciones previas),
      usá `Cotizaciones AAAA` — es la convención unificada a partir de
      ahora.
-3. **Número de "Cotización #N":** listá todas las carpetas
-   `Cotización #N-...` existentes del cliente (en todos los años) y
-   proponé el siguiente N disponible. Mostraselo al asesor y esperá su
-   confirmación antes de crear la carpeta — no asumas que tu propuesta
-   es correcta sin que él la valide.
+3. **Número de "Cotización #N":** clientes distintos usan convenciones
+   distintas — algunos numeran continuo entre años (ej. 2024 llega a
+   #28, 2025 sigue en #28-63, 2026 sigue en #64+), otros reinician cada
+   año (2025 tiene #1, 2026 vuelve a empezar en #1). Calculá **ambos**
+   candidatos: el máximo N dentro de la carpeta del año actual +1, y el
+   máximo N en todos los años del cliente +1. Si coinciden, proponé ese
+   número. **Si difieren, mostrale los dos al asesor y preguntá cuál
+   convención sigue este cliente** — no asumas una de las dos. En
+   cualquier caso, esperá confirmación antes de crear la carpeta.
 4. **Descripción corta:** preguntale al asesor la descripción breve que
    va en el nombre de la carpeta (ej. "mantenimiento control de acceso").
 5. **Crear la carpeta** `Cotización #N-AAAA <descripción>/` con las 5
