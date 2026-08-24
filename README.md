@@ -43,3 +43,8 @@ docs/notas-proceso.md             → contexto del proceso de negocio
 - Este repo es **privado** y así debe quedarse: nunca se sube información
   real de clientes, precios ni credenciales (ver `.gitignore`).
 - Todo el contenido del plugin está en español.
+- **Permisos de GitHub:** solo el dueño del repo (Fabián) debe tener rol
+  de **escritura**. Al agregar a los demás como colaboradores, dales rol
+  **Read** (Settings → Collaborators and teams) — con eso alcanza para
+  instalar el plugin (`/plugin marketplace add` solo necesita lectura),
+  y nadie más puede hacer push de cambios al repo compartido.

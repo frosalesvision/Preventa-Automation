@@ -24,15 +24,31 @@ arriba de este SKILL.md, es decir `../../.mcp.json` relativo a esta carpeta).
 - Revisá también si existe `../../.env` con `BITRIX24_WEBHOOK_URL` con
   valor no vacío, como señal adicional.
 
-## 2. Carpeta compartida de cotizaciones
+## 2. Carpeta compartida de cotizaciones (CLIENTES)
 
-- Si el usuario ya mencionó la ruta en la conversación, usala. Si no,
-  **preguntale** la ruta local de la carpeta compartida en la nube
-  (OneDrive/SharePoint/Drive sincronizado en su computadora).
-- Intentá listar esa ruta (Glob o Bash `ls`). Si falla (no existe, sin
-  permisos, ruta mal escrita), reportalo como **no accesible** con el
-  motivo exacto del error — no reintentes rutas inventadas ni asumas una
-  ubicación por defecto.
+En Windows, la carpeta compartida real de SharePoint/OneDrive Business
+**no siempre está bajo la carpeta `OneDrive` normal del usuario** — puede
+sincronizar en una ruta separada con el nombre del tenant/librería (ej.
+`C:\Users\<usuario>\<Nombre Tenant>\<Nombre Librería>`). Antes de
+preguntarle nada al usuario, intentá auto-detectarla:
+
+1. Con PowerShell, leé el registro en
+   `HKCU:\Software\Microsoft\OneDrive\Accounts\Business1\Tenants` (y
+   `Business2`, etc. si existe más de una cuenta configurada) — cada
+   valor bajo esa clave es `<ruta local completa> : <id>`. Ahí está la
+   ruta real de cada librería sincronizada, sin adivinar.
+2. Buscá entre esos valores una ruta cuyo nombre final contenga algo
+   como "CLIENTES" (puede variar). Si la encontrás, listala (Bash `ls`
+   o Glob) para confirmar que es legible.
+3. Si no hay cuenta de OneDrive Business configurada, o ninguna ruta
+   coincide, recién ahí **preguntale al usuario** la ruta local exacta.
+
+Si falla el acceso (no existe, sin permisos, cuenta no firmada),
+reportalo como **no accesible** con el motivo exacto — no reintentes
+rutas inventadas ni asumas una ubicación por defecto. Si el registro
+no tiene nada todavía (cuenta recién agregada), puede ser que OneDrive
+esté en su primera sincronización — decilo explícitamente, no lo trates
+como error permanente.
 
 ## 3. Excels de referencia en la carpeta compartida
 
@@ -41,9 +57,8 @@ dentro de esa carpeta (primer nivel y subcarpetas razonables, sin bajar
 más de 2-3 niveles). Reportá:
 
 - Cuántos se encontraron en total.
-- Cuáles parecen ser el Excel maestro (nombre contiene "maestro",
-  "master", "seguimiento") o una matriz de cotización (nombre contiene
-  "cotiz", "matriz", "oferta", o un patrón tipo `T0010`).
+- Cuáles parecen ser una matriz de cotización real (están dentro de una
+  carpeta `Matriz-Oferta/`, o el nombre contiene "matriz"/"oferta").
 - Si no se encontró ninguno, decilo explícitamente — no lo des por hecho.
 
 ## 4. Recursos originales locales (para desarrollo de `armar-cotizacion`)
