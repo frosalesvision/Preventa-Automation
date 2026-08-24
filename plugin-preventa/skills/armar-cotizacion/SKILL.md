@@ -1,50 +1,93 @@
 ---
 name: armar-cotizacion
-description: Organiza los archivos y carpetas de una cotización de preventa dentro de la carpeta compartida del cliente (crear la carpeta "Cotización #N-AAAA <descripción>" con sus subcarpetas estándar, ubicar los archivos en la subcarpeta correcta, manejar numeración de carpeta y versionado de nombres de archivo). NO calcula precios ni toca el contenido de la matriz de costos — eso lo hace el asesor con sus propias fórmulas. Usar cuando el usuario pide crear/organizar la carpeta de una cotización nueva, agregar una versión a una cotización existente, o pide el siguiente número de "Cotización #N" para un cliente.
+description: Organiza los archivos y carpetas de una cotización de preventa dentro de la carpeta compartida del cliente (crear la carpeta "Cotización #N-AAAA <descripción>" con sus subcarpetas estándar, ubicar los archivos en la subcarpeta correcta, proponer numeración de carpeta y número de oferta, manejar versionado de nombres de archivo). NO calcula precios ni toca el contenido de la matriz de costos — eso lo hace el asesor con sus propias fórmulas. Usar cuando el usuario pide crear/organizar la carpeta de una cotización nueva, agregar una versión a una cotización existente, o pide el siguiente número de "Cotización #N" u oferta para un cliente.
 ---
 
-# Armar cotización — PENDIENTE
+# Armar cotización
 
-**Alcance corregido (importante):** este skill es sobre **organización de
-archivos y carpetas** en `CLIENTES/<Cliente>/.../Cotización #N-AAAA
-<descripción>/`, no sobre el contenido de la cotización en sí. **Nunca
-abre, lee celdas, ni calcula nada dentro del Excel de la matriz de
-costos** (`Matriz-Oferta/*.xlsx`) — esa matriz contiene costos de
-proveedor y fórmulas de margen internas, es información sensible que
-maneja el asesor con su propio criterio. Este skill como mucho **mueve o
-nombra** el archivo, nunca lee ni escribe sus celdas.
+**Alcance (no cambiar sin confirmar con el usuario):** este skill
+organiza **archivos y carpetas** en `CLIENTES/<Cliente>/.../Cotización
+#N-AAAA <descripción>/`. **Nunca abre, lee celdas, ni calcula nada
+dentro del Excel de la matriz de costos** (`Matriz-Oferta/*.xlsx`) — esa
+matriz contiene costos de proveedor y fórmulas de margen internas,
+información financiera sensible que maneja el asesor con su propio
+criterio. Este skill como mucho **mueve o nombra** ese archivo, nunca
+lee ni escribe sus celdas.
+
+⚠️ La carpeta `CLIENTES/` es la carpeta de producción real de la
+empresa, no un entorno de prueba. Antes de crear o renombrar cualquier
+carpeta/archivo ahí, mostrale al asesor exactamente qué vas a hacer
+(ruta completa) y esperá confirmación explícita.
 
 Ver [`docs/notas-proceso.md`](../../../docs/notas-proceso.md) para la
-estructura real de carpetas confirmada ("Estructura real de las carpetas
-compartidas") y las reglas de numeración/versionado.
+estructura de carpetas confirmada y las reglas de numeración/versionado.
 
-Nota: la búsqueda automática del accesorio de montaje correcto según
-marca de cámara y tipo de instalación (pared/techo) queda **fuera de
-alcance** de este skill por ahora — es trabajo futuro explícito, no
-inventar una solución parcial acá.
+## Caso 1: cotización nueva
 
-Preguntas abiertas que hay que resolver con el usuario antes de
-implementar (nada de esto requiere abrir el contenido de ningún Excel
-de costos):
+1. **Ubicar al cliente.** Buscá la carpeta `CLIENTES/<Cliente>/`. Si no
+   existe (cliente nuevo), confirmá el nombre exacto con el asesor antes
+   de crear nada.
+2. **Carpeta de año:**
+   - Si el cliente ya tiene cotizaciones previas, mirá qué patrón usa
+     (`<Cliente> -AAAA`, `Cotizaciones AAAA`, o plano sin carpeta de
+     año) y **seguí ese mismo patrón** para el año actual.
+   - Si el cliente es completamente nuevo (sin cotizaciones previas),
+     usá `Cotizaciones AAAA` — es la convención unificada a partir de
+     ahora.
+3. **Número de "Cotización #N":** listá todas las carpetas
+   `Cotización #N-...` existentes del cliente (en todos los años) y
+   proponé el siguiente N disponible. Mostraselo al asesor y esperá su
+   confirmación antes de crear la carpeta — no asumas que tu propuesta
+   es correcta sin que él la valide.
+4. **Descripción corta:** preguntale al asesor la descripción breve que
+   va en el nombre de la carpeta (ej. "mantenimiento control de acceso").
+5. **Crear la carpeta** `Cotización #N-AAAA <descripción>/` con las 5
+   subcarpetas estándar, todas vacías (no copiar ninguna plantilla
+   adentro — el asesor las llena a mano):
+   ```
+   Cotizaciones/
+   Fichas Técnicas/
+   Implementacion/
+   ├── Actas de entrega/
+   ├── Boletas de servicio/
+   ├── Documentación del proyecto/
+   └── Mantenimiento/
+   Matriz-Oferta/
+   Visita técnica/
+   ```
+6. **Número de oferta real** (formato `T{prefijo}-{7 dígitos}-{año}`,
+   el que va en el nombre del PDF final dentro de `Matriz-Oferta/`):
+   - **No se conoce la regla que determina el prefijo** (`T1` vs `T4`
+     vs `T5`) — ni siquiera el equipo de preventa la conoce; puede venir
+     de Bitrix24 (categoría/pipeline) u otro sistema. No inventes una
+     regla.
+   - Revisá el Excel maestro (o las carpetas del cliente) para ver qué
+     prefijo se usó más recientemente para ese cliente (o en general si
+     es cliente nuevo) y proponé ese prefijo + el siguiente consecutivo
+     de 7 dígitos disponible para el año actual.
+   - Mostrale la propuesta completa al asesor y **esperá que la
+     confirme o la corrija** — nunca lo uses para nombrar un archivo sin
+     esa confirmación explícita.
 
-- ¿"Cotización #N" (numeración de carpeta) lo asigna el asesor a mano
-  mirando la última carpeta del cliente? ¿Este skill debe proponer el
-  siguiente número automáticamente listando las carpetas existentes?
-- ¿Qué determina si un cambio es "menor" (nueva versión de archivo,
-  misma carpeta) vs "grande" (copia nueva)? ¿Lo decide siempre el
-  asesor a mano, o hay alguna señal que se pueda preguntar?
-- La carpeta de año bajo cada cliente no sigue un nombre fijo (a veces
-  `<Cliente> -AAAA`, a veces `Cotizaciones AAAA`, a veces no existe) —
-  ¿este skill debe detectar el patrón existente del cliente, o siempre
-  hay que preguntar dónde crear la carpeta nueva?
-- ¿Qué archivos necesita crear/mover el skill exactamente en cada
-  subcarpeta (`Cotizaciones/`, `Fichas Técnicas/`, `Matriz-Oferta/`,
-  `Visita técnica/`) al iniciar una cotización nueva? ¿Alguna plantilla
-  vacía que copiar, o el asesor las va llenando manualmente después?
-- El número de oferta real (`T{prefijo}-...`) que termina en el nombre
-  del PDF final — ¿quién/cómo lo asigna? ¿Es un dato que este skill solo
-  usa para **nombrar** el archivo final una vez que el asesor lo tiene,
-  o necesita generarlo también?
+## Caso 2: nueva versión de una cotización existente
+
+1. **Preguntá siempre** si el cambio es "menor" o "grande" — nunca lo
+   infieras. No hay regla fija hoy, es criterio del asesor.
+2. **Cambio menor:** dentro de la misma carpeta `Matriz-Oferta/`, se
+   agrega un archivo nuevo (PDF y/o `.xlsx`) con sufijo de versión. El
+   archivo anterior **se conserva**, nunca se borra ni se sobrescribe.
+   Usá un formato de sufijo consistente (` V2`, ` V3`...) — hoy en la
+   carpeta real es inconsistente (`v2`, `(V3)`, `// v3`), pero de acá en
+   adelante usá siempre el mismo formato para lo que genere este skill.
+3. **Cambio grande:** se crea una copia nueva — seguí el flujo completo
+   del "Caso 1" (nueva carpeta "Cotización #N+1...", nuevo número de
+   oferta propuesto) dentro del mismo cliente/año.
+
+## Checklist final
+
+Después de cualquier acción, mostrá un resumen claro de qué se creó,
+dónde, y qué números se propusieron (aclarando cuáles todavía necesitan
+confirmación del asesor).
 
 references/ está vacía por ahora — ahí va cualquier catálogo, tabla de
 precios o plantilla pesada una vez que exista una versión sanitizada

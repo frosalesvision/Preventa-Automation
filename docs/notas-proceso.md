@@ -47,9 +47,13 @@ exacto. Revisando el Excel maestro real y las carpetas compartidas hay
    T4 y T5 se reparten entre MUCHOS clientes distintos (no es por
    cliente) y el consecutivo se reinicia varias veces en el año — no es
    tampoco un contador global único. Qué determina T1 vs T4 vs T5
-   **todavía no está claro** (¿tipo de servicio? ¿algo más? — pendiente
-   de confirmar con el usuario). Este es el número que **ancla el
-   proyecto en Operaciones**, no el "Cotización #N" de la carpeta.
+   **se confirmó que nadie lo sabe** — se le preguntó directamente al
+   equipo de preventa y "no sabían que así era el standard, ellos se
+   adaptan al mismo pero no tenían idea". Hipótesis sin confirmar: podría
+   venir de Bitrix24 (categoría/pipeline asignada al crear el deal) —
+   revisar esto cuando `sync-bitrix` tenga credenciales. Este es el
+   número que **ancla el proyecto en Operaciones**, no el "Cotización
+   #N" de la carpeta.
 - El versionado (ver abajo) se aplica sobre el número de oferta real
   (T-xxx), agregando un sufijo — nunca sobre el "Cotización #N".
 
@@ -168,13 +172,35 @@ catálogo parcial en `references/`.
   un placeholder y `plugin-preventa/.mcp.json` tiene la config comentada,
   lista para activarse cuando llegue la credencial.
 
+## Decisiones de diseño de `armar-cotizacion` (confirmadas 2026-08-24)
+
+- **Número de "Cotización #N":** el skill lo propone (lista carpetas
+  existentes del cliente y sugiere N+1); el asesor confirma antes de
+  crear.
+- **Cambio menor vs. grande:** el skill **siempre pregunta**, nunca
+  infiere — no hay regla fija hoy.
+- **Carpeta de año:** si el cliente ya tiene un patrón (`<Cliente>
+  -AAAA` o `Cotizaciones AAAA`), seguirlo. Si el cliente es
+  **completamente nuevo**, usar `Cotizaciones AAAA` como convención
+  unificada de acá en adelante.
+- **Qué crear al iniciar una cotización:** solo las 5 subcarpetas
+  vacías — nunca copiar una plantilla de Excel adentro.
+- **Número de oferta real (T-prefijo):** el skill sí lo genera/propone
+  (revisando el prefijo más reciente usado por el cliente o en general),
+  pero **siempre con confirmación del asesor** — la regla del prefijo es
+  desconocida incluso para el equipo, así que nunca se asume en
+  silencio. Ver detalle completo en "Decisión (2026-08-24...)" arriba.
+
+Detalle completo de la lógica en
+[`armar-cotizacion/SKILL.md`](../plugin-preventa/skills/armar-cotizacion/SKILL.md).
+
 ## Alcance de fase 1 (lo que SÍ se construye ahora)
 
 - `verificar-entorno`: chequeo de accesos/conexiones disponibles.
 - `armar-cotizacion`: **organización de archivos y carpetas** de una
   cotización (crear/versionar la carpeta "Cotización #N-AAAA", ubicar
-  archivos en la subcarpeta correcta) — NO toca el contenido de la
-  matriz de costos (ver sección de arriba).
+  archivos en la subcarpeta correcta, proponer numeración) — NO toca el
+  contenido de la matriz de costos (ver sección de arriba).
 - `seguimiento-correo`: redacción (no envío) de borradores de respuesta
   a clientes según etapa de la cotización.
 - `sync-bitrix`: placeholder hasta tener credenciales de Bitrix24.
