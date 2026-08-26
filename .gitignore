@@ -15,6 +15,10 @@ recursos-originales/
 *.xls
 *.csv
 
+# Excepción puntual: machote oficial verificado en blanco (sin datos
+# de ningún cliente real, ver docs/notas-proceso.md 2026-08-26)
+!/plugin-preventa/skills/armar-cotizacion/references/Machote Matriz y oferta.xlsx
+
 # Exports de cotizaciones (PDF final con datos de cliente)
 *.pdf
 

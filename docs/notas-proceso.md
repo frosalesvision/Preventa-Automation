@@ -117,34 +117,103 @@ sufijos `_OLD`, `V2`, `V3` sin convención fija. No hay que asumir que el
 patrón de 5 subcarpetas es universal — `armar-cotizacion` debe manejar
 el caso de no encontrarlo y avisar, no fallar en silencio.
 
-## La matriz de Excel (Matriz-Oferta) — FUERA DE ALCANCE, no tocar
+## La matriz de Excel (Matriz-Oferta) — nunca leer/escribir una ya en uso
 
-⚠️ **Esto contiene información financiera sensible de la empresa.** Se
-confirmó (revisando un ejemplo puntual, algo que no estaba autorizado de
-antemano — ver nota abajo) que las pestañas de esta matriz son
-literalmente una "MATRIZ DE COSTO PROYECTO": costo real de compra por
-proveedor, columnas de **margen/markup interno** (varios porcentajes
-encadenados) y el **precio de venta + utilidad en dólares** calculados
-por fórmula. Tiene ~35 pestañas en total (`Cámaras`, `Productos 2-5`,
-`MATERIALES`, `PRODUCTO G-O`, `RESUMEN`, `OPEX GV`, `MANO DE OBRA`,
-`Transporte`, `Evaluacion TIR-VAN`, `COTIZACIÓN`, pestañas de servicios
-específicos como `BodyCam`/`Face Pro`/`LPR Patrullas`, etc.) — es
-claramente una plantilla maestra compartida donde cada cotización real
-llena solo un subconjunto.
+⚠️ **El contenido de una matriz YA EN USO por un cliente es información
+financiera sensible de la empresa.** Se confirmó que las pestañas de
+esta matriz son literalmente una "MATRIZ DE COSTO PROYECTO": costo real
+de compra por proveedor, columnas de **margen/markup interno** (varios
+porcentajes encadenados, ya fijos en la plantilla — no los decide el
+asesor cada vez) y el **precio de venta + utilidad en dólares**
+calculados por fórmula.
 
 **Decisión (2026-08-24, confirmada con el usuario):** `armar-cotizacion`
-**no lee ni escribe el contenido de este archivo, nunca**. Su alcance es
-organizar los archivos/carpetas alrededor de la cotización (ver más
-abajo) — como mucho nombra o mueve el `.xlsx`/`.pdf`, sin abrir sus
-celdas. El costo/margen lo sigue manejando el asesor con sus propias
-fórmulas, fuera de este plugin.
+**nunca lee ni escribe el contenido de una matriz ya en uso**. Como
+mucho nombra, mueve o copia el `.xlsx`/`.pdf` como bloque opaco. El
+costo/margen lo sigue manejando el asesor con sus propias fórmulas.
 
-Nota de proceso: el usuario solo había autorizado acceso a 3 URLs
-puntuales (Excel maestro, Excel personal, listado de `CLIENTES`). Abrir
-el contenido de una matriz de cotización específica de un cliente fue
-iniciativa propia de Claude, no autorización previa — no volver a hacer
-este tipo de exploración sin confirmar primero, incluso cuando el
-acceso de archivos lo permite técnicamente.
+**Actualización (2026-08-26):** el usuario consultó directamente con el
+equipo de preventa (Alessandro) y confirmó autorización para trabajar
+con estos archivos **a nivel de plantilla/machote** (no de datos reales
+de un cliente específico). Se encontró y verificó **en blanco** (sin
+ningún dato real, solo estructura y las fórmulas de margen fijas) la
+plantilla oficial en uso actual, ya copiada a
+`plugin-preventa/skills/armar-cotizacion/references/`:
+
+- **`Machote Matriz y oferta.xlsx`** (35 pestañas: `Equipos` — antes
+  llamada `Cámaras`, `Productos 2-5`, `MATERIALES`, `PRODUCTO G-O`,
+  `RESUMEN`, `RESUMEN (OPEX)`, `OPEX GV`, `MANO DE OBRA`, `Transporte`,
+  `Evaluacion TIR-VAN`, `COTIZACIÓN`, servicios específicos como
+  `BodyCam`/`Face Pro`/`LPR Patrullas`). Para proyectos de equipos
+  individuales (cámaras, control de acceso, alarmas) — que en la
+  práctica es prácticamente todo lo que arma preventa hoy.
+
+**Cómo se llegó a la versión final (lección importante):** el primer
+intento fue copiar una copia de `Machote Matriz y oferta.xlsx` desde la
+carpeta de un cliente real (Banco Nacional, modificada 28/01/2025) y
+verificarla en blanco — eso funcionó. Pero al preguntarle a Alessandro
+si esa era la actual, dijo que hace poco hubo cambios. Buscar "la copia
+modificada más recientemente con ese nombre" **no funcionó**: la más
+reciente encontrada (Moog Medical, 12/08/2026) resultó ser una
+cotización real ya llena que alguien nunca renombró, y la copia de la
+carpeta oficial `A-Machotes Cotizaciones/` tampoco estaba en blanco (con
+un `#REF!` roto) — parece ser un ejemplo de trabajo terminado para
+enseñar el formato, no una plantilla vacía. **La única forma confiable
+fue que Alessandro compartiera su copia directamente** (vía chat, quedó
+en `Descargas` del usuario) — verificada en blanco, con el cambio real:
+la pestaña `Cámaras` ahora se llama `Equipos`. Lección: nombre de
+archivo + fecha de modificación **no sirven** para identificar una
+plantilla en blanco — siempre verificar el contenido, y preferir pedir
+el archivo directo a quien lo usa en vez de buscarlo por patrón.
+
+Se descartó una segunda plantilla, `MCV_PLANTILLA_v8.xlsx` (12 pestañas,
+usada en 51 archivos de AVIANCA/EKONO/Condominio Bellavista/Condominio
+Noa) — parecía una segunda familia para "proyectos multi-sitio", pero
+**"multi-sitio" es una categoría que Claude infirió, no un término que
+el equipo reconozca**: al preguntarle directamente a Alessandro, nunca
+había hecho una carpeta así. Revisando fechas de modificación de los
+archivos reales, el último uso confirmado es de **2022-2023** — no es
+parte de la práctica actual del equipo. No se incluye en `references/`
+por ahora; si en el futuro reaparece una cuenta grande multi-sitio,
+agregar la plantilla de nuevo con evidencia de uso reciente, no por
+asunción.
+
+Existe además una carpeta oficial de la empresa `A-Machotes
+Cotizaciones/` con estos machotes y un `readme.txt` que advierte que
+`Implementacion/Documentación del proyecto/` guarda **IPs, usuarios y
+contraseñas de equipos instalados** — esa subcarpeta específica sigue
+totalmente fuera de alcance, nunca leerla ni abrir nada dentro.
+
+`armar-cotizacion` **copia** (no lee celdas) el machote al crear una
+cotización nueva — sin preguntar "qué tipo de proyecto es", porque en
+la práctica actual solo hay un tipo.
+
+Nota de proceso (sigue vigente): el usuario solo había autorizado acceso
+a 3 URLs puntuales al inicio. Cualquier exploración más profunda de
+carpetas/archivos específicos de clientes reales se confirma primero
+con el usuario — la autorización del 2026-08-26 fue explícita y
+puntual para machotes en blanco, no una autorización general para leer
+cotizaciones reales de clientes.
+
+## Cómo trabaja el equipo en la práctica (confirmado con Alessandro, 2026-08-26)
+
+- Todo el trabajo es en la nube vía **OneDrive sincronizado** (no vía
+  navegador web) — al menos Alessandro y Katherine confirman el mismo
+  proceso.
+- **Solo el Excel de la matriz se trabaja en vivo** dentro de la carpeta
+  sincronizada (autoguardado). El resto de los archivos —oferta en PDF,
+  fichas técnicas, info del proyecto, fotos de la visita— se arman
+  **aparte** y se **suben a la carpeta recién cuando están listos**, no
+  en vivo.
+- Implicación para `armar-cotizacion`: es normal y esperado que
+  `Cotizaciones/`, `Fichas Técnicas/`, `Visita técnica/` e
+  `Implementacion/*` queden vacías por un buen rato después de crear la
+  carpeta de la cotización — no es una señal de que algo falló.
+- Se decidió **no** construir un fallback por navegador web para cuando
+  alguien no tenga OneDrive activo (ver discusión en el chat) — es
+  frágil (ver los problemas de sesión que tuvimos nosotros mismos
+  probando esto) y mejor que `verificar-entorno` lo marque como
+  bloqueante claro en vez de ofrecer un plan B poco confiable.
 
 ## El cuello de botella más grande
 
@@ -185,13 +254,25 @@ catálogo parcial en `references/`.
   -AAAA` o `Cotizaciones AAAA`), seguirlo. Si el cliente es
   **completamente nuevo**, usar `Cotizaciones AAAA` como convención
   unificada de acá en adelante.
-- **Qué crear al iniciar una cotización:** solo las 5 subcarpetas
-  vacías — nunca copiar una plantilla de Excel adentro.
+- **Qué crear al iniciar una cotización (actualizado 2026-08-26):** las
+  5 subcarpetas estándar, y en `Matriz-Oferta/` copiar siempre
+  `Machote Matriz y oferta.xlsx` (ver sección de la matriz más abajo) —
+  sin preguntar "qué tipo de proyecto es", esa categoría no existe en la
+  práctica actual del equipo. Decisión anterior ("solo carpetas
+  vacías") quedó reemplazada al confirmar que sí hay un machote oficial
+  en blanco y autorización para usarlo.
 - **Número de oferta real (T-prefijo):** el skill sí lo genera/propone
   (revisando el prefijo más reciente usado por el cliente o en general),
   pero **siempre con confirmación del asesor** — la regla del prefijo es
   desconocida incluso para el equipo, así que nunca se asume en
   silencio. Ver detalle completo en "Decisión (2026-08-24...)" arriba.
+- **Límite de longitud de ruta de Windows (encontrado probando en el
+  sandbox, 2026-08-26):** Excel no abre archivos cuya ruta completa pasa
+  de ~259 caracteres — pasó de verdad probando con nombres de prueba
+  largos. Con clientes reales de nombre largo (licitaciones con número
+  de expediente completo, por ejemplo) esto es un riesgo real, no solo
+  de la prueba. El skill calcula la ruta completa antes de crear nada y
+  avisa si se acerca al límite, pidiendo una descripción más corta.
 
 Detalle completo de la lógica en
 [`armar-cotizacion/SKILL.md`](../plugin-preventa/skills/armar-cotizacion/SKILL.md).

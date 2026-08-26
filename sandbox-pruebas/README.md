@@ -22,6 +22,22 @@ cotizacion` sin tocar la carpeta compartida real de la empresa.
 - `Cliente Nuevo Sin Cotizaciones/` — cliente sin ninguna cotización
   todavía. El skill debería usar la convención `Cotizaciones AAAA` y
   proponer la #1.
+- `Sandbox-Fabian/` — cliente de prueba end-to-end (probado el
+  2026-08-26), con `Cotización #1-2026 primer proyecto/` ya existente
+  y `Cotización #2-2026 camaras/` creada durante la prueba (con el
+  machote copiado adentro de `Matriz-Oferta/`). Junto con la fila falsa
+  en `plugin-preventa/recursos-originales/Control de cotizaciones 2026
+  - CON FILA SANDBOX FABIAN.csv` (copia del Excel maestro real +1 fila
+  inventada, protegida por `.gitignore`), permite probar el flujo
+  completo de 1 a 6, incluyendo el número de oferta real.
+
+⚠️ **Usá nombres cortos para pruebas.** Se encontró en la práctica que
+Excel no abre archivos cuya ruta completa pasa de ~259 caracteres
+(límite de Windows). Como este repo ya vive en una ruta profunda del
+Desktop, nombres de prueba muy descriptivos (como agregar "PRUEBA" en
+cada nivel) pueden hacer que la ruta se pase del límite. `Sandbox-
+Fabian` (sin espacios ni repetir "PRUEBA" en cada carpeta) es el nombre
+corto a reutilizar de acá en adelante.
 
 ## Cómo probar
 
