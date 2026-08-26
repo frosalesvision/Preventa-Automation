@@ -215,23 +215,67 @@ cotizaciones reales de clientes.
   probando esto) y mejor que `verificar-entorno` lo marque como
   bloqueante claro en vez de ofrecer un plan B poco confiable.
 
-## El cuello de botella más grande
+## El cuello de botella más grande (ampliado 2026-08-26, confirmado por ventas)
 
-Para cada cámara hay que **buscar a mano el accesorio de montaje
-correcto** según la marca del equipo y el tipo de instalación
-(pared/techo). Si el cliente cambia de marca, hay que rehacer esa
-búsqueda línea por línea en toda la cotización.
+La descripción original ("buscar a mano el accesorio de montaje según
+marca de cámara") era **una versión chica del problema real**. Ventas
+lo confirmó directamente: a partir de una especificación técnica dada
+por el cliente o una licitación, hay que **buscar marca y modelo de
+CUALQUIER equipo** (no solo accesorios de cámara — control de acceso,
+alarmas, NVR, lo que sea) que la cumpla al 100%. Hoy lo hacen "a pie"
+con ayuda de IA genérica, sin certeza — y lo pidieron explícitamente:
+*"nos serviría demasiado tener una IA que busque con más certeza para
+tener un norte de cuáles equipos podrían ser."*
 
-**Esto NO se automatiza en esta fase 1.** Queda registrado como trabajo
-futuro explícito — no inventar una solución parcial para esto todavía.
+Casos donde el cliente indica marca/modelo directamente (ej. UCR) son
+la excepción, no la regla — casi nadie lo hace así.
+
+**Esto sigue sin automatizarse en fase 1**, pero ya se registró como
+skill futuro planeado: `buscar-equipo` (placeholder en
+`plugin-preventa/skills/buscar-equipo/`) — no inventar la lógica
+todavía, falta definir alcance con el usuario primero, igual que se
+hizo con `armar-cotizacion`.
+
+## Cómo llega una solicitud de licitación (confirmado con ejemplo real, 2026-08-26)
+
+Por correo o Bitrix (según ventas, "llega a ser lo mismo"), a preventa
+le llega para una licitación de gobierno: **cliente + número de
+licitación**, **fechas clave** (plazo de aclaraciones, plazo de entrega
+de oferta), y **documentos** con requisitos de admisibilidad +
+especificaciones técnicas con cantidades. Preventa se enfoca en la
+parte de **equipos** (especificaciones, cantidades, mano de obra) — el
+resto (garantías, multas, cláusulas legales del cartel) no es su
+trabajo. Para clientes corporativos es el mismo patrón, a veces con
+visita técnica para valorar equipo y mano de obra.
+
+⚠️ **Regla sobre documentos de terceros (confirmada 2026-08-26):** a
+veces estos documentos (ej. un "estudio de mercado" municipal) incluyen
+como anexo las **propuestas completas de la competencia** — vistas en
+un caso real, incluso con aviso explícito de confidencialidad propio
+del competidor. Estos documentos se usan **únicamente para entender el
+proceso/contexto**, nunca se copia, cita ni incorpora nada de su
+contenido específico (precios, specs, personal) a ningún archivo de
+este plugin ni a `references/`.
 
 ## Precios de proveedores
 
 Muchos precios no están en un catálogo centralizado: se consultan por
-correo, WhatsApp o llamada. Esto significa que `armar-cotizacion` no
-puede asumir que todos los precios están disponibles localmente; en
-fase 1 probablemente dependa de que el usuario los tenga a mano o de un
-catálogo parcial en `references/`.
+correo, WhatsApp o llamada. Existen sí algunas fuentes semi-
+centralizadas (en revisión, 2026-08-26):
+
+- `BD Proveedores - Clientes.xltm` — en
+  `GRUPO VISION CR/COMERCIAL 2024/PREVENTA 2026/Base datos de
+  proveedores/` (biblioteca de SharePoint distinta a `CLIENTES`,
+  requiere acceso directo de OneDrive aparte).
+- Carpeta `PRECIOS EQUIPOS Y ACCESORIOS` en el OneDrive personal de
+  Alessandro (cuenta `alazzarotto_grupovision_org`) — según él, "lo más
+  actualizado".
+
+Esto significa que `armar-cotizacion` no puede asumir que todos los
+precios están disponibles localmente; en fase 1 probablemente dependa
+de que el usuario los tenga a mano o de un catálogo parcial en
+`references/`. El futuro skill `buscar-equipo` sí dependería
+directamente de estas fuentes una vez verificadas.
 
 ## Integración con Bitrix24
 
@@ -287,6 +331,11 @@ Detalle completo de la lógica en
 - `seguimiento-correo`: redacción (no envío) de borradores de respuesta
   a clientes según etapa de la cotización.
 - `sync-bitrix`: placeholder hasta tener credenciales de Bitrix24.
+
+**Fuera de fase 1, ya registrado como planeado:** `buscar-equipo`
+(búsqueda de marca/modelo por especificación técnica) — ver "El cuello
+de botella más grande" arriba. Es trabajo futuro explícito, no se
+construye todavía.
 
 ## Fuente de verdad para `armar-cotizacion`
 

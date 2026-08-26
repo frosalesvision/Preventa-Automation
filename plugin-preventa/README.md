@@ -8,9 +8,10 @@ preventa de Grupo Visión (cotizaciones de sistemas de seguridad/cámaras).
 | Skill | Qué hace | Estado |
 |---|---|---|
 | `verificar-entorno` | Revisa qué accesos están listos (carpeta compartida, Excels de referencia, config de Bitrix24) y da un checklist de qué falta. | Funcional |
-| `armar-cotizacion` | Genera/actualiza cotizaciones respetando formato, numeración por cliente (T00XX) y reglas de versionado. | Pendiente — necesita ver Excels reales |
+| `armar-cotizacion` | Organiza archivos/carpetas de una cotización (numeración de carpeta, número de oferta, versionado), copia el machote oficial — nunca toca el contenido de la matriz de costos. | Funcional, probado en `sandbox-pruebas/` |
 | `seguimiento-correo` | Redacta (nunca envía) un borrador de correo de seguimiento a clientes según la etapa de la cotización. | Pendiente — placeholder sin conector de correo |
 | `sync-bitrix` | Actualiza la tarjeta en el Kanban de Bitrix24 al cerrar una cotización. | Pendiente — placeholder sin webhook de Bitrix |
+| `buscar-equipo` | Busca marca/modelo de equipo que cumpla una especificación técnica dada. | Planeado, no implementado (fase futura) |
 
 Ver [`docs/notas-proceso.md`](../docs/notas-proceso.md) (en la raíz del
 repo) para el contexto completo del proceso de negocio.
