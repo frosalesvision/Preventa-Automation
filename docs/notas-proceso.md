@@ -269,13 +269,76 @@ centralizadas (en revisión, 2026-08-26):
   requiere acceso directo de OneDrive aparte).
 - Carpeta `PRECIOS EQUIPOS Y ACCESORIOS` en el OneDrive personal de
   Alessandro (cuenta `alazzarotto_grupovision_org`) — según él, "lo más
-  actualizado".
+  actualizado". Se le agregó acceso directo el 2026-08-26 (en
+  sincronización); son PDFs sueltos por marca (`CATALOGOS DE INVID
+  ACTUALIZADOS`, `PRECIOS AXIS`, `Assa Abloy.pdf`, `Bodycams.pdf`), no
+  una base de datos consultable.
 
 Esto significa que `armar-cotizacion` no puede asumir que todos los
 precios están disponibles localmente; en fase 1 probablemente dependa
 de que el usuario los tenga a mano o de un catálogo parcial en
-`references/`. El futuro skill `buscar-equipo` sí dependería
-directamente de estas fuentes una vez verificadas.
+`references/`.
+
+### Decisión de arquitectura: catálogo unificado en `CLIENTES/00_IA_PREVENTAS/` (2026-08-26, ruta corregida dos veces)
+
+Ambas fuentes de arriba tienen el mismo problema que el Excel maestro
+al inicio del proyecto: viven en la carpeta **personal** de alguien, no
+en un lugar compartido de la empresa. Se decidió con el usuario:
+
+- Primer intento (2026-08-26/27): una carpeta nueva **`GV_IA_Automation/`,
+  hermana de `CLIENTES`** (mismo nivel en SharePoint, no adentro de
+  `CLIENTES`). El usuario la creó y agregó su propio acceso directo de
+  OneDrive, y se armó ahí la estructura interna
+  (`Preventas/Catalogo/` + `Catalogos Proveedor/` + el Excel).
+  - ❌ Descartado (2026-08-28): esa carpeta nunca quedó realmente
+    sincronizada como biblioteca compartida — se creó como carpeta
+    local suelta en el equipo del usuario (sin el atributo de
+    sincronización de OneDrive que sí tienen las carpetas reales de
+    SharePoint, confirmado comparando atributos de archivo contra
+    `CLIENTES`), y el usuario confirmó que no logró integrarla a
+    OneDrive. Nunca llegó a ser visible para los compañeros.
+- Solución final (2026-08-28): la misma estructura, pero **dentro de
+  `CLIENTES`**, en una carpeta nueva **`00_IA_PREVENTAS/`** (al mismo
+  nivel que las carpetas de cada cliente). Dentro:
+  `CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/`. Se confirmó que esta
+  vez sí sincronizó de verdad (mismo atributo de OneDrive que
+  `CLIENTES`, a diferencia del intento anterior).
+- Dos skills nuevos, separados:
+  - [`actualizar-catalogo`](../plugin-preventa/skills/actualizar-catalogo/SKILL.md)
+    — **lógica ya escrita (2026-08-26), estructura de carpetas y Excel
+    recreados y confirmados dentro de `CLIENTES` (2026-08-28), todavía
+    sin probar con datos reales.**
+    Mantiene
+    el catálogo: el equipo agrega/reemplaza documentos de proveedores en
+    `CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/Catalogos Proveedor/<Proveedor>/`
+    (o pega los datos directo en el chat, sin documento), el skill los
+    lee y propone filas nuevas o actualizaciones (nunca escribe sin
+    confirmación). Reglas confirmadas con el usuario:
+    - Un solo Excel para todos los proveedores (`Catalogo de productos
+      por proveedor.xlsx`), con el nombre del proveedor como columna.
+    - No hay duplicados: una fila es "la misma" si coincide
+      Modelo/SKU (o Nombre) + Proveedor. El mismo producto de dos
+      proveedores distintos son dos filas válidas.
+    - Precios se **sobrescriben** (no hay pestaña de historial propia
+      — SharePoint/OneDrive ya versiona el archivo completo
+      automáticamente, alcanza para ver un precio anterior si hace
+      falta).
+    - Columnas: equipo, categoría/tipo, marca, modelo/SKU, descripción,
+      especificaciones técnicas, **unidad de venta** (unidad vs. metro/
+      rollo para productos como cable que se venden por medida),
+      proveedor, precio USD, precio CRC, precio especial GV (USD y
+      CRC), fecha de última actualización, archivo de origen, vigencia.
+    - Nadie está encargado de mantenerlo activamente (preventa son solo
+      2 personas) — la responsabilidad de notar algo desactualizado
+      recae en quien usa `buscar-equipo`, mirando la fecha de última
+      actualización.
+  - [`buscar-equipo`](../plugin-preventa/skills/buscar-equipo/SKILL.md)
+    — consulta ese catálogo para encontrar marca/modelo que cumpla una
+    especificación. Sigue sin diseñarse — depende de que
+    `actualizar-catalogo` tenga datos reales cargados primero.
+- Falta antes de poder llamar "funcional" a `actualizar-catalogo`:
+  probar con al menos un PDF real de un proveedor (o datos pegados en
+  chat) en un sandbox, mismo patrón que `armar-cotizacion`.
 
 ## Integración con Bitrix24
 
@@ -332,10 +395,15 @@ Detalle completo de la lógica en
   a clientes según etapa de la cotización.
 - `sync-bitrix`: placeholder hasta tener credenciales de Bitrix24.
 
-**Fuera de fase 1, ya registrado como planeado:** `buscar-equipo`
-(búsqueda de marca/modelo por especificación técnica) — ver "El cuello
-de botella más grande" arriba. Es trabajo futuro explícito, no se
-construye todavía.
+**Fuera de fase 1, ya registrado como planeado (ninguno se construye
+todavía):**
+- `actualizar-catalogo` — mantiene el catálogo unificado de
+  proveedores en `CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/`.
+- `buscar-equipo` — busca marca/modelo por especificación técnica,
+  depende de que `actualizar-catalogo` exista primero.
+
+Ver "Decisión de arquitectura: catálogo unificado" arriba para el
+detalle completo.
 
 ## Fuente de verdad para `armar-cotizacion`
 

@@ -22,8 +22,21 @@ genérica, sin certeza. Ventas lo pidió explícitamente: *"nos serviría
 demasiado tener una IA que busque con más certeza para tener un norte
 de cuáles equipos podrían ser."*
 
+## Depende de `actualizar-catalogo` (decidido 2026-08-26)
+
+Este skill **lee**, no mantiene, el catálogo de proveedores. La
+carpeta/skill que lo escribe y lo mantiene al día es
+[`actualizar-catalogo`](../actualizar-catalogo/SKILL.md) — el catálogo
+vive en `CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/` (carpeta dentro
+de `CLIENTES`). No tiene sentido construir
+`buscar-equipo` antes de que exista ese catálogo estructurado; hoy la
+info de proveedores solo existe como PDFs sueltos en carpetas
+personales, no hay nada consultable todavía.
+
 ## Lo que hace falta antes de poder implementarlo
 
+- Que `actualizar-catalogo` exista y el catálogo tenga datos reales
+  cargados (ver ese skill para el diseño propuesto de columnas).
 - Acceso confirmado y revisado a los catálogos/precios reales de
   proveedores de Grupo Visión (`BD Proveedores - Clientes.xltm` en
   `COMERCIAL 2024/PREVENTA 2026`, y la carpeta `PRECIOS EQUIPOS Y
