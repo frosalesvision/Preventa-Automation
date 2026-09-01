@@ -39,7 +39,7 @@ cada nivel) pueden hacer que la ruta se pase del límite. `Sandbox-
 Fabian` (sin espacios ni repetir "PRUEBA" en cada carpeta) es el nombre
 corto a reutilizar de acá en adelante.
 
-## Cómo probar
+## Cómo probar `armar-cotizacion`
 
 1. Instalá el plugin desde esta misma carpeta del repo (marketplace
    local) y probá el skill pidiéndole que arme una cotización nueva
@@ -54,3 +54,41 @@ corto a reutilizar de acá en adelante.
    ```
    Esto borra cualquier carpeta nueva que el skill haya creado durante
    la prueba y vuelve a los 4 casos originales.
+
+## Cómo probar `actualizar-catalogo`
+
+Réplica en `sandbox-pruebas/CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/`
+de la carpeta real (`CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/` en
+SharePoint), con:
+- `Catalogo de productos por proveedor.xlsx` — igual al real pero
+  **solo con encabezados, sin ninguna fila de datos**.
+- `Catalogos Proveedor/ProveedorPrueba/Lista de precios (ejemplo,
+  datos falsos).txt` — un documento de ejemplo con 3 productos
+  inventados, para probar el flujo de "hay un documento en la
+  carpeta."
+
+Dos formas de probar (el skill soporta ambas):
+
+1. **Con documento**: pedile que actualice el catálogo a partir de
+   `sandbox-pruebas/CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/Catalogos
+   Proveedor/ProveedorPrueba/Lista de precios (ejemplo, datos
+   falsos).txt`, dejando claro que es sobre el catálogo de **sandbox**,
+   no el real.
+2. **Sin documento**: pegale directo en el chat un producto o lista
+   inventada (ej. "agregá esta cámara de prueba: marca X, modelo
+   TEST-123, USD 50, unidad") y decile que lo cargue en el catálogo de
+   sandbox.
+
+Fijate que:
+- Muestre un resumen claro (tipo tabla) de lo que va a agregar/cambiar
+  **antes** de tocar el Excel, y espere confirmación — igual que
+  `armar-cotizacion`.
+- Complete "Archivo de origen" (nombre del archivo, o "Dato dado por
+  \<vos\> en chat, DD/MM/AAAA" si fue pegado) y "Fecha de última
+  actualización" en cada fila.
+- Si volvés a pasarle el mismo producto (mismo Modelo/SKU + Proveedor),
+  lo detecte como **actualización**, no como fila duplicada.
+- Al final, después de probar, dejá el Excel de sandbox otra vez solo
+  con encabezados (podés simplemente volver a copiarlo desde la carpeta
+  real, o usar `git checkout -- sandbox-pruebas/` si no lo modificaste
+  fuera del repo).

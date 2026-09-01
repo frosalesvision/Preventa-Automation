@@ -11,7 +11,7 @@ preventa de Grupo Visión (cotizaciones de sistemas de seguridad/cámaras).
 | `armar-cotizacion` | Organiza archivos/carpetas de una cotización (numeración de carpeta, número de oferta, versionado), copia el machote oficial — nunca toca el contenido de la matriz de costos. | Funcional, probado en `sandbox-pruebas/` |
 | `seguimiento-correo` | Redacta (nunca envía) un borrador de correo de seguimiento a clientes según la etapa de la cotización. | Pendiente — placeholder sin conector de correo |
 | `sync-bitrix` | Actualiza la tarjeta en el Kanban de Bitrix24 al cerrar una cotización. | Pendiente — placeholder sin webhook de Bitrix |
-| `actualizar-catalogo` | Mantiene el catálogo unificado de proveedores en `CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/` a partir de los PDFs que el equipo agrega. | Lógica y estructura de carpetas/Excel creadas, sin probar con datos reales todavía |
+| `actualizar-catalogo` | Mantiene el catálogo unificado de proveedores en `CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/` a partir de los PDFs que el equipo agrega. | Catálogo real cargado con 2,358 productos (Hanwha + InVid/Milesight/Paramont/Vision/Secure); falta probar actualización de filas existentes y datos pegados en chat |
 | `buscar-equipo` | Busca marca/modelo de equipo que cumpla una especificación técnica dada, consultando el catálogo de `actualizar-catalogo`. | Planeado, no diseñado (depende de `actualizar-catalogo`) |
 
 Ver [`docs/notas-proceso.md`](../docs/notas-proceso.md) (en la raíz del

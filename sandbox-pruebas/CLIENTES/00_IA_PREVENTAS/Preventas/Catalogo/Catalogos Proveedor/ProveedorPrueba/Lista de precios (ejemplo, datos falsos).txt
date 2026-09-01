@@ -1,0 +1,15 @@
+Lista de precios — ProveedorPrueba (DATOS FALSOS, solo para probar el skill actualizar-catalogo)
+
+1. Cámara domo IP 4MP, modelo PP-DOME-4MP
+   - Protección IP66, lente fijo 2.8mm, WDR
+   - Precio: USD 45.00 (unidad)
+
+2. Cámara bullet IP 8MP, modelo PP-BULLET-8MP
+   - Protección IP67, lente varifocal 2.8-12mm, IR 40m
+   - Precio: USD 78.50 (unidad)
+
+3. Cable UTP Cat6 exterior, modelo PP-CAT6-EXT
+   - Vendido por rollo de 305m
+   - Precio: USD 120.00 (rollo)
+
+Vigencia de esta lista: 15 días a partir de la fecha de emisión.
