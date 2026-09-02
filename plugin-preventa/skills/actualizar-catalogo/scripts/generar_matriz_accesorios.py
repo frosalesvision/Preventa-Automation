@@ -34,7 +34,7 @@ TRIGGER_PATTERNS = [
     re.compile(r'[Ff]or [Tt]he\s+([^.\n]+?)(?:\s--\s|\.\s|\.$|\n|$)'),
     # "for" suelto sin parentesis ni "the" (ej. "Ceiling Mount for PAR-ALLDRXIRBD",
     # o en mayusculas "JUNCTION BOX FOR SEC-P8DRXIR28NH")
-    re.compile(r'\b[Ff][Oo][Rr]\s+([A-Za-z][A-Za-z0-9\-/, &]*?)(?:\s--\s|\.\s|\.$|\n|$)'),
+    re.compile(r'\b[Ff][Oo][Rr]\s+([A-Za-z][A-Za-z0-9\-/:, &]*?)(?:\s--\s|\.\s|\.$|\n|$)'),
     re.compile(r'[Ss]upported cameras?\s*\(([^)]+)\)'),
     re.compile(r'[Uu]sed with\s+(.+?)(?:\s--\s|\.\s|\.$|\n|$)'),
     re.compile(r'[Cc]an be used with\s+(.+?)(?:\s--\s|\.\s|\.$|\n|$)'),

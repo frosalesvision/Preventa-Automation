@@ -217,20 +217,39 @@ inventar, mejor no escribir nada a escribir algo probablemente al
 revés.
 
 **Sobre la fuente 3 (cotizaciones reales) — qué se intentó y qué
-funcionó (2026-09-01)**: el usuario autorizó explícitamente leer
-cotizaciones reales para este análisis (ver `docs/notas-proceso.md`,
+funcionó, y qué no (2026-09-01)**: el usuario autorizó explícitamente
+leer cotizaciones reales para este análisis (ver `docs/notas-proceso.md`,
 sección de la matriz de Excel) y detectar por cuenta propia cuáles
 tenían equipos InVid/Milesight — un escaneo ligero (solo nombres de
 archivo + texto compartido del `.xlsx`, sin leer celda por celda) sobre
-las ~287 carpetas de `CLIENTES` sí corrió esta vez (tardó ~10 min) y
-encontró 71 cotizaciones reales con equipos de esta familia. De ahí se
-revisaron a fondo las 15 con más densidad: **solo 1 (Municipalidad
-Alajuelita, proyecto "Ciudad Segura") tenía una estructura de hoja
-parseable automáticamente** (secciones "Cámaras"/"Accesorios" en celdas
-separadas, una hoja por tipo de cámara) — las otras 14 organizan sus
-hojas de forma distinta (consistente con lo ya documentado en
-`notas-proceso.md`: "cada quien lo hace distinto", no hay una
-convención única). De esa única cotización parseable salieron 10 pares
+las ~287 carpetas de `CLIENTES` corrió dos veces (tardó ~10-40 min según
+el momento) y encontró consistentemente 71 cotizaciones reales con
+equipos de esta familia. Se probaron **dos estrategias de extracción**:
+
+1. **Por estructura de hoja** (secciones "Cámaras"/"Accesorios" en
+   celdas separadas): de las 15 cotizaciones más densas, **solo 1**
+   (Municipalidad Alajuelita, proyecto "Ciudad Segura") tenía esa
+   estructura parseable automáticamente — las otras 14 organizan sus
+   hojas de forma distinta (consistente con `notas-proceso.md`: "cada
+   quien lo hace distinto", no hay convención única).
+2. **Por texto de línea, sin depender de estructura** (reusando la
+   misma extracción "compatible with X"/"for X" del catálogo, aplicada
+   directamente a la descripción de cada línea de las 71 cotizaciones):
+   corrida completa sobre las 71, con un bug real encontrado y corregido
+   en el camino (el patrón de "for X" cortaba la captura justo en el
+   ":", perdiendo la lista de SKU en frases tipo "for Paramont Series
+   Cameras: PAR-P3BIR, PAR-P4BIR..." — corregido, y de paso mejoró el
+   match dentro del propio catálogo). Aun así, **no aparecieron pares
+   nuevos más allá de los de Alajuelita**: se investigó un caso
+   prometedor (Reina Dragón, con "Junction Box for Paramont Series
+   Cameras: PAR-P3BIR, PAR-P4BIR, PAR-P8BIR...") y los SKU que menciona
+   **no existen tal cual en nuestro catálogo actual** — son nombres
+   cortos/abreviados del proveedor en una cotización más vieja, no los
+   SKU completos que usamos hoy. No es un problema de la lógica de
+   extracción, es un desajuste real de nomenclatura entre lo que
+   escribió el proveedor en ese momento y el catálogo actual.
+
+De la única cotización que sí funcionó (Alajuelita) salieron 10 pares
 verificados, con dos hallazgos genuinamente útiles: (a) para la PTZ
 `PAR-P8PTZXIR32NH-AI` y la bullet `PAR-P6BIRA2812-LC3`, el equipo usó
 brackets **Panasonic i-PRO** (marca que ni siquiera está en nuestro
@@ -241,10 +260,17 @@ mismas cámaras Paramont, aunque la ficha oficial de ese mount **no**
 lista modelos Paramont como compatibles — un caso real de
 "funciona en la práctica aunque no está documentado", marcado con nota
 de advertencia explícita para que se verifique el encaje físico antes
-de repetirlo. Si en el futuro se quiere ampliar esto a más de las 14
-cotizaciones restantes, hace falta adaptar el parser a cada formato de
-hoja distinto — no se hizo por ahora, retorno decreciente frente al
-esfuerzo.
+de repetirlo.
+
+**Conclusión (no reabrir sin una razón nueva):** con dos intentos
+completos (estructura de hoja, y texto de línea sin depender de
+estructura) sobre las 71 cotizaciones disponibles, el rendimiento de
+seguir mirando cotizaciones viejas es bajo — el cuello de botella real
+ya no es la lógica de extracción, es que muchas usan nomenclatura de
+SKU que quedó obsoleta. Si en el futuro Fabián tiene en mente un
+proyecto puntual reciente que sepa que usó InVid/Milesight con
+accesorios documentados, vale la pena revisarlo a mano — pero no seguir
+invirtiendo en automatizar esto contra el histórico completo.
 
 **Cuándo regenerar la pestaña:** cada vez que `actualizar-catalogo`
 agregue o reemplace un catálogo de proveedor grande, volvé a correr el
@@ -255,8 +281,8 @@ accesorio documentado" para productos nuevos que en realidad sí lo
 tienen escrito.
 
 **Cobertura real (medida 2026-09-01, sobre el catálogo de 2,358
-productos):** 783 pares cámara-accesorio, cubriendo 264 modelos de
-cámara distintos — 748 por SKU exacto (fuente 1), 25 por categoría
+productos):** 793 pares cámara-accesorio, cubriendo 264 modelos de
+cámara distintos — 749 por SKU exacto (fuente 1), 34 por categoría
 genérica (fuente 2), 10 de cotización real verificada a mano (fuente
 3). Por marca de cámara: Hanwha es ampliamente mayoritario; Paramont e
 InVid tienen cobertura chica pero real; Milesight, Vision y Secure
@@ -295,8 +321,12 @@ el accesorio aparecía como si fuera "la cámara") — corregido
 clasificando ambos lados de cada par por nombre antes de decidir cuál
 va en qué columna; (2) después se sumaron el match por categoría
 genérica y los pares verificados de una cotización real (ver arriba),
-subiendo la cobertura final a **783 pares, 264 cámaras**, con tres
-niveles de confianza distinguidos por la columna "Fuente".
+subiendo la cobertura final a **793 pares, 264 cámaras**, con tres
+niveles de confianza distinguidos por la columna "Fuente". Se investigó
+a fondo ampliar la fuente 3 a más cotizaciones (dos estrategias
+distintas sobre las 71 cotizaciones reales disponibles) sin encontrar
+pares nuevos aprovechables — ver "Sobre la fuente 3" arriba para el
+detalle de por qué, y no reabrir ese punto sin una razón nueva.
 
 **Todavía no probado en una conversación real** con el equipo de
 preventa (una búsqueda por especificación de punta a punta, con y sin

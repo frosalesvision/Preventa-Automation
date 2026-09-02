@@ -295,8 +295,8 @@ criterio que el resto del catálogo).
 
 Corrido sobre el catálogo real (2,358 productos, tras corregir un bug
 de direccionalidad — ver `buscar-equipo/SKILL.md`) y sumar dos fuentes
-más: **783 pares cámara-accesorio, 264 modelos de cámara cubiertos**
-(748 por SKU exacto, 25 por categoría genérica dentro del propio
+más: **793 pares cámara-accesorio, 264 modelos de cámara cubiertos**
+(749 por SKU exacto, 34 por categoría genérica dentro del propio
 catálogo, 10 verificados a mano en una cotización real). Se investigó a
 fondo por qué Milesight/Secure casi no tienen match por SKU exacto —
 incluyendo una búsqueda en internet de las fichas oficiales de
@@ -322,12 +322,25 @@ dar: para dos cámaras PTZ/bullet de Paramont, el equipo usó brackets de
 Paramont no tenía mount propio, y también usó un pole mount de
 **Hanwha** que oficialmente no lista esos modelos Paramont como
 compatibles — un caso real de "funciona en la práctica aunque no está
-documentado", marcado con advertencia explícita. Por eso `buscar-equipo`
-no solo dice "sin match" cuando no hay SKU exacto — muestra una lista
-buscable de los accesorios de esa marca para que el asesor encuentre el
-correcto por palabra clave. El diseño completo (las tres fuentes, sus
-niveles de confianza, y por qué no se automatizó la revisión de las 14
-cotizaciones restantes) quedó en
+documentado", marcado con advertencia explícita.
+
+Se intentó ampliar esto a las 14 cotizaciones restantes con una segunda
+estrategia (extraer "compatible with X"/"for X" de cualquier línea, sin
+depender de que la hoja tenga secciones separadas) sobre las 71
+cotizaciones encontradas — en el camino se corrigió un bug real (el
+patrón de "for X" cortaba la captura en el ":", perdiendo listas de SKU
+como "for Paramont Series: PAR-P3BIR, PAR-P4BIR..."), pero no aparecieron
+pares nuevos: los SKU mencionados en las otras cotizaciones (ej. Reina
+Dragón) son nombres cortos/abreviados que el proveedor usaba en ese
+momento y que no existen tal cual en el catálogo actual. Conclusión:
+seguir invirtiendo en minar el histórico de cotizaciones tiene
+rendimiento bajo — no reabrir este punto sin que Fabián señale un
+proyecto puntual reciente que valga la pena revisar a mano.
+
+Por eso `buscar-equipo` no solo dice "sin match" cuando no hay SKU
+exacto — muestra una lista buscable de los accesorios de esa marca para
+que el asesor encuentre el correcto por palabra clave. El diseño
+completo (las tres fuentes y sus niveles de confianza) quedó en
 `plugin-preventa/skills/buscar-equipo/SKILL.md` — todavía sin probar en
 una conversación real.
 
