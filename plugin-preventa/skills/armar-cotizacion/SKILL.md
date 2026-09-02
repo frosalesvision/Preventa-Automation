@@ -83,8 +83,7 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    (Hubo un segundo machote, `MCV_PLANTILLA_v8.xlsx`, para proyectos
    grandes multi-sitio — se descartó porque su último uso real
    confirmado es de 2022-2023, no forma parte de la práctica actual del
-   equipo. Si en el futuro vuelve a hacer falta, agregarlo de nuevo con
-   evidencia de uso reciente, no reintroducirlo por asunción.)
+   equipo. No reintroducirlo por asunción.)
 6. **Número de oferta real** (formato `T{prefijo}-{7 dígitos}-{año}`,
    el que va en el nombre del PDF final dentro de `Matriz-Oferta/`):
    - **No se conoce la regla que determina el prefijo** (`T1` vs `T4`

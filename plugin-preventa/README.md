@@ -12,7 +12,7 @@ preventa de Grupo Visión (cotizaciones de sistemas de seguridad/cámaras).
 | `seguimiento-correo` | Redacta (nunca envía) un borrador de correo de seguimiento a clientes según la etapa de la cotización. | Pendiente — placeholder sin conector de correo |
 | `sync-bitrix` | Actualiza la tarjeta en el Kanban de Bitrix24 al cerrar una cotización. | Pendiente — placeholder sin webhook de Bitrix |
 | `actualizar-catalogo` | Mantiene el catálogo unificado de proveedores en `CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/` a partir de los PDFs que el equipo agrega. | Catálogo real cargado con 2,358 productos (Hanwha + InVid/Milesight/Paramont/Vision/Secure); falta probar actualización de filas existentes y datos pegados en chat |
-| `buscar-equipo` | Busca marca/modelo de equipo que cumpla una especificación técnica dada, consultando el catálogo de `actualizar-catalogo`. | Planeado, no diseñado (depende de `actualizar-catalogo`) |
+| `buscar-equipo` | Busca marca/modelo de equipo que cumpla una especificación técnica dada, consultando el catálogo de `actualizar-catalogo`; también identifica accesorios de instalación (bases/soportes/lentes) compatibles y pregunta si incluirlos. | Diseñado (2026-09-01); pestaña "Compatibilidad de Accesorios" generada sobre el catálogo real (783 pares, 264 modelos de cámara, 3 fuentes: catálogo, categoría genérica, cotizaciones reales); falta probar en una conversación real |
 
 Ver [`docs/notas-proceso.md`](../docs/notas-proceso.md) (en la raíz del
 repo) para el contexto completo del proceso de negocio.

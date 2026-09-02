@@ -243,6 +243,27 @@ ahí quedate con una sola fila.
 6. **Mostrá un checklist final**: cuántas filas se agregaron, cuántas
    se actualizaron, y si algo quedó sin poder procesar (y por qué).
 
+## Pestaña "Compatibilidad de Accesorios" (agregado 2026-09-01)
+
+Después de cargar o reemplazar un catálogo de proveedor grande (ej. un
+pricelist completo nuevo), corré también
+`scripts/generar_matriz_accesorios.py "<ruta al Catalogo de productos
+por proveedor.xlsx>"` para refrescar la pestaña **`Compatibilidad de
+Accesorios`** dentro del mismo Excel (agrega/reemplaza esa pestaña
+puntual, no toca `Catalogo` ni `Tipo de Cambio`). La consume
+[`buscar-equipo`](../buscar-equipo/SKILL.md) para saber qué bases/
+soportes/lentes son compatibles con cada modelo de cámara. Combina tres
+fuentes (columna "Fuente" de la pestaña): compatibilidad que el propio
+fabricante escribe en el catálogo, match por categoría genérica dentro
+del mismo catálogo, y un puñado de pares verificados a mano en una
+cotización real (estos últimos viven como lista literal dentro del
+script — regenerar no los borra, pero tampoco los descubre solos). Ver
+el detalle completo en `buscar-equipo/SKILL.md`, sección "Cómo se
+construye la pestaña Compatibilidad de Accesorios". No es un paso
+bloqueante del proceso de arriba — si no se regenera, `buscar-equipo`
+simplemente no va a poder sugerir accesorios para los productos más
+nuevos hasta que se corra.
+
 ## Sobre quién mantiene esto al día
 
 No hay una persona encargada — hoy preventa son 2 personas. La

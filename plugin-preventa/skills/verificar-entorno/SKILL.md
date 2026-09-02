@@ -61,12 +61,7 @@ más de 2-3 niveles). Reportá:
   carpeta `Matriz-Oferta/`, o el nombre contiene "matriz"/"oferta").
 - Si no se encontró ninguno, decilo explícitamente — no lo des por hecho.
 
-## 4. Recursos originales locales (para desarrollo de `armar-cotizacion`)
 
-Revisá si existe la carpeta `recursos-originales/` en el proyecto actual
-(raíz del repo donde se está trabajando, no la del plugin) y listá qué
-archivos tiene. Esta carpeta es local y nunca se sube a git — si está
-vacía o no existe, es normal en una instalación nueva del plugin.
 
 ## Checklist final
 
@@ -76,7 +71,7 @@ Presentá el resultado como una lista clara, por ejemplo:
 ✅ Bitrix24 configurado en .mcp.json (entrada: "bitrix24")
 ❌ Carpeta compartida no accesible: la ruta "C:\...\Cotizaciones" no existe
 ❌ Excels de referencia: no se pudo revisar (depende del punto anterior)
-⚠️  recursos-originales/: vacía (normal si es la primera vez)
+
 
 Qué falta:
 - Confirmar la ruta correcta de la carpeta compartida.
