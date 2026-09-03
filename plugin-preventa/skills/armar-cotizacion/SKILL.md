@@ -1,29 +1,37 @@
 ---
 name: armar-cotizacion
-description: Organiza los archivos y carpetas de una cotización de preventa dentro de la carpeta compartida del cliente (crear la carpeta "Cotización #N-AAAA <descripción>" con sus subcarpetas estándar, copiar el machote de matriz oficial, proponer numeración de carpeta y número de oferta, manejar versionado de nombres de archivo). NO calcula precios ni lee/edita el contenido de ninguna matriz ya llena — eso lo hace el asesor con sus propias fórmulas. Usar cuando el usuario pide crear/organizar la carpeta de una cotización nueva, agregar una versión a una cotización existente, o pide el siguiente número de "Cotización #N" u oferta para un cliente.
+description: Organiza los archivos y carpetas de una cotización de preventa dentro de la carpeta compartida del cliente (crear la carpeta "Cotización #N-AAAA <descripción>" con sus subcarpetas estándar, copiar el machote de matriz oficial, proponer numeración de carpeta y número de oferta, manejar versionado de nombres de archivo), y llenar la pestaña Equipos de esa matriz con el equipo/accesorios que se hayan encontrado (ej. vía `buscar-equipo`) — modelo, descripción, cantidad y costo unitario; las fórmulas de margen/precio de venta del machote calculan el resto solas, nunca se tocan a mano ni se inventan. Usar cuando el usuario pide crear/organizar la carpeta de una cotización nueva, agregar una versión a una cotización existente, pide el siguiente número de "Cotización #N" u oferta para un cliente, o pide cargar el equipo ya encontrado a la matriz.
 ---
 
 # Armar cotización
 
 **Alcance (no cambiar sin confirmar con el usuario):** este skill
 organiza **archivos y carpetas** en `CLIENTES/<Cliente>/.../Cotización
-#N-AAAA <descripción>/`. **Nunca abre, lee celdas, ni calcula nada
-dentro de una matriz de costos ya en uso** (`Matriz-Oferta/*.xlsx` de
-una cotización real) — esa matriz contiene costos de proveedor y
-fórmulas de margen internas, información financiera sensible que maneja
-el asesor con su propio criterio. Este skill como mucho **mueve, copia
-o nombra** ese archivo como un bloque opaco, nunca lee ni escribe sus
-celdas.
+#N-AAAA <descripción>/`, y además **escribe líneas de equipo** (modelo,
+descripción, cantidad, costo unitario) en la pestaña `Equipos` de la
+matriz — **actualizado 2026-09-01: ya no está prohibido escribir en la
+matriz** (la regla anterior de "nunca leer ni escribir" se eliminó por
+decisión explícita del usuario). Lo que sigue firme:
 
-La única excepción es el **machote en blanco** de `references/`
-(verificado sin ningún dato real de cliente — ver más abajo): el skill
-sí lo **copia** (operación de archivo, no de lectura de celdas) para
-armar la carpeta de una cotización nueva.
+- **Nunca se tocan las columnas de fórmula** (todo lo que calcula
+  transporte/imprevistos/IVA/DAI/administración/margen/precio de venta)
+  — esas quedan tal cual las trae el machote, calculando solas a partir
+  de lo que se escribe en las columnas de entrada. Este skill nunca
+  decide ni escribe un porcentaje de margen ni una fórmula.
+- **Nunca se sobrescribe una fila que el asesor ya llenó a mano** en una
+  cotización real en curso sin mostrarle antes exactamente qué se va a
+  cambiar y esperar confirmación explícita — esto sigue siendo dinero
+  real de un cliente real.
+- Al crear una cotización **nueva**, el machote recién copiado está en
+  blanco (solo fórmulas fijas, sin datos) — ahí sí se puede escribir
+  equipo directamente, siempre mostrando la propuesta completa antes de
+  guardar.
 
 ⚠️ La carpeta `CLIENTES/` es la carpeta de producción real de la
-empresa, no un entorno de prueba. Antes de crear o renombrar cualquier
-carpeta/archivo ahí, mostrale al asesor exactamente qué vas a hacer
-(ruta completa) y esperá confirmación explícita.
+empresa, no un entorno de prueba. Antes de crear, renombrar o escribir
+cualquier carpeta/archivo ahí, mostrale al asesor exactamente qué vas a
+hacer (ruta completa, o la tabla de filas a escribir) y esperá
+confirmación explícita.
 
 Ver [`docs/notas-proceso.md`](../../../docs/notas-proceso.md) para la
 estructura de carpetas confirmada y las reglas de numeración/versionado.
@@ -77,8 +85,7 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    `references/Machote Matriz y oferta.xlsx` (nunca lo edites en
    `references/`, es la copia maestra), renombrado como `Matriz y
    oferta <descripción corta>.xlsx` dentro de la nueva carpeta
-   `Matriz-Oferta/`. El asesor lo abre después y lo llena a mano — el
-   skill no toca ninguna celda.
+   `Matriz-Oferta/`.
 
    (Hubo un segundo machote, `MCV_PLANTILLA_v8.xlsx`, para proyectos
    grandes multi-sitio — se descartó porque su último uso real
@@ -97,6 +104,46 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    - Mostrale la propuesta completa al asesor y **esperá que la
      confirme o la corrija** — nunca lo uses para nombrar un archivo sin
      esa confirmación explícita.
+7. **Llenar la pestaña `Equipos` con el equipo cotizado (agregado
+   2026-09-01).** Si ya se encontró equipo en esta conversación (ej. con
+   [`buscar-equipo`](../buscar-equipo/SKILL.md)) o el asesor ya tiene una
+   lista de equipo + accesorios + cantidades para esta cotización,
+   ofrecé escribirla ahora en la matriz recién copiada. Si todavía no
+   hay ninguna lista, preguntale al asesor si quiere armarla ahora (usando
+   `buscar-equipo`) o dejar la pestaña en blanco para llenarla después a
+   mano — las dos son válidas.
+
+   La pestaña `Equipos` del machote tiene, a partir de la fila 6, una
+   fila en blanco por línea de equipo, con estas columnas de **entrada**
+   (las únicas que se escriben):
+   - **B (Description):** Marca + Modelo + descripción del catálogo (ej.
+     `PAR-P8PTZXIR32NH-AI - 8 Megapixel IP Plug & Play, Outdoor PTZ...`)
+     — así queda igual de legible que en las cotizaciones reales.
+   - **C (IMPORTADO):** `"si"` o `"no"` — determina si aplica la fórmula
+     de DAI (impuesto de importación). Inferilo del "País de origen" del
+     catálogo (si no es Costa Rica, probablemente `"si"`), pero
+     **confirmalo con el asesor antes de guardar** — afecta un cálculo
+     de costo real, no lo asumas en silencio si el catálogo no trae el
+     dato.
+   - **D (Qty):** la cantidad que pide el proyecto — nunca la sabe
+     `buscar-equipo` por su cuenta (busca qué equipo cumple la
+     especificación, no cuántas unidades hacen falta), así que
+     preguntale al asesor si no la tenés ya de la especificación del
+     cliente.
+   - **E (Costo Unit):** el "Precio USD" del catálogo (el costo real de
+     compra, no un precio especial/negociado) — es la base sobre la que
+     el machote calcula transporte, impuestos, margen y precio de venta.
+
+   **Todo lo demás (columnas F en adelante) son fórmulas fijas del
+   machote — nunca se escriben a mano ni se recalculan aparte.** Si el
+   equipo incluye accesorios de instalación que el asesor confirmó
+   (bases, mounts, lentes, etc. — ver `buscar-equipo`), esos van como
+   filas adicionales en la misma pestaña, con la misma lógica.
+
+   Mostrale al asesor la tabla completa (Modelo | Descripción |
+   Importado | Cantidad | Costo Unit) que vas a escribir **antes** de
+   tocar el archivo, y esperá confirmación — igual que con cualquier
+   otro dato que se escribe en `CLIENTES/`.
 
 ## Caso 2: nueva versión de una cotización existente
 
@@ -108,9 +155,17 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    Usá un formato de sufijo consistente (` V2`, ` V3`...) — hoy en la
    carpeta real es inconsistente (`v2`, `(V3)`, `// v3`), pero de acá en
    adelante usá siempre el mismo formato para lo que genere este skill.
-3. **Cambio grande:** se crea una copia nueva — seguí el flujo completo
-   del "Caso 1" (nueva carpeta "Cotización #N+1...", nuevo número de
-   oferta propuesto) dentro del mismo cliente/año.
+   Si el cambio es agregar/ajustar líneas de equipo en ese archivo
+   nuevo, aplicá el mismo criterio del paso 7 de "Caso 1" (solo columnas
+   de entrada B-E, mostrar la tabla antes de escribir) — pero como este
+   archivo puede ya tener datos reales del asesor, **mostrale primero
+   qué filas existen y cuáles vas a agregar/cambiar**, nunca sobrescribas
+   una fila ya llena sin que lo confirme explícitamente.
+3. **Cambio grande** (ej. cambiar de marca de cámara completa): se crea
+   una copia nueva — seguí el flujo completo del "Caso 1" (nueva carpeta
+   "Cotización #N+1...", nuevo número de oferta propuesto, y el paso 7
+   completo usando el equipo nuevo que salga de `buscar-equipo` para la
+   marca nueva) dentro del mismo cliente/año.
 
 ## Checklist final
 

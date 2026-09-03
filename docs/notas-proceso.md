@@ -117,7 +117,7 @@ sufijos `_OLD`, `V2`, `V3` sin convención fija. No hay que asumir que el
 patrón de 5 subcarpetas es universal — `armar-cotizacion` debe manejar
 el caso de no encontrarlo y avisar, no fallar en silencio.
 
-## La matriz de Excel (Matriz-Oferta) — nunca leer/escribir una ya en uso
+## La matriz de Excel (Matriz-Oferta)
 
 ⚠️ **El contenido de una matriz YA EN USO por un cliente es información
 financiera sensible de la empresa.** Se confirmó que las pestañas de
@@ -127,10 +127,12 @@ porcentajes encadenados, ya fijos en la plantilla — no los decide el
 asesor cada vez) y el **precio de venta + utilidad en dólares**
 calculados por fórmula.
 
-**Decisión (2026-08-24, confirmada con el usuario):** `armar-cotizacion`
-**nunca lee ni escribe el contenido de una matriz ya en uso**. Como
-mucho nombra, mueve o copia el `.xlsx`/`.pdf` como bloque opaco. El
-costo/margen lo sigue manejando el asesor con sus propias fórmulas.
+**Decisión original (2026-08-24) — superada, ver actualización
+2026-09-01 más abajo:** en su momento se decidió que `armar-cotizacion`
+nunca leería ni escribiría el contenido de una matriz, ni siquiera una
+nueva — como mucho nombraba, movía o copiaba el `.xlsx`/`.pdf` como
+bloque opaco. Se dejó esta nota histórica porque explica por qué el
+machote se verificó tan a fondo (ver abajo) antes de siquiera copiarlo.
 
 **Actualización (2026-08-26):** el usuario consultó directamente con el
 equipo de preventa (Alessandro) y confirmó autorización para trabajar
@@ -184,9 +186,11 @@ Cotizaciones/` con estos machotes y un `readme.txt` que advierte que
 contraseñas de equipos instalados** — esa subcarpeta específica sigue
 totalmente fuera de alcance, nunca leerla ni abrir nada dentro.
 
-`armar-cotizacion` **copia** (no lee celdas) el machote al crear una
-cotización nueva — sin preguntar "qué tipo de proyecto es", porque en
-la práctica actual solo hay un tipo.
+`armar-cotizacion` **copia** el machote al crear una cotización nueva —
+sin preguntar "qué tipo de proyecto es", porque en la práctica actual
+solo hay un tipo. Después de copiarlo sí puede escribir en él (ver
+actualización 2026-09-01 más abajo) — pero solo las columnas de entrada
+de equipo, nunca la lógica de margen del machote.
 
 Nota de proceso (sigue vigente): el usuario solo había autorizado acceso
 a 3 URLs puntuales al inicio. Cualquier exploración más profunda de
@@ -202,11 +206,7 @@ todos modos hay acceso de lectura a toda la carpeta `CLIENTES`
 (incluidas las cotizaciones de cada cliente), tiene sentido poder
 usarlo quando haga falta para trabajo de análisis (ej. encontrar
 patrones de qué accesorio se cotiza junto a qué cámara, para
-`buscar-equipo`). Dos límites que **siguen intactos** y no se tocaron
-con este cambio:
-- **Nunca escribir/editar el contenido de una matriz real** — eso lo
-  sigue haciendo el asesor con sus propias fórmulas; `armar-cotizacion`
-  sigue sin tocar celdas, solo mueve/copia/nombra archivos.
+`buscar-equipo`). El límite que sigue intacto:
 - **Nunca copiar precios, márgenes, nombres de cliente ni datos de
   proyecto específico a ningún archivo que se suba a git** — el repo
   lo ven los compañeros con acceso de lectura, y eso sigue siendo
@@ -221,6 +221,27 @@ permisos de Claude Code por ser un escaneo automático y amplio sobre
 archivos financieros reales — revisar cotizaciones puntuales sigue
 siendo una opción si el usuario indica qué clientes/proyectos
 específicos mirar, en vez de un escaneo masivo sin acotar.
+
+**Actualización (2026-09-01, segunda decisión el mismo día): se elimina
+por completo la regla de "nunca escribir" en la matriz.** El usuario
+decidió explícitamente que los skills sí pueden escribir en la matriz
+— ya no hace falta que el asesor llene el equipo a mano. En vez de
+crear un skill nuevo, `armar-cotizacion` se amplió para, al crear una
+cotización nueva, escribir en la pestaña `Equipos` el equipo (y
+accesorios) que se haya encontrado con `buscar-equipo`: modelo,
+descripción, cantidad y costo unitario. Las columnas de fórmula
+(transporte, impuestos, margen, precio de venta) **nunca se tocan** —
+son fijas en el machote y calculan solas a partir de esas cuatro
+columnas de entrada; el skill no decide ni escribe ningún porcentaje de
+margen. Ver el detalle exacto de columnas (B/C/D/E, qué es cada una, y
+la fórmula de DAI que depende de "IMPORTADO") en
+`plugin-preventa/skills/armar-cotizacion/SKILL.md`.
+
+Esto aplica directo a una cotización **nueva** (machote recién copiado,
+sin datos). Para una cotización real ya en curso con datos del asesor,
+`armar-cotizacion` sigue mostrando primero qué filas existen y cuáles
+va a agregar/cambiar, y espera confirmación explícita antes de escribir
+— no se sobrescribe trabajo real del asesor sin que lo apruebe.
 
 ## Cómo trabaja el equipo en la práctica (confirmado con Alessandro, 2026-08-26)
 
