@@ -7,6 +7,7 @@ preventa de Grupo Visión (cotizaciones de sistemas de seguridad/cámaras).
 
 | Skill | Qué hace | Estado |
 |---|---|---|
+| `nueva-cotizacion` | Punto de entrada recomendado: recibe el pedido de un cliente en lenguaje natural (ej. "necesito 15 cámaras para X, presupuesto ₡5M"), detecta qué datos faltan y pregunta solo eso, y orquesta `buscar-equipo` + `armar-cotizacion` en el orden correcto sin que el asesor tenga que llamar cada skill a mano. | Diseñado (2026-09-08); todavía sin probar en una conversación real |
 | `verificar-entorno` | Revisa qué accesos están listos (carpeta compartida, Excels de referencia, config de Bitrix24) y da un checklist de qué falta. | Funcional |
 | `armar-cotizacion` | Organiza archivos/carpetas de una cotización (numeración de carpeta, número de oferta, versionado), copia el machote oficial, y llena la pestaña "Equipos" con el equipo/accesorios encontrados (vía `buscar-equipo`) — modelo, descripción, cantidad y costo unitario; las fórmulas de margen/precio de venta del machote calculan el resto solas. | Organización de carpetas funcional y probada en `sandbox-pruebas/`; el llenado de "Equipos" es nuevo (2026-09-01), todavía sin probar |
 | `seguimiento-correo` | Redacta (nunca envía) un borrador de correo de seguimiento a clientes según la etapa de la cotización. | Pendiente — placeholder sin conector de correo |
@@ -38,28 +39,44 @@ Con eso ya listo, **una cotización puntual sigue este orden**:
 1. **Llega la solicitud** (fuera del plugin, por correo o Bitrix): cliente,
    fechas clave, y documentos con especificaciones técnicas y cantidades
    — ver "Cómo llega una solicitud de licitación" en `notas-proceso.md`.
-2. **[`buscar-equipo`](skills/buscar-equipo/SKILL.md)** — **acá es donde
-   el asesor le pasa a la IA lo que el cliente pide** (la especificación
-   técnica, el pliego de licitación, o marca/modelo si el cliente ya lo
-   indicó). El skill busca en el catálogo el equipo que cumple, y si
-   hace falta, también los accesorios de instalación compatibles
+2. **El asesor le describe el pedido a Claude tal cual le llegó** (en
+   lenguaje natural, ej. "necesito una cotización para el cliente X, al
+   menos 15 cámaras, presupuesto de ₡5 millones, la mejor calidad") — no
+   hace falta que sepa el nombre de ningún skill.
+   **[`nueva-cotizacion`](skills/nueva-cotizacion/SKILL.md)** es el punto
+   de entrada que toma esto: detecta qué datos ya vinieron y cuáles
+   faltan, pregunta solo lo que falta, y por dentro va llamando en orden
+   a los dos skills siguientes — el asesor no tiene que invocarlos a
+   mano.
+3. **[`buscar-equipo`](skills/buscar-equipo/SKILL.md)** (llamado por
+   `nueva-cotizacion`, o directo si el asesor ya sabe exactamente qué
+   buscar) — busca en el catálogo el equipo que cumple la especificación,
+   y si hace falta, también los accesorios de instalación compatibles
    (bases, soportes, lentes) — siempre preguntando antes de asumir.
-3. **[`armar-cotizacion`](skills/armar-cotizacion/SKILL.md)** — organiza
-   la carpeta de la cotización (numeración, número de oferta, copia el
-   machote de matriz oficial) y **escribe en la pestaña "Equipos"** el
-   equipo/accesorios que salieron del paso 2 (modelo, descripción,
-   cantidad, costo unitario), siempre mostrando la tabla antes de
-   guardar y esperando confirmación. Las fórmulas de margen/precio de
-   venta del machote quedan intactas y calculan solas.
-4. **El asesor revisa/ajusta la matriz** (mano de obra, transporte,
+4. **[`armar-cotizacion`](skills/armar-cotizacion/SKILL.md)** (llamado
+   por `nueva-cotizacion`, o directo si el asesor ya tiene el equipo
+   decidido) — organiza la carpeta de la cotización (numeración, número
+   de oferta, copia el machote de matriz oficial), **escribe en la
+   pestaña "Equipos"** el equipo/accesorios que salieron del paso
+   anterior (modelo, descripción, cantidad, costo unitario) siempre
+   mostrando la tabla antes de guardar y esperando confirmación, y
+   **registra la cotización en los dos Excels de control**. Las fórmulas
+   de margen/precio de venta del machote quedan intactas y calculan
+   solas.
+5. **El asesor revisa/ajusta la matriz** (mano de obra, transporte,
    cualquier ítem que no salió de `buscar-equipo`) y la cierra para
    enviar — el costo/margen de cada línea de equipo ya lo calculó el
-   machote automáticamente a partir del paso 3.
-5. *(Pendiente)* **[`seguimiento-correo`](skills/seguimiento-correo/SKILL.md)**
+   machote automáticamente a partir del paso anterior.
+6. *(Pendiente)* **[`seguimiento-correo`](skills/seguimiento-correo/SKILL.md)**
    — redacta un borrador de seguimiento mientras se espera respuesta del
    cliente.
-6. *(Pendiente)* **[`sync-bitrix`](skills/sync-bitrix/SKILL.md)** —
+7. *(Pendiente)* **[`sync-bitrix`](skills/sync-bitrix/SKILL.md)** —
    actualiza la tarjeta del Kanban cuando la cotización se cierra.
+
+Los pasos 3 y 4 siguen funcionando igual de forma independiente (por
+ejemplo, si el asesor solo quiere buscar un equipo puntual, o ya tiene el
+equipo decidido y solo quiere armar la carpeta) — `nueva-cotizacion` es
+una capa de conveniencia encima, no un reemplazo.
 
 ## Instalación
 

@@ -60,12 +60,18 @@ corto a reutilizar de acá en adelante.
 Réplica en `sandbox-pruebas/CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/`
 de la carpeta real (`CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/` en
 SharePoint), con:
-- `Catalogo de productos por proveedor.xlsx` — igual al real pero
-  **solo con encabezados, sin ninguna fila de datos**.
+- `Catalogo de productos por proveedor.xlsx` — **actualizado 2026-09-01:
+  ya no es solo encabezados** — es un espejo completo del catálogo real
+  (2,358 productos + la pestaña "Compatibilidad de Accesorios"), a
+  propósito, para poder probar `buscar-equipo` y el llenado de
+  `Equipos` de `armar-cotizacion` con datos reales de producto. Para
+  probar el flujo de "actualizar una fila que ya existe" de
+  `actualizar-catalogo`, usá cualquier producto real ya presente en
+  vez de necesitar un catálogo vacío.
 - `Catalogos Proveedor/ProveedorPrueba/Lista de precios (ejemplo,
   datos falsos).txt` — un documento de ejemplo con 3 productos
   inventados, para probar el flujo de "hay un documento en la
-  carpeta."
+  carpeta" (agregar filas nuevas).
 
 Dos formas de probar (el skill soporta ambas):
 
@@ -88,7 +94,46 @@ Fijate que:
   actualización" en cada fila.
 - Si volvés a pasarle el mismo producto (mismo Modelo/SKU + Proveedor),
   lo detecte como **actualización**, no como fila duplicada.
-- Al final, después de probar, dejá el Excel de sandbox otra vez solo
-  con encabezados (podés simplemente volver a copiarlo desde la carpeta
-  real, o usar `git checkout -- sandbox-pruebas/` si no lo modificaste
-  fuera del repo).
+- Al final, si agregaste filas de prueba (`TEST-123` y similares), o si
+  el catálogo de sandbox quedó desactualizado frente al real, lo más
+  simple es volver a copiar el `.xlsx` real de producción encima
+  (`CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/Catalogo de productos
+  por proveedor.xlsx`) — no uses `git checkout` para este archivo, está
+  en `.gitignore` y no lo va a tocar.
+
+## Cómo probar `buscar-equipo`
+
+Usa el mismo catálogo de sandbox de arriba (ya tiene datos reales, no
+hace falta prepararle nada). Ejemplos de prompt para probar:
+
+- **Por especificación:** "necesito una cámara PTZ de al menos 8MP para
+  exteriores, zoom óptico de 25x o más" — debería proponer candidatos
+  reales del catálogo (ej. `PAR-P8PTZXIR32NH-AI`), explicando por qué
+  cumplen.
+- **Con accesorios:** después de elegir un modelo, pedile "¿qué
+  accesorios de instalación tiene?" — debería preguntar primero si
+  hacen falta, y si hay varios tipos de mount, mostrarlos todos y
+  preguntar cuál aplica.
+- **Sin match documentado:** probá con un modelo Milesight/Secure (poca
+  cobertura a propósito, ver `buscar-equipo/SKILL.md`) — debería
+  ofrecer la lista buscable de accesorios de esa marca en vez de
+  simplemente decir "no hay".
+- **Cambio de marca:** pedile que recalcule el mismo equipo pero en
+  otra marca — debería repetir la búsqueda de equipo y de accesorios
+  desde cero, sin reusar el accesorio de la marca anterior.
+
+## Cómo probar el llenado de `Equipos` en `armar-cotizacion` (nuevo, 2026-09-01)
+
+1. Primero encontrá equipo con `buscar-equipo` (ver arriba).
+2. Pedile que arme una cotización nueva para uno de los clientes de
+   prueba de este sandbox, y que cargue ese equipo en la matriz.
+3. Verificá que **muestre la tabla completa antes de escribir**
+   (Modelo | Descripción | Importado | Cantidad | Costo Unit) y espere
+   confirmación.
+4. Abrí el `.xlsx` resultante y confirmá que solo se llenaron las
+   columnas B-E de la pestaña `Equipos`, y que las fórmulas de margen/
+   transporte/impuestos siguen intactas y calculando (compará contra
+   `references/Machote Matriz y oferta.xlsx` sin tocar).
+5. Limpiá con `git checkout -- sandbox-pruebas/` + `git clean -fd
+   sandbox-pruebas/` igual que con cualquier otra prueba de
+   `armar-cotizacion`.

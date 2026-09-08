@@ -1,6 +1,6 @@
 ---
 name: armar-cotizacion
-description: Organiza los archivos y carpetas de una cotización de preventa dentro de la carpeta compartida del cliente (crear la carpeta "Cotización #N-AAAA <descripción>" con sus subcarpetas estándar, copiar el machote de matriz oficial, proponer numeración de carpeta y número de oferta, manejar versionado de nombres de archivo), y llenar la pestaña Equipos de esa matriz con el equipo/accesorios que se hayan encontrado (ej. vía `buscar-equipo`) — modelo, descripción, cantidad y costo unitario; las fórmulas de margen/precio de venta del machote calculan el resto solas, nunca se tocan a mano ni se inventan. Usar cuando el usuario pide crear/organizar la carpeta de una cotización nueva, agregar una versión a una cotización existente, pide el siguiente número de "Cotización #N" u oferta para un cliente, o pide cargar el equipo ya encontrado a la matriz.
+description: Organiza los archivos y carpetas de una cotización de preventa dentro de la carpeta compartida del cliente (crear la carpeta "Cotización #N-AAAA <descripción>" con sus subcarpetas estándar, copiar el machote de matriz oficial, proponer numeración de carpeta y número de oferta, manejar versionado de nombres de archivo), y llenar la pestaña Equipos de esa matriz con el equipo/accesorios que se hayan encontrado (ej. vía `buscar-equipo`) — modelo, descripción, cantidad y costo unitario; las fórmulas de margen/precio de venta del machote calculan el resto solas, nunca se tocan a mano ni se inventan. También registra la cotización en los dos Excels de control compartidos ("Control de cotizaciones 2026.xlsx" y "Cotizaciones en Preventa.xlsx") cuando están sincronizados localmente. Usar cuando el usuario pide crear/organizar la carpeta de una cotización nueva, agregar una versión a una cotización existente, pide el siguiente número de "Cotización #N" u oferta para un cliente, pide cargar el equipo ya encontrado a la matriz, o pide registrar/anotar la cotización en el control de ofertas.
 ---
 
 # Armar cotización
@@ -144,6 +144,61 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    Importado | Cantidad | Costo Unit) que vas a escribir **antes** de
    tocar el archivo, y esperá confirmación — igual que con cualquier
    otro dato que se escribe en `CLIENTES/`.
+
+## Registrar la cotización en los Excels de control (agregado 2026-09-01, ruta confirmada 2026-09-07)
+
+Además de la carpeta y la matriz, cada cotización nueva (o cambio de
+estado de una existente) se registra en **dos** Excels compartidos —
+ver `verificar-entorno/SKILL.md` paso 4 para la ruta exacta y cómo
+verificar el acceso (viven dentro de la carpeta compartida `COMERCIAL
+2024`, no dentro de `CLIENTES` ni en la raíz de OneDrive):
+
+- `Control de cotizaciones 2026.xlsx`, pestaña **"Cotizaciones
+  Pendientes 2026"** (tiene más pestañas, son de otros años/usos, no
+  tocarlas) — columnas confirmadas: Fecha Solicitud, Importancia, letra
+  del asesor, Nombre de cliente, Descripción del producto/servicio,
+  Fecha entrega (hay más columnas a la derecha, no las asumas de
+  memoria — leé el encabezado real antes de escribir).
+- `Cotizaciones en Preventa.xlsx` — **una pestaña por asesor** (hoy:
+  "Katherine", "Alessandro ", ambos nombres con variaciones menores —
+  leé los nombres reales, no los tipees de memoria). Columnas
+  confirmadas: Fecha de oferta, Cliente, Descripción, Número de
+  Oferta, Monto de Oferta, Estado (hay al menos una columna más a la
+  derecha, mismo criterio: leé el encabezado real).
+
+Ambos archivos tienen además una pestaña **"IA"** al final — es zona de
+prueba (usada para confirmar acceso de escritura), **nunca escribas
+datos de una cotización real ahí**, siempre en la pestaña real
+correspondiente.
+
+**Se registra en los dos** (decisión confirmada 2026-09-01 — es el
+flujo de trabajo real de preventa, no se consolida).
+
+**Cómo escribir, según el acceso disponible:**
+
+1. **Si los dos archivos están sincronizados localmente** (caso normal
+   desde 2026-09-07, ver `verificar-entorno` paso 4): escribí ahí
+   directo por archivo (`openpyxl`) con el mismo criterio que el resto
+   de este skill — leé el encabezado real primero (no asumas el orden
+   de columnas de memoria), mostrale al asesor la fila completa antes
+   de guardar, y agregala en la pestaña del asesor correspondiente
+   (preguntale cuál es la suya si no lo sabés).
+2. **Si no están sincronizados localmente** (fallback, no debería ser
+   el caso normal): ⚠️ **nunca los edites en vivo por navegador con
+   datos reales.** Se probó en la práctica (2026-09-01): estos archivos
+   son pesados (cientos de filas, autoguardado activo, uso compartido
+   en tiempo real con Katherine/Alessandro) y la automatización de
+   navegador resultó **inestable de verdad** — pantallas en blanco,
+   capturas que se cuelgan, atajos de teclado que no registran — sin
+   ninguna red de seguridad porque el archivo se guarda solo en cada
+   cambio. En vez de arriesgarte a escribir mal en un documento
+   compartido real: **armá la fila exacta (todas las columnas) y
+   mostrásela al asesor para que la pegue él mismo** en el archivo
+   abierto — seguís siendo más rápido que hoy (ya no arma los datos a
+   mano) sin tocar el archivo en vivo vos.
+3. Si el acceso local se llega a caer, avisá y sugerí correr
+   `verificar-entorno` de nuevo — no sigas usando
+   el navegador como método principal aunque funcione una vez.
 
 ## Caso 2: nueva versión de una cotización existente
 

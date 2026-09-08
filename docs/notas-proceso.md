@@ -14,13 +14,60 @@ asesor.
 
 ## Flujo actual (manual)
 
-1. **Registro en Excel maestro compartido.** Columnas: letra de quién
-   trabaja, cliente, descripción, fecha del proyecto, fecha de entrega,
-   número de oferta, monto sin IVA, proveedor, estado, asesor comercial,
-   notas.
-2. **Duplicado en Excel personal.** Cada asesor replica la misma info en
-   su propio archivo. Es trabajo repetido, no aporta nada nuevo — candidato
-   claro a eliminar cuando haya una fuente única de verdad.
+1. **Registro en Excel maestro compartido** — el archivo real es
+   `Control de cotizaciones 2026.xlsx` (confirmado 2026-09-01).
+   Columnas: letra de quién trabaja, cliente, descripción, fecha del
+   proyecto, fecha de entrega, número de oferta, monto sin IVA,
+   proveedor, estado, asesor comercial, notas.
+2. **Duplicado en Excel personal** — el archivo real es
+   `Cotizaciones en Preventa.xlsx` (confirmado 2026-09-01): **un solo
+   libro compartido, con una pestaña por asesor** (ej. "Katherine",
+   "Alessandro") en vez de archivos separados — columnas: Fecha de
+   oferta, Cliente, Descripción, Número de Oferta, Monto de Oferta,
+   Estado. Cada asesor replica ahí la misma info que ya está en el
+   maestro. Es trabajo repetido, no aporta nada nuevo — pero el usuario
+   confirmó (2026-09-01) que **por ahora seguimos duplicando en los
+   dos**, es el flujo de trabajo real de preventa; no se consolida
+   todavía.
+
+   **Dónde viven estos dos archivos (confirmado 2026-09-07):** no están
+   dentro de `CLIENTES` — viven dentro de otra carpeta compartida de la
+   misma cuenta "Info Costa Rica", **`COMERCIAL 2024`** (compartida
+   puntualmente por María Fernanda Loria). El acceso directo de OneDrive
+   hay que agregarlo sobre esa **carpeta**, nunca sobre los archivos
+   sueltos — un acceso directo de archivo individual solo crea un
+   `.url` de 1 KB (un puntero web sin contenido real), no sirve para
+   leer/escribir. Ver el detalle exacto (ruta relativa de cada archivo,
+   cómo verificar, qué hacer si el acceso a la carpeta falta) en
+   `plugin-preventa/skills/verificar-entorno/SKILL.md`, paso 4 —
+   necesario antes de que `armar-cotizacion` pueda registrar una
+   cotización nueva ahí.
+
+   **Lección técnica (probada en vivo, 2026-09-01):** mientras se
+   esperaba que el acceso directo sincronizara, se probó editar
+   `Control de cotizaciones 2026.xlsx` en vivo por navegador (con la
+   sesión real del usuario vía la extensión "Claude for Chrome", no
+   anónima). Un cambio simple (renombrar una pestaña vacía sin usar,
+   "Hoja2", a "IA" — pensada como zona segura para probar antes de
+   copiar a la pestaña real) sí funcionó. Pero enseguida Excel Online
+   se puso inestable — pantallas en blanco, capturas colgadas, atajos
+   de teclado que no registraban — al punto de no poder confirmar con
+   certeza en qué pestaña/estado estaba parado. Se verificó por otro
+   lado (lectura anónima) que los datos reales seguían intactos, pero
+   la conclusión quedó clara: **este archivo específico es demasiado
+   pesado/inestable para automatizar de forma confiable por
+   navegador.** Por eso `armar-cotizacion` (ver su SKILL.md, sección
+   "Registrar la cotización en los Excels de control") usa la edición
+   por navegador solo como último recurso, y aun así nunca con datos
+   reales — prefiere armar la fila y que el asesor la pegue él mismo
+   mientras no haya sincronización local. **Actualización 2026-09-07**:
+   el acceso local ya se consiguió de verdad (ver arriba, carpeta
+   `COMERCIAL 2024`), así que esto ya no es el caso normal — se
+   confirmó escribiendo por archivo (`openpyxl`) sin problema en los
+   dos Excels (se agregó la misma pestaña "IA" al final del segundo
+   archivo, como prueba de acceso). La lección sobre no editar por
+   navegador queda como referencia para si el acceso local se cae en el
+   futuro, no como el flujo esperado.
 3. **Armado de la cotización** en una matriz de Excel con pestañas:
    cámaras, productos, materiales, OPEX/mano de obra, y una hoja final
    que se exporta a PDF como la cotización oficial para el cliente.
