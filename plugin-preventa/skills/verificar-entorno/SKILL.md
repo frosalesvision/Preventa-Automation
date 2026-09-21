@@ -13,14 +13,30 @@ lenguaje simple — no asumas que sabe qué es un plugin o un MCP:
 
 1. **Tener Claude Code instalado y abierto.** Si ya está viendo esta
    conversación, este paso ya está listo — no hace falta nada más acá.
-2. **Instalar el plugin `preventa`** (una sola vez por computadora):
-   ```
-   /plugin marketplace add frosalesvision/Preventa-Automation
-   /plugin install preventa@preventa-automation
-   ```
-   (Repo privado — necesita acceso de lectura en GitHub, con `gh auth
-   login` ya configurado. Si no sabe qué es esto, pedirle ayuda a quien
-   le dio el acceso.)
+2. **Instalar el plugin `preventa`** (una sola vez por computadora). La
+   mayoría del equipo **no tiene cuenta de GitHub** — para ellos existe
+   una forma sin GitHub:
+   - **Sin GitHub (recomendado para el equipo):** el plugin vive
+     copiado en la carpeta compartida de OneDrive `Automatizaciones IA
+     / Plugin_preventas_IA_automation`. Hace falta tenerla sincronizada
+     (ver paso 3) y conseguir su ruta local exacta (distinta por
+     persona, por el usuario de Windows — se copia desde la barra de
+     direcciones del Explorador de archivos), y luego:
+     ```
+     /plugin marketplace add "<ruta local a Plugin_preventas_IA_automation>"
+     /plugin install preventa@preventa-automation
+     ```
+     El `marketplace add` siempre va antes del `install`, no se puede
+     saltar. Ver el detalle completo (cómo conseguir la ruta, y la nota
+     de mantenimiento para quien administra el plugin) en el
+     [`README`](../../README.md), sección "Instalación".
+   - **Con GitHub (alternativa, ej. para quien mantiene el plugin):**
+     ```
+     /plugin marketplace add frosalesvision/Preventa-Automation
+     /plugin install preventa@preventa-automation
+     ```
+     (Repo privado — necesita acceso de lectura en GitHub, con `gh auth
+     login` ya configurado.)
 3. **Tener la cuenta de Grupo Visión conectada a OneDrive en Windows**
    — así sincroniza `CLIENTES` automáticamente. Si ya usa Outlook/Teams
    con su cuenta de la empresa en esta computadora, normalmente esto ya
@@ -59,22 +75,52 @@ arriba de este SKILL.md, es decir `../../.mcp.json` relativo a esta carpeta).
 
 ## 2. Carpeta compartida de cotizaciones (CLIENTES)
 
-En Windows, la carpeta compartida real de SharePoint/OneDrive Business
-**no siempre está bajo la carpeta `OneDrive` normal del usuario** — puede
-sincronizar en una ruta separada con el nombre del tenant/librería (ej.
-`C:\Users\<usuario>\<Nombre Tenant>\<Nombre Librería>`). Antes de
-preguntarle nada al usuario, intentá auto-detectarla:
+En la mayoría de las máquinas esto es directo: OneDrive está conectado y
+la biblioteca aparece donde el registro dice. **Para un compañero que
+recién instala el plugin, basta con confirmar que la cuenta de la
+empresa está conectada a OneDrive y que la carpeta se lee** — no hay que
+asumir que va a tener el problema del párrafo siguiente.
 
-1. Con PowerShell, leé el registro en
-   `HKCU:\Software\Microsoft\OneDrive\Accounts\Business1\Tenants` (y
-   `Business2`, etc. si existe más de una cuenta configurada) — cada
-   valor bajo esa clave es `<ruta local completa> : <id>`. Ahí está la
-   ruta real de cada librería sincronizada, sin adivinar.
-2. Buscá entre esos valores una ruta cuyo nombre final contenga algo
-   como "CLIENTES" (puede variar). Si la encontrás, listala (Bash `ls`
-   o Glob) para confirmar que es legible.
-3. Si no hay cuenta de OneDrive Business configurada, o ninguna ruta
-   coincide, recién ahí **preguntale al usuario** la ruta local exacta.
+⚠️ **Caso especial, no universal:** en la máquina de Fabián (la única
+donde se ha visto) existían **dos árboles locales con las mismas 287
+carpetas de cliente y el mismo nombre**, y solo uno sincronizaba. Todo
+el trabajo de varias semanas se había hecho en el que **no** sincroniza,
+así que nunca llegó al equipo (se detectó y se corrigió el 2026-09-18 —
+ver la regla R15 en
+[`docs/reglas-negocio.md`](../../../docs/reglas-negocio.md)). La lección
+que sí aplica siempre: **resolvé la ruta por el registro, nunca la
+asumas ni la copies de una sesión anterior.**
+
+Detectala así, en este orden:
+
+1. **El registro manda.** Leé
+   `HKCU:\Software\Microsoft\OneDrive\Accounts\Business1` y tomá el valor
+   **`UserFolder`** (revisá también `Business2`, etc. si hay más de una
+   cuenta). Esa es la **única raíz** que OneDrive sincroniza. **Todo lo
+   que esté fuera de esa raíz no sincroniza**, por más que se llame
+   igual y tenga el mismo contenido.
+2. **Buscá la biblioteca dentro de esa raíz**, típicamente bajo
+   `Accesos directos\` (ej. `<UserFolder>\Accesos directos\Archivos de
+   <Cuenta> - CLIENTES\`). Listala para confirmar que es legible.
+3. **Confirmación secundaria** (útil si hay duda entre dos candidatas):
+   en la carpeta sincronizada la mayoría de los archivos son
+   placeholders de nube — tienen el atributo `ReparsePoint`
+   (`Get-Item -Force | Select Attributes`) — y hay un `desktop.ini` que
+   apunta al icono de OneDrive. En una copia local huérfana **ningún**
+   archivo tiene ese atributo y no hay `desktop.ini`.
+   ⚠️ No uses el `ReparsePoint` *de la carpeta* como prueba, como decía
+   la versión anterior de este skill: una carpeta sincronizada con todo
+   descargado se ve igual que una local.
+4. **Si el usuario tiene una carpeta huérfana con el mismo nombre**,
+   decíselo explícitamente y ofrecé migrar el contenido a la
+   sincronizada — no sigas trabajando en la huérfana solo porque
+   funciona.
+5. Si no hay cuenta de OneDrive Business configurada, o no aparece la
+   biblioteca, recién ahí **preguntale al usuario** la ruta exacta.
+
+Si OneDrive no está corriendo (`Get-Process OneDrive`), avisalo: los
+archivos "solo en la nube" no se pueden abrir y cualquier cosa que se
+escriba queda sin subir hasta que arranque.
 
 Si falla el acceso (no existe, sin permisos, cuenta no firmada),
 reportalo como **no accesible** con el motivo exacto — no reintentes

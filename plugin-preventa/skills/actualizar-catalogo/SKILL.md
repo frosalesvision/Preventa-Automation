@@ -45,7 +45,7 @@ Los compañeros solo tocan `Catalogos Proveedor/<Proveedor>/` (agregan o
 reemplazan un documento). Nadie edita el Excel a mano línea por línea —
 este skill lo hace por ellos, con confirmación.
 
-## Columnas del catálogo (23, orden fijo por prioridad — actualizado 2026-08-28)
+## Columnas del catálogo (25, orden fijo por prioridad — actualizado 2026-09-21)
 
 El orden de columnas **no es alfabético ni de conveniencia técnica**:
 está pensado para que un asesor de preventa vea lo más importante
@@ -58,33 +58,35 @@ ubicarla dentro del grupo que le corresponda (ver grupos abajo).
 | 1 | Nombre de equipo/producto | |
 | 2 | Marca | |
 | 3 | Modelo / SKU | El identificador exacto del proveedor. Junto con "Proveedor" es la clave para no duplicar filas — ver abajo |
-| 4 | Categoría / tipo | Cámara, control de acceso, alarma, incendio, cableado, accesorio, etc. |
-| 5 | Proveedor | |
-| 6 | Precio USD | Dejar vacío si el documento no da precio en dólares. Ver "Tipo de cambio y precios" abajo — puede ser el dato dado directamente o uno calculado a partir del CRC |
-| 7 | Precio CRC | **Fórmula**, no se escribe a mano (ver "Tipo de cambio y precios") |
-| 8 | Precio especial GV (USD) | Solo si el documento indica un precio negociado distinto al de lista |
-| 9 | Precio especial GV (CRC) | **Fórmula**, igual que Precio CRC |
-| 10 | Unidad de venta | `Unidad` en la mayoría de los casos; usar `Metro`, `Rollo`, `Caja`, etc. cuando el producto se venda por medida (ej. cable) en vez de por unidad |
-| 11 | Tiempo de entrega (días) | Lead time del proveedor si lo indica. Útil para saber si un equipo se puede prometer a tiempo en una cotización |
-| 12 | País de origen | Relevante para licitaciones que piden certificación de origen del fabricante (ej. tipo NDAA). Dejar vacío si el documento no lo indica |
-| 13 | Descripción | Texto libre, tal como lo da el documento fuente. Si el documento trae una nota aparte (cambio de precio, aviso de reemplazo, "solo bajo pedido", etc.), agregarla al final de este mismo campo como `-- Nota del proveedor: <texto>` en vez de crear una columna nueva o perder el dato |
-| 14 | Especificaciones técnicas clave | Lo necesario para comparar contra un pliego de condiciones (resolución, protección IP, certificaciones, etc.), si se puede extraer como algo distinto de la Descripción general |
-| 15 | Fecha de última actualización | Fecha en la que se cargó/actualizó esta fila (no la fecha del documento si son distintas — aclarar cuál es cuál si hay duda). Guardar como texto `AAAA-MM-DD`, no como fecha de Excel |
-| 16 | Vigencia del precio | Si el documento indica una validez (ej. "15 días") |
-| 17 | Peso | Dejar vacío si el documento no lo indica |
-| 18 | Dimensiones (H×W×D) | Dejar vacío si el documento no lo indica |
-| 19 | Código HTS | Código arancelario, si el documento lo trae. Uso de logística/aduanas, no de preventa — dejar vacío si no aplica |
-| 20 | Código ECCN | Clasificación de control de exportación, si el documento lo trae. Dejar vacío si no aplica |
-| 21 | Código EAN | Código de barras, si el documento lo trae. Dejar vacío si no aplica |
-| 22 | Archivo de origen | Nombre del documento dentro de `Catalogos Proveedor/<Proveedor>/` que sustenta esta fila. Si el dato vino pegado directo en el chat (sin documento), anotar algo como "Dato dado por <asesor> en chat, DD/MM/AAAA" en vez de dejarlo vacío — la trazabilidad importa igual |
-| 23 | Pestaña / Hoja de origen | Si la fuente es un Excel: nombre exacto de la pestaña de donde vino esta fila (ej. "HVA Pricelist"), para poder rastrear el dato si algo se pierde o se ve raro. Vacío si el origen fue un PDF o un dato pegado en el chat (no aplica) |
+| 4 | Categoría | **Una de las 16 categorías canónicas** — ver R11 en `docs/reglas-negocio.md`. Tiene lista desplegable. No escribir aquí el texto crudo del proveedor: ese va en la columna 25 |
+| 5 | Subcategoría | El detalle dentro de la categoría (ej. Cámara → PTZ). Ver R11 |
+| 6 | Proveedor | |
+| 7 | Precio USD | Dejar vacío si el documento no da precio en dólares. Ver "Tipo de cambio y precios" abajo — puede ser el dato dado directamente o uno calculado a partir del CRC |
+| 8 | Precio CRC | **Fórmula**, no se escribe a mano (ver "Tipo de cambio y precios") |
+| 9 | Precio especial GV (USD) | Solo si el documento indica un precio negociado distinto al de lista |
+| 10 | Precio especial GV (CRC) | **Fórmula**, igual que Precio CRC |
+| 11 | Unidad de venta | `Unidad` en la mayoría de los casos; usar `Metro`, `Rollo`, `Caja`, etc. cuando el producto se venda por medida (ej. cable) en vez de por unidad |
+| 12 | Tiempo de entrega (días) | Lead time del proveedor si lo indica. Útil para saber si un equipo se puede prometer a tiempo en una cotización |
+| 13 | País de origen | Relevante para licitaciones que piden certificación de origen del fabricante (ej. tipo NDAA). Dejar vacío si el documento no lo indica |
+| 14 | Descripción | Texto libre, tal como lo da el documento fuente. Si el documento trae una nota aparte (cambio de precio, aviso de reemplazo, "solo bajo pedido", etc.), agregarla al final de este mismo campo como `-- Nota del proveedor: <texto>` en vez de crear una columna nueva o perder el dato |
+| 15 | Especificaciones técnicas clave | Lo necesario para comparar contra un pliego de condiciones (resolución, protección IP, certificaciones, etc.), si se puede extraer como algo distinto de la Descripción general |
+| 16 | Fecha de última actualización | Fecha en la que se cargó/actualizó esta fila (no la fecha del documento si son distintas — aclarar cuál es cuál si hay duda). Guardar como texto `AAAA-MM-DD`, no como fecha de Excel |
+| 17 | Vigencia del precio | Si el documento indica una validez (ej. "15 días") |
+| 18 | Peso | Dejar vacío si el documento no lo indica |
+| 19 | Dimensiones (H×W×D) | Dejar vacío si el documento no lo indica |
+| 20 | Código HTS | Código arancelario, si el documento lo trae. Uso de logística/aduanas, no de preventa — dejar vacío si no aplica |
+| 21 | Código ECCN | Clasificación de control de exportación, si el documento lo trae. Dejar vacío si no aplica |
+| 22 | Código EAN | Código de barras, si el documento lo trae. Dejar vacío si no aplica |
+| 23 | Archivo de origen | Nombre del documento dentro de `Catalogos Proveedor/<Proveedor>/` que sustenta esta fila. Si el dato vino pegado directo en el chat (sin documento), anotar algo como "Dato dado por <asesor> en chat, DD/MM/AAAA" en vez de dejarlo vacío — la trazabilidad importa igual |
+| 24 | Pestaña / Hoja de origen | Si la fuente es un Excel: nombre exacto de la pestaña de donde vino esta fila (ej. "HVA Pricelist"), para poder rastrear el dato si algo se pierde o se ve raro. Vacío si el origen fue un PDF o un dato pegado en el chat (no aplica) |
+| 25 | Categoría original del proveedor | El texto de categoría tal cual venía en el documento fuente, antes de normalizar (agregada 2026-09-18). Sirve para auditar una clasificación que se vea rara y para volver a normalizar si cambian las reglas |
 
 **Grupos de columnas (para saber dónde insertar una columna nueva)**:
-identidad y precio (1-9, lo primero que ve un asesor) → clasificación
-de venta (10-12) → texto descriptivo (13-14) → metadata de la fila
-(15-16) → logística/aduanas (17-21, dejar vacío si el documento no lo
-trae, nunca inventar ni preguntar por cada campo faltante) →
-trazabilidad de origen (22-23, siempre al final).
+identidad y clasificación (1-6, lo primero que ve un asesor) → precios
+(7-10) → condiciones de venta (11-13) → texto descriptivo (14-15) →
+metadata de la fila (16-17) → logística/aduanas (18-22, dejar vacío si
+el documento no lo trae, nunca inventar ni preguntar por cada campo
+faltante) → trazabilidad de origen (23-25, siempre al final).
 
 No hay una pestaña de historial de precios — el archivo vive en
 SharePoint/OneDrive, que ya guarda automáticamente el historial de
@@ -100,15 +102,17 @@ editables a mano por el equipo (`B3` = tipo de cambio de compra, `B4`
 definidos a nivel de libro que las referencian: `TipoCambioCompra` y
 `TipoCambioVenta`.
 
-- **Precio CRC** (columna 7) y **Precio especial GV (CRC)** (columna
-  9) son fórmulas, no valores escritos a mano:
-  `=IF(F2="","",IF(TipoCambioVenta="","Actualizar TC",ROUND(F2*TipoCambioVenta,2)))`
-  (ajustando la columna de referencia para la fila 9). Usan el tipo de
-  cambio de **venta** para convertir el precio en dólares a colones.
+- **Precio CRC** (columna 8, `H`) y **Precio especial GV (CRC)**
+  (columna 10, `J`) son fórmulas, no valores escritos a mano:
+  `=IF(G2="","",IF(TipoCambioVenta="","Actualizar TC",ROUND(G2*TipoCambioVenta,2)))`
+  para la columna `H`, y la misma apuntando a `I` para la `J`. Usan el
+  tipo de cambio de **venta** para convertir el precio en dólares a
+  colones. ⚠️ Estas referencias cambiaron el 2026-09-21 al insertarse la
+  columna `Subcategoria`: antes eran `F` e `H`.
   Si `B4` todavía no tiene un valor cargado, la celda muestra
   "Actualizar TC" en vez de 0, para que no se lea como un precio real.
 - **Al agregar una fila nueva**: escribí el precio en dólares en
-  "Precio USD" (columna 6) y dejá que la fórmula de "Precio CRC"
+  "Precio USD" (columna 7, `G`) y dejá que la fórmula de "Precio CRC"
   calcule sola — no escribas un valor literal en esa columna. Copiá la
   fórmula de la fila anterior hacia abajo (mismo patrón relativo) en
   vez de tipear una fórmula nueva a mano.
@@ -264,14 +268,164 @@ bloqueante del proceso de arriba — si no se regenera, `buscar-equipo`
 simplemente no va a poder sugerir accesorios para los productos más
 nuevos hasta que se corra.
 
+## Estado real de la columna "Precio especial GV" (corregido 2026-09-18)
+
+⚠️ **Corrección a lo que decía antes este archivo.** Esta sección
+afirmaba que la columna 8 estaba vacía "porque ningún documento cargado
+trae ese dato". **Eso es falso** — verificado sobre el catálogo de
+producción (2.552 filas):
+
+| Origen | Filas | Precio especial |
+|---|---|---|
+| Distribuidor con PDF de 3 niveles de precio | 948 | **Cargado** |
+| Fabricante con pricelist de un solo precio | 1.410 | Vacío |
+| Proveedores locales varios | ~194 | Vacío |
+
+**De dónde salió ese dato:** el PDF de ese distribuidor publica en su
+encabezado **tres** columnas de precio — `Dealer Program`, `DEAL` y
+`MSRP`. La extracción mapeó `MSRP` → "Precio USD" y `Dealer Program` →
+"Precio especial GV". **La columna intermedia (`DEAL`) no se cargó**;
+sigue en el PDF y se puede re-extraer cuando se sepa cuál nivel aplica.
+
+**Nunca se aplicó una "regla del 50%".** 681 de esas filas dan
+exactamente la mitad porque ese es el descuento de distribuidor que el
+proveedor publica en su propia lista; 202 vienen iguales al precio de
+lista; el resto da otros ratios. Y la marca donde el 50% *sí* aplicaría
+según preventa es justamente la que **no tiene ningún precio especial**,
+porque su pricelist oficial solo trae MSRP.
+
+**Corregido el 2026-09-18:** 3 filas tenían el precio especial en `0`
+(artefacto de extracción: en el PDF esas filas solo traen dos valores y
+la tercera columna viene vacía). Un costo en `0` produce una línea
+gratis sin ningún error visible. Se dejaron en blanco para que caigan al
+precio de lista. Ver la regla R4 en
+[`../../../docs/reglas-negocio.md`](../../../docs/reglas-negocio.md).
+
+**Verificación adicional que sí salió limpia:** el pricelist del
+fabricante tiene una pestaña `EOL Product` con 57 SKU descontinuados.
+Se comprobó que **ninguno** se coló al catálogo. Al cargar una versión
+nueva de ese pricelist, repetir el chequeo: cotizar un producto
+descontinuado es un error caro y silencioso. Esa misma pestaña trae el
+**reemplazo recomendado** de cada SKU — útil si alguna vez el cliente
+pide un modelo viejo por nombre.
+
+## Pendiente: reglas de descuento GV por proveedor/proyecto (agregado 2026-09-14)
+
+La columna 8 también sirve para un caso puntual distinto: un proveedor
+que da por escrito un precio negociado fijo. Ese caso todavía no se ha
+cargado para ningún proveedor.
+
+Es un caso **distinto** al que viene: según la compañera de preventa,
+cada proveedor (y posiblemente cada tipo de proyecto) tiene **reglas de
+descuento** (porcentajes) que determinan el costo real para Grupo
+Visión — pueden ser varias reglas por proveedor. Fabián todavía no tiene
+las reglas reales (se las van a pasar). Diseño acordado para cuando
+lleguen:
+
+- Las reglas en sí (qué proveedor, qué % o condición, según qué varíe)
+  van en una **pestaña nueva de este mismo Excel** — es dato de
+  referencia/configuración, igual que `Tipo de Cambio`.
+- El **cálculo del precio con descuento aplicado no se guarda en el
+  catálogo** — se calcula en el momento de cotizar (en `buscar-equipo`/
+  `armar-cotizacion`), y el resultado va directo al "Costo Unit" de la
+  pestaña `Equipos` de esa cotización puntual, nunca como un valor fijo
+  reescrito en `Catalogo de productos por proveedor.xlsx`. Razón: el
+  descuento aplicable depende del proyecto, no es una propiedad fija del
+  producto.
+
+No diseñar la estructura de la pestaña de reglas todavía — depende de
+qué varíe realmente (¿solo proveedor? ¿proveedor + tipo de proyecto?
+¿por volumen/cantidad?) y eso lo define el contenido real de las reglas
+cuando lleguen, no hay que adivinarlo antes.
+
+## Materiales de instalación (confirmado 2026-09-14)
+
+Materiales genéricos de instalación (cable UTP, conectores, breakers,
+tubería conduit, sensores/paneles de detección de incendio, etc.) **van
+en el mismo `Catalogo de productos por proveedor.xlsx`, mismas 23
+columnas, mismo proceso** — no hace falta una pestaña aparte. Usá la
+columna "Categoría / tipo" para distinguirlos (ej. "Material eléctrico",
+"Detección de incendio", en vez de "Cámara"). Validado contra un
+ejemplo real de lista de precios de materiales (proveedor Sekunet,
+~190 SKU, detección de incendio) — encaja sin cambios en el esquema
+actual (Proveedor, Código SKU → Modelo/SKU, Artículo → Nombre, Precio $
+→ Precio USD, unidad "UN" → Unidad de venta). La columna "Precio
+Nacional" (SI/NO) de ese archivo **es el dato de importación**
+(confirmado 2026-09-14) — mapea directo a nuestras columnas "País de
+origen"/"IMPORTADO": `"SI"` → se puede tratar como producto nacional (no
+importado, `IMPORTADO = "no"`); `"NO"` → es importado
+(`IMPORTADO = "si"`). Igual que con cualquier fila, si el archivo no
+trae el país de origen puntual, dejar "País de origen" vacío está bien —
+lo que sí hay que completar siempre es el `IMPORTADO` de la fila
+correspondiente en la matriz cuando se use, a partir de esta columna.
+
+(Distinto de la pestaña `MATERIALES` que ya existe dentro del
+**machote de matriz** — esa es la sección de cálculo de costo/margen
+para materiales dentro de una cotización puntual, no un catálogo de
+referencia. Ver `armar-cotizacion/SKILL.md`.)
+
+**Estado 2026-09-18:** ya hay ~194 filas de materiales y equipos de
+proveedores locales cargadas (control de acceso, material eléctrico,
+detección de incendio, switches, cerraduras, fuentes), aproximadamente
+de la fila 2.360 en adelante del catálogo de producción.
+
+**Decisión: un solo catálogo, no varios** (regla R11 de
+[`../../../docs/reglas-negocio.md`](../../../docs/reglas-negocio.md)).
+Se evaluó separar cámaras y monturas de tubería y materiales en archivos
+distintos y se descartó: la regla de no duplicados y la fórmula de
+precio en colones son las mismas para todo, una cotización real mezcla
+las tres capas, y un archivo más es un lugar más donde buscar. Se
+distinguen por `Categoría / tipo`.
+
+**`Categoría` y `Subcategoría` ya están normalizadas (vigente desde
+2026-09-21).** Pasó de 80 valores heredados de los encabezados de
+sección de cada PDF a **16 categorías y 64 subcategorías, sin ninguna
+fila sin clasificar**, así que ahora **sí** se puede filtrar con
+confianza. El texto original del proveedor se conservó en la columna 25,
+`Categoria original del proveedor`. Ver el detalle, el método y los
+errores a no repetir en la regla R11 de
+[`../../../docs/reglas-negocio.md`](../../../docs/reglas-negocio.md).
+
+**Al cargar un catálogo de proveedor nuevo hay que volver a
+normalizar**, porque las filas nuevas entran con la categoría cruda del
+documento de origen:
+
+Las reglas viven en `scripts/taxonomia.py`. **Corré siempre una
+simulación primero** y revisá el reparto y la lista de `Sin clasificar`
+antes de aplicar; hacé respaldo antes de escribir.
+
+- Si el proveedor nuevo trae **categorías limpias**, agregalas al
+  diccionario `CONFIABLES`.
+- Si trae **encabezados de sección**, agregá palabras clave a `ANTES` o
+  `DESPUES` — y acordate de que se matchea contra el **nombre** del
+  producto, **nunca contra la descripción**.
+- Si la sección acierta la categoría pero los nombres vienen crípticos,
+  usá `SECCION_FIJA`: la sección fija la categoría y las palabras clave
+  resuelven solo la subcategoría.
+
+⚠️ **Dos trampas de Excel al tocar este archivo por script:** una
+validación de lista escrita en línea tiene un límite de **255
+caracteres** (las 16 categorías dan 277 → Excel rechaza el archivo sin
+avisar; hay que usar un rango, por eso existe la hoja oculta
+`_listas`). Y `insert_cols` amplía el rango de la tabla pero **no**
+declara la columna dentro de ella: hay que borrar y recrear el
+`ListObject`, o Excel da el archivo por dañado.
+
+**Lo que falta para poder cotizar instalación** no es catálogo, son las
+**proporciones de consumo**: cuántos metros de tubo, cuántas gazas y
+cuánto cable lleva cada cámara instalada. Sin eso hay materiales pero no
+hay cálculo. Diseño acordado: una pestaña `Proporciones de Instalación`
+en este mismo Excel (mismo criterio que `Tipo de Cambio`). Ver R10.
+
 ## Sobre quién mantiene esto al día
 
 No hay una persona encargada — hoy preventa son 2 personas. La
 responsabilidad de notar que algo está desactualizado recae en quien
 usa [`buscar-equipo`](../buscar-equipo/SKILL.md): al traer un producto,
-debe mirar "Fecha de última actualización" para decidir si conviene
-confirmar el precio con el proveedor antes de cotizar, y si vale la
-pena disparar una actualización de esa fila.
+debe mirar "Fecha de última actualización" y **avisar siempre si tiene
+más de 2 meses** (regla exacta, confirmada 2026-09-14) para decidir si
+conviene confirmar el precio con el proveedor antes de cotizar, y si
+vale la pena disparar una actualización de esa fila.
 
 ## Estado
 

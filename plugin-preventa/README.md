@@ -10,9 +10,10 @@ preventa de Grupo Visión (cotizaciones de sistemas de seguridad/cámaras).
 | `nueva-cotizacion` | Punto de entrada recomendado: recibe el pedido de un cliente en lenguaje natural (ej. "necesito 15 cámaras para X, presupuesto ₡5M"), detecta qué datos faltan y pregunta solo eso, y orquesta `buscar-equipo` + `armar-cotizacion` en el orden correcto sin que el asesor tenga que llamar cada skill a mano. | Diseñado (2026-09-08); todavía sin probar en una conversación real |
 | `verificar-entorno` | Revisa qué accesos están listos (carpeta compartida `CLIENTES`, Excels de referencia, los dos Excels de control de cotizaciones, config de Bitrix24) y da un checklist de qué falta; también explica paso a paso la instalación inicial completa para alguien que recién empieza. | Funcional — checklist ampliado 2026-09-07 con los dos Excels de control y la guía de instalación inicial |
 | `armar-cotizacion` | Organiza archivos/carpetas de una cotización (numeración de carpeta, número de oferta, versionado), copia el machote oficial, llena la pestaña "Equipos" con el equipo/accesorios encontrados (vía `buscar-equipo`) — modelo, descripción, cantidad y costo unitario, las fórmulas de margen/precio de venta calculan el resto solas — y registra la cotización en los dos Excels de control compartidos. | Organización de carpetas funcional y probada en `sandbox-pruebas/`; el llenado de "Equipos" y el registro en los dos Excels de control se probaron de punta a punta el 2026-09-07/08 con una cotización de prueba real (spec de una licitación real, cliente inventado) — funcionando correctamente, incluida verificación de que las fórmulas del machote quedan intactas |
-| `seguimiento-correo` | Redacta (nunca envía) un borrador de correo de seguimiento a clientes según la etapa de la cotización. | Pendiente — placeholder sin conector de correo |
-| `sync-bitrix` | Actualiza la tarjeta en el Kanban de Bitrix24 al cerrar una cotización. | Pendiente — placeholder sin webhook de Bitrix |
-| `actualizar-catalogo` | Mantiene el catálogo unificado de proveedores en `CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/` a partir de los PDFs que el equipo agrega. | Catálogo real cargado con 2,358 productos (Hanwha + InVid/Milesight/Paramont/Vision/Secure); falta probar actualización de filas existentes y datos pegados en chat |
+| `seguimiento-correo` | Redacta (nunca envía) un borrador de correo de seguimiento a clientes, en tono formal, sin mencionar número de oferta ni monto (esos van solo en el PDF adjunto). | Primer borrador funcional (2026-09-09): estados reales confirmados y un ejemplo listo para el caso "cotización enviada"; faltan ejemplos reales de los otros estados |
+| `generar-pdf-cotizacion` | Genera el PDF final de una cotización desde la matriz, confirmando antes con el asesor que todo está correcto. | Pendiente — placeholder, propuesto 2026-09-09, faltan definir varios detalles del proceso real de generación del PDF |
+| `sync-bitrix` | Actualiza la tarjeta en el Kanban de Bitrix24 al cerrar una cotización. | Pendiente — falta que Operaciones genere el webhook de Bitrix24 (ya documentado el paso a paso de dónde sacarlo) |
+| `actualizar-catalogo` | Mantiene el catálogo unificado de proveedores en `CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/` a partir de los PDFs que el equipo agrega. | Catálogo real cargado con **2.550 productos** de 19 proveedores, 25 columnas, categorías y subcategorías normalizadas (16 / 64, ninguna sin clasificar) y pestañas de onboarding `LEEME`, `Guia de columnas` y `Glosario de categorias`. Falta probar actualización de filas existentes y datos pegados en chat |
 | `buscar-equipo` | Busca marca/modelo de equipo que cumpla una especificación técnica dada, consultando el catálogo de `actualizar-catalogo`; también identifica accesorios de instalación (bases/soportes/lentes) compatibles y pregunta si incluirlos. | Diseñado (2026-09-01); pestaña "Compatibilidad de Accesorios" generada sobre el catálogo real (793 pares, 264 modelos de cámara, 3 fuentes: catálogo, categoría genérica, cotizaciones reales); probado 2026-09-07 con la especificación técnica real de una licitación municipal real contra el catálogo real, con buenos resultados — todavía falta probarlo en vivo con el equipo de preventa |
 
 Ver [`docs/notas-proceso.md`](../docs/notas-proceso.md) (en la raíz del
@@ -22,12 +23,49 @@ paso.
 
 ## Instalación (primera vez en una computadora nueva)
 
-Esto se hace **una sola vez por computadora**. Son 5 pasos, ninguno
-requiere programar ni copiar archivos a mano:
+Esto se hace **una sola vez por computadora**. Nadie del equipo necesita
+saber programar ni crear ninguna cuenta nueva (ni siquiera de GitHub —
+ver Opción A abajo).
 
 1. **Tener Claude Code instalado y abierto.** Si estás leyendo esto desde
    ahí, este paso ya está listo.
-2. **Instalar el plugin:**
+2. **Tener la cuenta de Grupo Visión conectada a OneDrive en Windows.**
+   Si ya usás Outlook/Teams con tu cuenta de la empresa en esa
+   computadora, normalmente esto ya está resuelto — es lo que va a
+   sincronizar todas las carpetas compartidas de los pasos siguientes
+   (`CLIENTES`, `COMERCIAL 2024`, y la del plugin).
+3. **Instalar el plugin** — elegí una de las dos formas:
+
+   **Opción A — sin cuenta de GitHub (la que usa el equipo de preventa):**
+
+   El plugin también vive copiado, ya listo para instalar, en una
+   carpeta compartida de OneDrive — no hace falta git ni GitHub ni
+   ninguna cuenta extra, solo tener esa carpeta sincronizada.
+
+   1. Confirmá que ves la carpeta compartida `Automatizaciones IA` en tu
+      OneDrive de Grupo Visión (mismo mecanismo que `CLIENTES` o
+      `COMERCIAL 2024` — si no te aparece, pedile a Fabián que te la
+      comparta primero).
+   2. Andá hasta `Automatizaciones IA` → `Plugin_preventas_IA_automation`
+      en el Explorador de archivos de Windows, y copiá la ruta completa
+      de esa carpeta desde la barra de direcciones (click ahí arriba,
+      `Ctrl+C`) — **esta ruta es distinta para cada persona** porque
+      incluye tu propio usuario de Windows (`C:\Users\<tu usuario>\...`),
+      no se puede compartir un solo comando copiar-y-pegar para todos.
+   3. En Claude Code, corré (pegando tu ruta completa entre comillas
+      donde dice `<TU RUTA>`):
+      ```
+      /plugin marketplace add "<TU RUTA>"
+      ```
+      **Este paso (`marketplace add`) siempre va antes del `install` de
+      abajo — es obligatorio, no se puede saltar directo al `install`.**
+   4. Después corré:
+      ```
+      /plugin install preventa@preventa-automation
+      ```
+
+   **Opción B — con cuenta de GitHub (alternativa, ej. para quien
+   mantiene el plugin):**
    ```
    /plugin marketplace add frosalesvision/Preventa-Automation
    /plugin install preventa@preventa-automation
@@ -36,11 +74,18 @@ requiere programar ni copiar archivos a mano:
    comando falla por permisos, correr `gh auth login` primero (o pedirle
    a quien te dio el acceso que confirme que tu usuario de GitHub está
    agregado al repo `frosalesvision/Preventa-Automation`).
-3. **Tener la cuenta de Grupo Visión conectada a OneDrive en Windows.**
-   Si ya usás Outlook/Teams con tu cuenta de la empresa en esa
-   computadora, normalmente esto ya está resuelto — es lo que sincroniza
-   la carpeta compartida `CLIENTES` automáticamente. Se confirma en el
-   paso siguiente.
+
+   ⚠️ **Mantenimiento de la Opción A (nota para quien administra el
+   plugin, no para quien lo instala):** la carpeta de OneDrive es una
+   copia manual del repo de git, no se actualiza sola. Cada vez que se
+   publique un cambio nuevo, hay que volver a copiar los archivos del
+   repo (los que están trackeados en git, nunca `recursos-originales/`
+   ni nada con datos reales de clientes) a esa carpeta compartida. No
+   está confirmado todavía si `/plugin marketplace update` refresca solo
+   una fuente local, o si cada persona necesita sacar y volver a agregar
+   el marketplace (`/plugin marketplace remove` + `add` de nuevo) después
+   de cada actualización — pendiente de confirmar en la práctica.
+
 4. **Agregar los dos accesos directos de Excel de control de
    cotizaciones** (`Cotizaciones en Preventa.xlsx` y `Control de
    cotizaciones 2026.xlsx`, ambos dentro de la carpeta compartida

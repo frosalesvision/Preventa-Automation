@@ -23,6 +23,59 @@ armada sobre un supuesto equivocado (cantidad mal, característica que no
 correspondía, presupuesto mal interpretado). Esto aplica en cada paso de
 este skill, no solo al principio.
 
+## La ficha de cotización (agregado 2026-09-18 — acordado con preventa)
+
+Antes de armar nada, este skill levanta una **ficha del proyecto**: un
+set corto de preguntas con los valores por defecto ya puestos, para que
+el asesor solo confirme o corrija. Es la parte que preventa aceptó
+explícitamente en la reunión del 2026-09-14: *"que la IA pregunte si se
+van a mantener los valores por defecto o si se van a cambiar"*, con el
+trato de que **ellos aportan el número y la IA llena el Excel**.
+
+**No es un formulario que se llena aparte y se sube.** Se pregunta en el
+chat, agrupado, con los defaults visibles. Un documento externo se
+desactualiza, obliga a abrir otra herramienta, y no puede precargar el
+valor que ya conocemos.
+
+**Campos, en este orden.** Lo que ya vino en el pedido no se vuelve a
+preguntar; lo que no se sabe **siempre** se pregunta.
+
+| # | Campo | Default / de dónde sale |
+|---|---|---|
+| 1 | **Tipo de cotización** | Estudio de mercado · Oferta de licitación · Cliente privado. Define los porcentajes de abajo (regla R6) |
+| 2 | **Cliente** | Si está en la tabla de régimen fiscal, se precarga exención y porcentajes. Si no está, se pregunta y se ofrece agregarlo (R3) |
+| 3 | **Proyecto** | Descripción corta y número de licitación si aplica |
+| 4 | **Ubicación** | Para el kilometraje. La **distancia** sale de la columna `Destino / localidad` de la pestaña `Transporte` del machote; si el destino no está, se pregunta y se ofrece agregarlo (R9) |
+| 5 | **Asesor responsable** | Para los Excel de control y la firma de la cotización |
+| 6 | **Registro de proyecto** | ¿Registrado? ¿Con qué distribuidor y marca? ¿Desde cuándo? Si no lo está, avisar que el descuento mayor no aplica (R5) |
+| 7 | **Alcance** | Solo equipo · con accesorios de montaje · con materiales de instalación · con mano de obra. Determina qué pestañas se llenan |
+| 7b | **Materiales de instalación** *(opcional)* | Si el alcance los incluye: qué materiales y **qué cantidades**. **Preguntar siempre, pero no insistir**: si el proyecto no los lleva o todavía no se sabe, se deja en blanco y se sigue. **Nunca estimar la cantidad por cuenta propia** (regla R10) |
+| 8 | **Transporte %** | Valor del machote; preguntar si compras ya dio el del proyecto |
+| 9 | **Imprevistos %** | Valor del machote |
+| 10 | **Administración %** | Valor del machote; puede bajar a 0 en licitaciones agresivas |
+| 11 | **Margen %** | Valor del machote. **Avisar que cambiarlo en `Equipos` mueve también `OPEX GV`** |
+| 12 | **Mano de obra** | Días y personas: se preguntan siempre. El precio unitario sale del tarifario (R8) |
+| 12b | **Viajes al sitio** | Cuántos viajes, cuántos vehículos y si hay hospedaje. **Se preguntan**: solo los kilómetros salen de la tabla de destinos (R9) |
+| 13 | **Financiamiento** | **Siempre preguntar**, sin importar el tamaño del proyecto. Si va: plazo y tasa. Si no: la columna `Financ.` queda vacía (R13) |
+| 14 | **Tipo de cambio** | El del banco con el redondeo hacia arriba, propuesto para aceptar o corregir (R7) |
+| 15 | **Vigencia** | Días de validez de la oferta y fecha límite de entrega |
+
+⚠️ **Lo que la ficha pregunta y no busca en ninguna tabla.** Hay datos
+que dependen del sitio y no de un catálogo: **la cantidad de material de
+instalación**, los **días y personas** de mano de obra, y los **viajes y
+vehículos**. Para esos no existe —a propósito— una tabla de referencia:
+guardarlos como valor fijo le daría a una estimación la autoridad de una
+fuente de verdad, y después nadie la cuestiona. Se preguntan en cada
+cotización y **se pueden dejar en blanco** si el proyecto no los lleva.
+
+**Guardar la ficha.** Una vez confirmada, escribila como archivo corto
+dentro de la carpeta de la cotización. Sirve para dos cosas: que una
+versión nueva arranque de ahí sin repreguntar todo, y que dentro de seis
+meses se pueda explicar por qué esa oferta llevaba esos porcentajes.
+
+El detalle de cada regla está en
+[`docs/reglas-negocio.md`](../../../docs/reglas-negocio.md).
+
 ## Paso 1 — Leer el pedido y armar un inventario de lo que ya se sabe
 
 Antes de preguntar nada, releé el pedido completo (puede venir en una sola
