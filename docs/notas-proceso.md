@@ -5,6 +5,25 @@
 > preguntarle a preventa de nuevo. Si el proceso cambia, actualizar acá
 > primero y después revisar si algún SKILL.md quedó desalineado.
 
+> **Documentos hermanos (leerlos también, se agregaron el 2026-09-18):**
+>
+> - [`reglas-negocio.md`](reglas-negocio.md) — **la fuente única de las
+>   reglas que determinan un número dentro de una cotización** (R1 a
+>   R14): qué significa "importado", los dos IVA distintos, el régimen
+>   fiscal por cliente, el costo real de GV, el registro de proyecto,
+>   los porcentajes por etapa, el tarifario de mano de obra, las
+>   proporciones de materiales. **Leer esto antes de tocar cualquier
+>   skill que calcule dinero.**
+> - [`pendientes-comercial.md`](pendientes-comercial.md) — la lista de
+>   lo que falta del equipo comercial, con el mensaje listo para Teams.
+> - [`pruebas-validacion.md`](pruebas-validacion.md) — las pruebas con
+>   valores exactos verificados, los criterios de aceptación y la
+>   bitácora de corridas. El script está en `scripts/smoke-machote.ps1`.
+>
+> El estado narrativo del proyecto (cómo se llegó a cada decisión) sigue
+> viviendo acá; las reglas de negocio ejecutables viven en
+> `reglas-negocio.md` y no se duplican.
+
 ## Quién hace qué
 
 El equipo de preventa arma cotizaciones de sistemas de seguridad/cámaras
