@@ -198,36 +198,18 @@ cual comparar, no hay forma de saber si la herramienta acierta.
 No hace falta pasarlos a ningún formato: el PDF o el Excel tal como
 llegó del proveedor sirve.
 
-### 12. Dos confirmaciones sobre el machote
+### Cerradas el 2026-09-22 (no preguntar de nuevo)
 
-- Las pestañas de resumen traían datos de un proyecto anterior
-  (cantidades, costos y un nombre de cliente). Se limpiaron. **¿Estaba
-  bien limpiarlas, o se dejaban a propósito como ejemplo?**
-- Cuatro pestañas de servicio tenían el margen roto. Se las dejó
-  apuntando al mismo margen del proyecto que usa OPEX. **¿Es correcto,
-  o esos servicios llevan un margen propio?**
+Se resolvieron sin necesidad del equipo comercial. Quedan anotadas para
+que nadie las vuelva a abrir.
 
-### 12b. ¿El monto de los Excels de control va con IVA o sin IVA?
-
-La columna del `Control de cotizaciones 2026.xlsx` se llama **`Monto sin
-IVA`**, pero el `Cotizaciones en Preventa.xlsx` solo dice `Monto de
-Oferta`. Cruzando los dos archivos por número de oferta, **19 de las 26
-ofertas que están en ambos tienen el mismo monto**, y ninguna está en
-relación 1,13 — o sea los dos guardan el mismo número.
-
-**Pregunta concreta:** ¿ese número es el subtotal (antes del impuesto al
-cliente) o el total? Si es el total, la columna está mal nombrada y
-conviene renombrarla.
-
-**Por qué importa:** es lo que se reporta hacia arriba. Si la mitad de
-las filas trae subtotal y la otra mitad total, ningún acumulado de ese
-archivo significa nada. Por ahora la automatización escribe el
-**subtotal**, que es lo que dice el encabezado.
-
-### 13. El prefijo del número de oferta
-
-Qué determina que una oferta sea `T1`, `T4` o `T5`. Ya se preguntó una
-vez y nadie lo supo; si sale de Bitrix, sirve saberlo.
+| Pregunta | Cómo quedó |
+|---|---|
+| Antigüedad del precio: ¿2 semanas o 2 meses? | **2 meses.** La mención a 2 semanas quedó descartada. `buscar-equipo` sigue mostrando siempre los días exactos |
+| ¿Qué determina el prefijo de la oferta (`T1`/`T4`/`T5`)? | **No se sabe, y se deja como réplica de lo que hay:** se propone el prefijo usado más recientemente para ese cliente y el asesor confirma |
+| ¿El monto de los Excels de control va con o sin IVA? | **Sin IVA.** Se escribe el SUBTOTAL, que es lo que dice el encabezado de la columna |
+| Las pestañas de resumen traían datos de un proyecto anterior: ¿estaba bien limpiarlas? | Sí, y además aparecieron **más**, ocultas, con la matriz de costo completa de ese proyecto. Se borraron el 2026-09-22 |
+| El margen de las cuatro pestañas de servicio | **Ya no aplica:** esas pestañas se borraron el 2026-09-22, eran del mismo proyecto anterior |
 
 ---
 
@@ -305,17 +287,14 @@ TXT o un Excel a mano me sirve igual.
    llevar el control en algún lado — lo podemos armar, solo necesito
    saber cómo funciona hoy.
 
-9. **Antigüedad del precio:** ¿a partir de cuántos días hay que
-    reconfirmar un precio con el proveedor antes de cotizarlo?
-
-10. **Una rapidita, Katherine:** en el control de cotizaciones, el monto
+9. **Una rapidita, Katherine:** en el control de cotizaciones, el monto
     que anotan, ¿es con IVA o sin IVA? Lo pregunto porque la columna se
     llama "Monto sin IVA" pero quería confirmarlo antes de que la
     automatización empiece a llenarla sola.
 
 **Y lo más importante para saber si esto quedó bien hecho:**
 
-11. **Dos o tres cotizaciones ya cerradas**, con la especificación
+10. **Dos o tres cotizaciones ya cerradas**, con la especificación
     original del cliente, la matriz final, los porcentajes que usaron y
     el monto total. Ideal si una lleva financiamiento y otra no, y al
     menos una de más de 30 líneas.

@@ -508,6 +508,9 @@ nombre del cliente en la columna de fecha. El skill dice "leé los
 nombres reales" pero no advierte que **el layout también cambia**.
 
 **H-4 · El límite de ruta de Windows aprieta más de lo documentado.**
+✅ **Corregido el 2026-09-22** — `armar-cotizacion` ahora calcula y dice
+el máximo exacto de caracteres para ese cliente, en vez de pedir "algo
+más corto".
 Medido sobre los 286 clientes reales: **83 (29%) admiten una descripción
 de 20 caracteres o menos**. El cliente de nombre más largo (62
 caracteres) admite **1 carácter**; el siguiente (60) admite 2, y el
@@ -517,16 +520,25 @@ El skill avisa "pedí una descripción más corta" pero no dice *cuánto* —
 tiene que calcular y decir el máximo exacto para ese cliente.
 
 **H-5 · Dos columnas del catálogo están 100% vacías.**
+✅ **Atendido el 2026-09-22** — `buscar-equipo` dejó de apuntar a
+`Especificaciones técnicas clave` y `actualizar-catalogo` registra que
+hay que llenarlas o eliminarlas en el próximo cargue. El dato en sí
+sigue sin existir.
 `Especificaciones técnicas clave` (0 de 2.550) y `Vigencia del precio`
 (0 de 2.550). `buscar-equipo` manda explícitamente a comparar contra la
 primera. Hoy toda la búsqueda sale de `Nombre` + `Descripción`.
 
-**H-6 · `buscar-equipo` no conoce la normalización del catálogo.** Se
+**H-6 · `buscar-equipo` no conoce la normalización del catálogo.**
+✅ **Corregido el 2026-09-22** — el skill trae ahora la tabla completa
+de 16 categorías y 64 subcategorías, y el orden de filtrado. Se
 escribió antes de que existieran `Categoria` y `Subcategoria`, y no
 menciona ni las columnas ni los 16 nombres válidos ni la pestaña
 `Glosario de categorias`. Una sesión nueva tiene que descubrirlos sola.
 
-**H-7 · No hay protocolo de acotamiento.** Una especificación normal
+**H-7 · No hay protocolo de acotamiento.**
+✅ **Corregido el 2026-09-22** — hasta 10 candidatos se listan; con más,
+se cuenta, se agrupa por marca con rango de precio y se pregunta por
+dónde acotar. Más los falsos positivos medidos que hay que descartar. Una especificación normal
 ("exterior, 4MP, IR") deja **68 candidatos**; el skill dice "mostrá
 todos los candidatos razonables". Hace falta una regla de corte (por
 precio, por marca, o preguntar antes de listar).
@@ -549,6 +561,8 @@ régimen fiscal no hay impuesto correcto, sin tarifario no hay mano de
 obra, sin reglas de descuento todo sale a precio de lista.
 
 **H-10 · Las fechas del catálogo son texto, no fechas de Excel.**
+✅ **Atendido el 2026-09-22** — `actualizar-catalogo` debe escribirlas
+como fecha real de aquí en adelante.
 2.357 filas dicen `'2026-08-28'` y 193 `'2026-09-14'` (24 y 7 días, las
 dos dentro del umbral). Funciona para calcular, pero Excel no las puede
 ordenar ni filtrar como fecha.
@@ -592,6 +606,10 @@ git checkout -- sandbox-pruebas/ && git clean -fd sandbox-pruebas/
 | 2026-09-22 | **Limpieza del machote** | ✅ Pasa | 40 → 33 pestañas. Se borraron 10 con datos de un proyecto real y se limpiaron 305 constantes numéricas de otras dos |
 | 2026-09-22 | **Pestañas de inducción** | ✅ Pasa | `LEEME` de primera, `Guia de pestanas` y `Guia de formulas` de últimas |
 | 2026-09-22 | Integridad tras la limpieza | ✅ Pasa | 19 objetos gráficos intactos, 0 errores, el archivo bajó de 745.448 a 715.093 bytes |
+| 2026-09-22 | **H-4, H-6, H-7 corregidos** | ✅ Pasa | Cálculo del máximo de caracteres, taxonomía completa en `buscar-equipo`, y protocolo de acotamiento |
+| 2026-09-22 | **H-5, H-10 atendidos** | ⚠️ Parcial | Documentados y con instrucción en `actualizar-catalogo`; el dato en sí sigue faltando |
+| 2026-09-22 | H-8, H-9 | ⬜ Bloqueados | Esperan al equipo comercial. H-8 quedó afinado a una sola pregunta |
+| 2026-09-22 | Guías del machote | ✅ Pasa | Cuatro pestañas (`LEEME` + 3 guías) con estilo común: sin cuadrícula, bandas de sección, encabezado fijo |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
 | | Caso patrón | ⬜ Bloqueado | Espera las cotizaciones cerradas |
