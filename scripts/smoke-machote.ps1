@@ -23,6 +23,7 @@ $FILA_EQ_FIN    = 55    # ultima fila de datos de Equipos
 $FILA_EQ_TOT    = 57    # totales de Equipos
 $FILA_COT_FIN   = 71    # ultima linea de COTIZACION
 $FILA_COT_SUB   = 74    # SUBTOTAL
+$FILA_COT_ESP   = 75    # IMPUESTO
 $FILA_COT_TOTAL = 76    # TOTAL
 
 $esperado = @{
@@ -181,6 +182,42 @@ try {
     $okVacia = ([string]$vacia -eq "")
     if (-not $okVacia) { $fallas++ }
     Write-Output ("  {0}  Linea sin financiamiento vacia  obtenido='{1}'" -f $(if ($okVacia) { "OK  " } else { "FALLA" }), $vacia)
+
+    # ---------- P-09: el impuesto al cliente sale de la ficha ----------
+    # Antes estaba escrito a mano como 0.13 en COTIZACION y en la financiada.
+    # Un cliente exento pagaba 13% y Excel no mostraba ningun error: el modo
+    # de falla es silencioso, por eso esta prueba existe.
+    Write-Output ""
+    Write-Output "=== P-09: impuesto al cliente desde 'Datos del proyecto' ==="
+    $dp  = $wb.Worksheets.Item("Datos del proyecto")
+    $sub = $cot.Range("J$FILA_COT_SUB").Value2
+    $casos = @(
+        @("ficha vacia -> 13%",        "",     "",     0.13),
+        @("exento=si -> 0%",           "si",   "",     0.00),
+        @("4% escrito como 0.04",      "no",   "0.04", 0.04),
+        @("4% escrito como 4",         "no",   "4",    0.04),
+        @("B16 no numerico -> 13%",    "no",   "x",    0.13),
+        @("exento con espacios/mayus", " SI ", "",     0.00)
+    )
+    foreach ($c in $casos) {
+        $dp.Range("B15").Formula = $c[1]
+        $dp.Range("B16").Formula = $c[2]
+        $excel.CalculateFullRebuild()
+        $tasa = $cot.Range("J$FILA_COT_ESP").Value2 / $sub
+        $ok = [Math]::Abs($tasa - [double]$c[3]) -lt 0.000001
+        if (-not $ok) { $fallas++ }
+        Write-Output ("  {0}  {1,-30} esperado={2:P2}  obtenido={3:P2}" -f $(if ($ok) { "OK  " } else { "FALLA" }), $c[0], [double]$c[3], $tasa)
+    }
+    # la financiada usa la misma tasa
+    $dp.Range("B15").Formula = "si"
+    $excel.CalculateFullRebuild()
+    $okFin = ($cfn.Range("J$FILA_COT_ESP").Value2 -eq 0)
+    if (-not $okFin) { $fallas++ }
+    Write-Output ("  {0}  la cotizacion financiada respeta la exencion" -f $(if ($okFin) { "OK  " } else { "FALLA" }))
+    # dejar la ficha como estaba: el barrido de errores viene despues
+    $dp.Range("B15").Formula = ""
+    $dp.Range("B16").Formula = ""
+    $excel.CalculateFullRebuild()
 
     # ---------- P-06: errores de Excel ----------
     Write-Output ""
