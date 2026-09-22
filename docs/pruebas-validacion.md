@@ -581,6 +581,53 @@ git checkout -- sandbox-pruebas/ && git clean -fd sandbox-pruebas/
 
 ---
 
+## Cómo volver a probar una cotización completa
+
+Hay **dos** scripts, y miran cosas distintas:
+
+| Script | Qué mira | Cuándo correrlo |
+|---|---|---|
+| `scripts/smoke-machote.ps1` | El machote **aislado**: fórmulas, capacidad, errores, financiamiento, impuesto | Después de cualquier cambio estructural en el machote |
+| `scripts/prueba-cotizacion.ps1` | El **flujo entero** como lo vive el asesor: carpeta, copia, escritura, ficha, cotización | Antes de darle el plugin a alguien, y después de tocar `armar-cotizacion` |
+
+```
+powershell -File scripts/prueba-cotizacion.ps1
+powershell -File scripts/prueba-cotizacion.ps1 -Conservar
+```
+
+Sin `-Conservar` borra la carpeta al terminar. Con `-Conservar` la deja
+para poder abrir el Excel y mirarlo a ojo.
+
+**Los diez pasos que verifica**, en el mismo orden en que ocurren:
+
+1. **Numeración** — calcula el máximo del año y el máximo global, y
+   comprueba que coincidan antes de proponer el número.
+2. **Límite de ruta** — mide la ruta real del machote y dice cuántos
+   caracteres más aguantaría la descripción.
+3. **Carpeta y machote** — que existan las 8 subcarpetas estándar y que
+   el machote quede copiado en `Matriz-Oferta/`.
+4. **Las guías viajan con la copia** — que `LEEME` sea la primera
+   pestaña y que las cuatro guías estén en el archivo que recibe el
+   asesor, no solo en el original.
+5. **Escritura del equipo** — escribe dos líneas usando **solo las
+   cuatro columnas de entrada** y compara cuatro valores calculados
+   contra su valor exacto.
+6. **Espejo a `COTIZACIÓN `** — que la cantidad y la descripción se
+   copien, y que el SUBTOTAL cuadre con `Equipos!P57`.
+7. **El impuesto sale de la ficha** — los tres casos: ficha vacía da
+   13%, cliente exento da 0, y un 2% escrito como `2` se interpreta como
+   2%. También que la cotización financiada respete la exención.
+8. **El financiamiento no se asume** — sin ID, la cuota queda vacía y el
+   cuadro en cero.
+9. **Cero errores de Excel** en todo el libro.
+10. **El monto del control** — imprime el SUBTOTAL y el TOTAL por
+    separado, aclarando cuál va a los Excels de control.
+
+⚠️ **Nunca toca `CLIENTES/` ni los dos Excels de control.** Todo pasa en
+`sandbox-pruebas/`, y el monto del paso 10 solo se imprime.
+
+---
+
 ## Bitácora de corridas
 
 | Fecha | Prueba | Resultado | Notas |
@@ -610,6 +657,8 @@ git checkout -- sandbox-pruebas/ && git clean -fd sandbox-pruebas/
 | 2026-09-22 | **H-5, H-10 atendidos** | ⚠️ Parcial | Documentados y con instrucción en `actualizar-catalogo`; el dato en sí sigue faltando |
 | 2026-09-22 | H-8, H-9 | ⬜ Bloqueados | Esperan al equipo comercial. H-8 quedó afinado a una sola pregunta |
 | 2026-09-22 | Guías del machote | ✅ Pasa | Cuatro pestañas (`LEEME` + 3 guías) con estilo común: sin cuadrícula, bandas de sección, encabezado fijo |
+| 2026-09-22 | **Prueba de cotización completa** | ✅ Pasa | Nuevo `scripts/prueba-cotizacion.ps1`: 10 pasos, de la numeración al monto del control. Incluye el caso de cliente exento |
+| 2026-09-22 | Confidencialidad | ✅ Corregido | Se quitaron nombres de clientes reales de 2 docs, 1 script y **10 celdas del catálogo de producción** |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
 | | Caso patrón | ⬜ Bloqueado | Espera las cotizaciones cerradas |
