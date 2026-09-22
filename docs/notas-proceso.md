@@ -399,7 +399,7 @@ proyectos usaron equipos InVid/Milesight: un escaneo ligero (solo
 metadata/texto compartido del `.xlsx`, sin abrir celda por celda) sobre
 las ~287 carpetas de `CLIENTES` encontró 71 cotizaciones reales con
 esta familia de marcas. Revisando a fondo las 15 más densas, solo 1
-(Municipalidad Alajuelita, proyecto "Ciudad Segura") tenía una
+(un proyecto municipal de ciudad segura) tenía una
 estructura de hoja parseable automáticamente (las otras 14 organizan
 sus hojas de forma distinta, consistente con lo ya documentado arriba:
 "cada quien lo hace distinto"). De esa cotización salieron 10 pares

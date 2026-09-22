@@ -344,7 +344,7 @@ equipos de esta familia. Se probaron **dos estrategias de extracción**:
 
 1. **Por estructura de hoja** (secciones "Cámaras"/"Accesorios" en
    celdas separadas): de las 15 cotizaciones más densas, **solo 1**
-   (Municipalidad Alajuelita, proyecto "Ciudad Segura") tenía esa
+   (un proyecto municipal de ciudad segura) tenía esa
    estructura parseable automáticamente — las otras 14 organizan sus
    hojas de forma distinta (consistente con `notas-proceso.md`: "cada
    quien lo hace distinto", no hay convención única).
@@ -356,8 +356,8 @@ equipos de esta familia. Se probaron **dos estrategias de extracción**:
    ":", perdiendo la lista de SKU en frases tipo "for Paramont Series
    Cameras: PAR-P3BIR, PAR-P4BIR..." — corregido, y de paso mejoró el
    match dentro del propio catálogo). Aun así, **no aparecieron pares
-   nuevos más allá de los de Alajuelita**: se investigó un caso
-   prometedor (Reina Dragón, con "Junction Box for Paramont Series
+   nuevos más allá de los de esa cotización**: se investigó un caso
+   prometedor (otra cotización, con "Junction Box for Paramont Series
    Cameras: PAR-P3BIR, PAR-P4BIR, PAR-P8BIR...") y los SKU que menciona
    **no existen tal cual en nuestro catálogo actual** — son nombres
    cortos/abreviados del proveedor en una cotización más vieja, no los
@@ -365,7 +365,7 @@ equipos de esta familia. Se probaron **dos estrategias de extracción**:
    extracción, es un desajuste real de nomenclatura entre lo que
    escribió el proveedor en ese momento y el catálogo actual.
 
-De la única cotización que sí funcionó (Alajuelita) salieron 10 pares
+De la única cotización que sí funcionó salieron 10 pares
 verificados, con dos hallazgos genuinamente útiles: (a) para la PTZ
 `PAR-P8PTZXIR32NH-AI` y la bullet `PAR-P6BIRA2812-LC3`, el equipo usó
 brackets **Panasonic i-PRO** (marca que ni siquiera está en nuestro
