@@ -39,13 +39,46 @@ La lista de precios de uno de los distribuidores publica **tres**
 columnas de precio: `Dealer Program`, `DEAL` y `MSRP`. Entre la más baja
 y la más alta puede haber más de 3× de diferencia.
 
-**Pregunta concreta:** ¿en cuál de los tres niveles compra Grupo Visión?
-¿Depende del programa de distribuidor, del volumen, o del proyecto?
+**Pregunta concreta (afinada el 2026-09-22):** ya sabemos exactamente
+qué nivel cargamos. De las 945 filas con precio especial, **669 son
+exactamente el MSRP dividido entre dos** y 202 son **iguales al MSRP**
+(todas ellas software, licencias y accesorios de una línea). Filas de
+los dos tipos conviven en las mismas páginas del PDF, así que no es un
+error de carga: el nivel *Dealer Program* es **MSRP − 50% en hardware y
+0% en software**.
 
-**Si no llega:** hoy cargamos la más baja y la más alta. Usar la más baja
-cuando en realidad compramos en la intermedia significa cotizar por
-debajo del costo y perder plata en los proyectos que se ganen. Es la
+Entonces la pregunta ya no es "cuál de tres", es una sola:
+
+> **¿Grupo Visión compra al nivel Dealer Program (o sea el MSRP menos
+> 50%), o al nivel intermedio DEAL que no cargamos?**
+
+**Si no llega:** hoy tenemos cargada la más baja y la más alta. Usar la
+más baja cuando en realidad compramos en la intermedia significa cotizar
+por debajo del costo y perder plata en los proyectos que se ganen. Es la
 pregunta con el riesgo más caro de toda la lista.
+
+### 2b. ¿El IVA de las compras locales es un costo o se acredita? `R2`
+
+Rastreando las fórmulas del machote apareció esto: **el transporte y el
+DAI solo se cobran si la línea dice `IMPORTADO = si`, pero el IVA de
+línea se aplica siempre**, con el porcentaje que tenga la pestaña. En
+`Equipos` ese porcentaje es 0% y en `MATERIALES` es 13%. O sea que el
+IVA lo decide *en qué pestaña se escribió la línea*, no el producto.
+
+**Pregunta concreta:** cuando Grupo Visión le compra a un proveedor
+local y le cobran el 13% de IVA, ¿ese IVA **es un costo** del proyecto,
+o **se acredita** contra el IVA que después se le cobra al cliente?
+
+**Por qué importa ahora:** el catálogo ya tiene 193 productos de
+proveedores locales (Seguritronic, ISTC, EPA, Tectel y otros). Si ese
+IVA es un costo, una línea de proveedor local escrita en `Equipos`
+—que tiene IVA 0%— sale con el costo **subvaluado en 13%**: sobre $100
+por unidad, el costo nacionalizado pasaría de $103 a $116,39. Si se
+acredita, está bien como está y no hay nada que cambiar.
+
+**Si no llega:** no se toca nada. La automatización solo va a **avisar**
+cuando una línea de proveedor local caiga en una pestaña con IVA 0%,
+para que quien cotiza lo revise.
 
 ### 3. Clientes con régimen fiscal especial `R3`
 
@@ -174,6 +207,23 @@ llegó del proveedor sirve.
   apuntando al mismo margen del proyecto que usa OPEX. **¿Es correcto,
   o esos servicios llevan un margen propio?**
 
+### 12b. ¿El monto de los Excels de control va con IVA o sin IVA?
+
+La columna del `Control de cotizaciones 2026.xlsx` se llama **`Monto sin
+IVA`**, pero el `Cotizaciones en Preventa.xlsx` solo dice `Monto de
+Oferta`. Cruzando los dos archivos por número de oferta, **19 de las 26
+ofertas que están en ambos tienen el mismo monto**, y ninguna está en
+relación 1,13 — o sea los dos guardan el mismo número.
+
+**Pregunta concreta:** ¿ese número es el subtotal (antes del impuesto al
+cliente) o el total? Si es el total, la columna está mal nombrada y
+conviene renombrarla.
+
+**Por qué importa:** es lo que se reporta hacia arriba. Si la mitad de
+las filas trae subtotal y la otra mitad total, ningún acumulado de ese
+archivo significa nada. Por ahora la automatización escribe el
+**subtotal**, que es lo que dice el encabezado.
+
 ### 13. El prefijo del número de oferta
 
 Qué determina que una oferta sea `T1`, `T4` o `T5`. Ya se preguntó una
@@ -209,9 +259,14 @@ TXT o un Excel a mano me sirve igual.
 
 2. **¿En qué nivel de precio compramos?** La lista de uno de los
    distribuidores trae tres columnas de precio (Dealer Program, DEAL y
-   MSRP) y entre la más baja y la más alta hay más de 3× de diferencia.
-   Necesito saber cuál es la nuestra. Si me equivoco de columna, las
-   cotizaciones salen por debajo del costo.
+   MSRP). Ya revisé qué tenemos cargado: el precio especial que aparece
+   en el catálogo es **exactamente el MSRP dividido entre dos** en todo
+   el hardware, y el MSRP tal cual en software y licencias. O sea que lo
+   que tenemos cargado es el nivel **Dealer Program**.
+
+   Entonces la pregunta es una sola: **¿nosotros compramos a ese nivel
+   (MSRP menos 50%), o al intermedio (DEAL) que no está cargado?** Si me
+   equivoco, las cotizaciones salen por debajo del costo.
 
 3. **Clientes exentos de impuesto.** Una lista de los clientes
    recurrentes diciendo si se les cobra impuesto, cuánto, y si se les
@@ -253,9 +308,14 @@ TXT o un Excel a mano me sirve igual.
 9. **Antigüedad del precio:** ¿a partir de cuántos días hay que
     reconfirmar un precio con el proveedor antes de cotizarlo?
 
+10. **Una rapidita, Katherine:** en el control de cotizaciones, el monto
+    que anotan, ¿es con IVA o sin IVA? Lo pregunto porque la columna se
+    llama "Monto sin IVA" pero quería confirmarlo antes de que la
+    automatización empiece a llenarla sola.
+
 **Y lo más importante para saber si esto quedó bien hecho:**
 
-10. **Dos o tres cotizaciones ya cerradas**, con la especificación
+11. **Dos o tres cotizaciones ya cerradas**, con la especificación
     original del cliente, la matriz final, los porcentajes que usaron y
     el monto total. Ideal si una lleva financiamiento y otra no, y al
     menos una de más de 30 líneas.

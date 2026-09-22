@@ -47,7 +47,8 @@ números de fila, los anteriores ya no aplican): `Equipos` filas de datos
 SUBTOTAL **J74**, IMPUESTO **J75**, TOTAL **J76**; `Financiamiento`
 cuadro *n* en la fila `3 + (n−1)·17`, con su cuota mensual 9 filas más
 abajo. Hay además una pestaña **`COTIZACION (Financ)`** con la misma
-estructura que `COTIZACIÓN ` (ver R13). El libro tiene **40 pestañas**.
+estructura que `COTIZACIÓN ` (ver R13). El libro tiene **33 pestañas**
+(eran 40 hasta el 2026-09-22; ver la limpieza abajo).
 
 Si alguno de estos valores cambió en el machote, los resultados
 esperados de abajo ya no aplican y hay que recalcularlos.
@@ -195,7 +196,7 @@ Son **dos** barridos, y hacen falta los dos:
   Es como lo recibe el asesor.
 - **P-06b — con datos:** después de cargar las entradas de P-01 a P-08.
 
-**Criterio de aceptación:** **cero celdas en error en las 40 pestañas**
+**Criterio de aceptación:** **cero celdas en error en todas las pestañas**
 en los dos casos. Ni `#REF!`, ni `#¡DIV/0!`, ni `#¡NUM!`, ni
 `#¡VALOR!`.
 
@@ -266,6 +267,33 @@ nueva y cómo se hizo la ampliación.
    completa antes del cambio a precio unitario: es la comprobación de
    que financiar el unitario y multiplicar por la cantidad llega al
    mismo lugar.
+
+---
+
+## P-09 · El impuesto al cliente sale de la ficha
+
+**Entrada:** las dos líneas de P-01/P-02 cargadas, y luego cada
+combinación de `Datos del proyecto!B15` (exento) y `B16` (% impuesto).
+
+**Se mide:** `J75 / J74` en `COTIZACIÓN `, o sea la tasa efectiva.
+
+| `B15` | `B16` | Tasa esperada | Por qué |
+|---|---|---|---|
+| vacío | vacío | **13%** | El machote en blanco se comporta como siempre |
+| `si` | vacío | **0%** | Cliente exento |
+| `no` | `0.04` | **4%** | Porcentaje escrito como fracción |
+| `no` | `4` | **4%** | Escrito como entero: el guard `>1` lo divide entre 100 |
+| `no` | `x` | **13%** | Texto en la celda: `ISNUMBER` cae al valor por defecto |
+| ` SI ` | vacío | **0%** | Con espacios y mayúsculas: `LOWER(TRIM(...))` |
+
+Además: con `B15="si"`, `COTIZACION (Financ)!J75` también tiene que dar
+**0** — las dos pestañas comparten la regla.
+
+**Por qué esta prueba existe:** hasta el 2026-09-21 el 13% estaba
+escrito a mano en la fórmula de las dos pestañas. Un cliente exento
+pagaba impuesto y **Excel no mostraba ningún error**. Es el tipo de
+falla que no se encuentra mirando el archivo: hay que ejecutarla. Ver
+R3 en [`reglas-negocio.md`](reglas-negocio.md).
 
 ---
 
@@ -402,7 +430,7 @@ y uno de más de 30 líneas.
 | Mínimo | Cero accesorios inventados; los no documentados salen marcados para verificar |
 | Necesario | Con el mismo costo unitario y los mismos porcentajes, cada línea coincide **al centavo** |
 | Necesario | La columna de importación coincide en el 100% de las líneas |
-| Necesario | El monto registrado en los Excel de control es el TOTAL con impuesto, en dólares, con el símbolo correcto visible en pantalla |
+| Necesario | El monto registrado en los Excel de control es el **SUBTOTAL sin impuesto** (la columna se llama `Monto sin IVA`), en dólares, con el símbolo correcto visible en pantalla |
 | Deseable | Los accesorios propuestos coinciden con los que se usaron de verdad |
 | Deseable | El total final difiere menos del 1% del real |
 
@@ -411,6 +439,131 @@ método actual —no en lugar de él— hasta que dos o tres casos patrón
 salgan idénticos. Es más lento por unas semanas y es la única forma de
 que confíen en el resultado el día que dejen de revisarlo línea por
 línea.
+
+---
+
+## Corrida en seco de punta a punta (2026-09-21)
+
+Primera ejecución real de la cadena completa en una conversación, no
+contra artefactos sueltos. Pedido de entrada, escrito como lo escribiría
+preventa: *"necesito armar una cotización para la Municipalidad de
+Prueba. Son 20 cámaras exteriores de 4MP con IR para el parque central.
+Es un estudio de mercado, lo piden para el viernes."* (nombre de cliente
+inventado a propósito — el sandbox nunca usa clientes reales).
+
+Se corrió contra el **sandbox** (`sandbox-pruebas/CLIENTES/Sandbox-Fabian/`)
+y contra el **catálogo de producción** en modo lectura. No se escribió
+nada en `CLIENTES/` real ni en los dos Excels de control.
+
+### Lo que funcionó
+
+| Eslabón | Resultado |
+|---|---|
+| Rutas de los 4 artefactos (catálogo, 2 Excels de control, machote) | ✅ los cuatro accesibles |
+| Búsqueda en catálogo | ✅ de 2.550 filas a 53 candidatos reales de 5 marcas |
+| Guard de ruta larga (paso 4) | ✅ **disparó en el primer caso realista**, no en un borde |
+| Numeración de cotización | ✅ máx. del año = máx. global = 2 → propuso #3 sin preguntar |
+| Estructura de carpetas | ✅ 8 subcarpetas + machote en `Matriz-Oferta/` |
+| Escritura de `Equipos` por COM | ✅ 2 líneas, **0 celdas en error en las 40 pestañas** |
+| Espejo a `COTIZACIÓN ` | ✅ cantidad, descripción, precio unitario y total, todo por fórmula |
+| Financiamiento sin ID | ✅ `COTIZACION (Financ)` quedó vacía, no rompió nada |
+
+### Hallazgos
+
+**H-1 · El impuesto al cliente está hardcodeado.** ✅ **Corregido el
+2026-09-22** — ver R3 en [`reglas-negocio.md`](reglas-negocio.md) y la
+prueba P-09 de arriba. Resultó estar en **dos** pestañas, no una:
+`COTIZACION (Financ)` había heredado el mismo `=+J74*0.13`. Lo que sigue
+es el hallazgo tal como se levantó. `COTIZACIÓN !J75` es
+`=+J74*0.13`. La ficha `Datos del proyecto` **sí** tiene el campo
+`% impuesto al cliente` (B16) y `Cliente exento` (B15) — y la cotización
+los ignora. Se pregunta el régimen fiscal y después se tira. Contradice
+R3 de frente. Impacto medido en esta corrida: **$793,02 sobre un
+subtotal de $6.100,18**. Un cliente exento paga impuesto y Excel no
+muestra ningún error. *Es el hallazgo más grave de la corrida.*
+
+**H-2 · El monto que pide el Excel de control no es el que manda el
+skill.** ✅ **Corregido el 2026-09-22.** Se resolvió con datos, no con
+criterio: cruzando los dos Excels por número de oferta, **19 de 26
+ofertas comunes tienen el monto idéntico y ninguna está en relación
+1,13**. Los dos archivos guardan el mismo número y el único que dice
+cuál es lo llama *sin IVA* → va el **SUBTOTAL** en ambos. Queda
+pendiente confirmarlo con preventa (está en
+[`pendientes-comercial.md`](pendientes-comercial.md)). El hallazgo
+original: La columna J de `Control de cotizaciones 2026.xlsx` se llama
+literalmente **`Monto sin IVA`**. `armar-cotizacion` dice *"usar el
+TOTAL con impuesto, nunca el subtotal"*. Para este archivo la regla
+está al revés: van $6.100,18, no $6.893,19. En `Cotizaciones en
+Preventa.xlsx` la columna se llama solo `Monto de Oferta`, así que ahí
+la regla del TOTAL probablemente sí aplica — hay que confirmarlo con
+preventa, no deducirlo.
+
+**H-3 · Las pestañas de los dos asesores tienen las columnas corridas.**
+✅ **Corregido el 2026-09-22** — `armar-cotizacion` ahora trae el layout
+real de cada pestaña en una tabla, con la advertencia de que la tabla es
+ayuda y no reemplaza leer el encabezado.
+`Katherine` arranca en `A:Cliente`; `Alessandro ` arranca en `A:Fecha`,
+`B:Cliente`. Escribir la fila de una con el orden de la otra mete el
+nombre del cliente en la columna de fecha. El skill dice "leé los
+nombres reales" pero no advierte que **el layout también cambia**.
+
+**H-4 · El límite de ruta de Windows aprieta más de lo documentado.**
+Medido sobre los 286 clientes reales: **83 (29%) admiten una descripción
+de 20 caracteres o menos**. El cliente de nombre más largo (62
+caracteres) admite **1 carácter**; el siguiente (60) admite 2, y el
+tercero (57) admite 4. Son nombres legales completos de instituciones
+públicas, con la razón social y las siglas.
+El skill avisa "pedí una descripción más corta" pero no dice *cuánto* —
+tiene que calcular y decir el máximo exacto para ese cliente.
+
+**H-5 · Dos columnas del catálogo están 100% vacías.**
+`Especificaciones técnicas clave` (0 de 2.550) y `Vigencia del precio`
+(0 de 2.550). `buscar-equipo` manda explícitamente a comparar contra la
+primera. Hoy toda la búsqueda sale de `Nombre` + `Descripción`.
+
+**H-6 · `buscar-equipo` no conoce la normalización del catálogo.** Se
+escribió antes de que existieran `Categoria` y `Subcategoria`, y no
+menciona ni las columnas ni los 16 nombres válidos ni la pestaña
+`Glosario de categorias`. Una sesión nueva tiene que descubrirlos sola.
+
+**H-7 · No hay protocolo de acotamiento.** Una especificación normal
+("exterior, 4MP, IR") deja **68 candidatos**; el skill dice "mostrá
+todos los candidatos razonables". Hace falta una regla de corte (por
+precio, por marca, o preguntar antes de listar).
+
+**H-8 · El nivel de precio cargado ya se puede nombrar (precisa R4.2).**
+De las 945 filas con `Precio especial GV`: **669 son exactamente
+MSRP × 0,5**, 202 son **iguales al MSRP** (software, licencias y
+accesorios `SECA-`), el resto son 0,5 con redondeo. Filas de ambos tipos
+conviven en las mismas páginas del PDF, así que no es un error de carga:
+el nivel *Dealer Program* es **MSRP − 50% en hardware y 0% en
+software**. La pregunta al equipo comercial deja de ser "cuál de tres
+niveles" y pasa a ser **"¿Grupo Visión compra al Dealer Program
+(MSRP−50%) o al nivel intermedio DEAL?"**.
+
+**H-9 · Las cuatro pestañas de reglas están vacías** (`Tipo de Cambio`,
+`Regimen Fiscal Clientes`, `Tarifario Mano de Obra`, `Reglas de
+Descuento`): solo encabezados. La cadena arma la cotización igual, pero
+hoy **no puede cerrar una real**: sin tipo de cambio no hay colones, sin
+régimen fiscal no hay impuesto correcto, sin tarifario no hay mano de
+obra, sin reglas de descuento todo sale a precio de lista.
+
+**H-10 · Las fechas del catálogo son texto, no fechas de Excel.**
+2.357 filas dicen `'2026-08-28'` y 193 `'2026-09-14'` (24 y 7 días, las
+dos dentro del umbral). Funciona para calcular, pero Excel no las puede
+ordenar ni filtrar como fecha.
+
+**Menor:** `Datos del proyecto!B28` muestra `0,03` donde las demás filas
+de porcentaje muestran `3%`.
+
+### Limpieza
+
+La carpeta de prueba quedó en pie para poder inspeccionarla. Para
+borrarla:
+
+```
+git checkout -- sandbox-pruebas/ && git clean -fd sandbox-pruebas/
+```
 
 ---
 
@@ -425,6 +578,20 @@ línea.
 | 2026-09-21 | P-06a | ✅ Pasa | Barrido **en blanco** agregado; destapó y corrigió 6 `#¡DIV/0!` que el barrido con datos escondía |
 | 2026-09-21 | P-08 | ✅ Pasa | Pestaña `COTIZACION (Financ)` construida y verificada |
 | 2026-09-18 | Integridad | ✅ Pasa | 14 imágenes intactas antes y después de las cuatro cirugías; el libro pasó de 38 a 39 pestañas al agregar `Datos del proyecto` al final |
-| | C-01 a C-09 | ⬜ Sin correr | Se pueden correr ya |
+| 2026-09-21 | **Corrida en seco punta a punta** | ⚠️ Pasa con 10 hallazgos | Primera ejecución real de la cadena. Ver la sección de arriba |
+| 2026-09-21 | Cadena mecánica | ✅ Pasa | Catálogo → candidatos → carpeta → `Equipos` → `COTIZACIÓN `, 0 errores en 40 pestañas |
+| 2026-09-21 | C-05 financiamiento | ✅ Pasa | Sin ID, `COTIZACION (Financ)` queda vacía y no rompe nada |
+| 2026-09-21 | C-07 antigüedad del precio | ⚠️ Parcial | Las fechas existen (24 y 7 días) pero como texto — H-10 |
+| 2026-09-21 | C-08 régimen fiscal | ❌ Falla | El 13% está hardcodeado en `J75`; la ficha lo pregunta y la cotización lo ignora — H-1 |
+| 2026-09-22 | **H-1 corregido** | ✅ Pasa | `J75` de `COTIZACIÓN ` y de `COTIZACION (Financ)` ahora leen `Datos del proyecto!B15/B16` |
+| 2026-09-22 | P-09 (nueva) | ✅ Pasa | 6 escenarios de tasa + la financiada respeta la exención |
+| 2026-09-22 | P-01 a P-08 tras el cambio | ✅ Pasa | Sin regresión: P-04 sigue dando 3.740,11 |
+| 2026-09-22 | Integridad | ✅ Pasa | 19 objetos gráficos intactos en 5 pestañas tras la cirugía |
+| 2026-09-22 | **H-2 corregido** | ✅ Pasa | Va el SUBTOTAL, no el TOTAL. Evidencia: 19/26 ofertas comunes con monto idéntico, 0 en relación 1,13 |
+| 2026-09-22 | **H-3 corregido** | ✅ Pasa | Layout real de `Katherine` y `Alessandro ` documentado; están corridas una columna |
+| 2026-09-22 | **Limpieza del machote** | ✅ Pasa | 40 → 33 pestañas. Se borraron 10 con datos de un proyecto real y se limpiaron 305 constantes numéricas de otras dos |
+| 2026-09-22 | **Pestañas de inducción** | ✅ Pasa | `LEEME` de primera, `Guia de pestanas` y `Guia de formulas` de últimas |
+| 2026-09-22 | Integridad tras la limpieza | ✅ Pasa | 19 objetos gráficos intactos, 0 errores, el archivo bajó de 745.448 a 715.093 bytes |
+| | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
 | | Caso patrón | ⬜ Bloqueado | Espera las cotizaciones cerradas |

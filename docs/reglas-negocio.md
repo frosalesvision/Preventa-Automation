@@ -64,21 +64,81 @@ como tal le suma transporte y DAI que no corresponden.
 > pero nosotros sí tenemos que cobrarlo a nivel de matriz porque a
 > nosotros nos están cobrando ese monto."*
 
-Valores base del machote, verificados:
-
-- `Equipos`: IVA de línea **0%** (la mayoría del equipo es importado, el
-  impuesto entra por aduanas vía DAI, no como IVA de compra local).
-- `MATERIALES`, `OPEX Proyecto`: IVA de línea **13%** (compras locales).
-- `OPEX GV`: IVA de línea **0%**.
-- `COTIZACIÓN `: impuesto al cliente **13%**, hoy escrito duro en la
-  fórmula `=+J29*0.13`.
-
 **No es doble cobro.** Son dos conceptos separados. Una cotización puede
 legítimamente tener IVA de línea en materiales y 0% de impuesto al
 cliente si el cliente es exento.
 
-**Pendiente técnico:** el 13% de `COTIZACIÓN ` debe poder cambiar por
-cotización sin editar la fórmula a mano (ver R3).
+### Mapa completo: dónde vive cada IVA y cuándo se aplica
+
+Rastreado celda por celda el 2026-09-22 sobre las 5 pestañas de
+producto. **Ojo con la letra de columna: en `Equipos` el IVA es la `I`,
+en las otras cuatro es la `H`.**
+
+| Pestaña | Celda del % | Valor base | Fórmula que lo consume |
+|---|---|---|---|
+| `Equipos` | `I4` | **0%** | `I6 = (E6+G6+H6)*$I$4` |
+| `Productos 2` | `H4` | **13%** | `H6 = (D6+F6+G6)*$H$4` |
+| `MATERIALES` | `H4` | **13%** | `H6 = (D6+F6+G6)*$H$4` |
+| `OPEX Proyecto` | `H4` | **13%** | `H6 = (D6+F6+G6)*$H$4` |
+| `OPEX GV` | `H4` | **0%** | `H6 = (D6+F6+G6)*$H$4` |
+| `COTIZACIÓN !J75` | — | según ficha | el impuesto **al cliente**, ver arriba |
+| `COTIZACION (Financ)!J75` | — | según ficha | el mismo, sobre el total mensual |
+
+**El momento del match es la elección de pestaña, no la línea.** Esto es
+lo que hay que entender para automatizarlo: el IVA de línea **no se
+decide por producto**, se decide por **en qué pestaña se escribe la
+línea**. Es un porcentaje único en la fila 4 que multiplica a las 50
+líneas de esa pestaña por igual. O sea: el instante en que
+`armar-cotizacion` decide "esto va en `Equipos`" es el instante en que
+queda decidido su IVA.
+
+### ⚠️ El IVA no mira la columna `IMPORTADO`, y el transporte y el DAI sí
+
+Verificado en las 5 pestañas, sin excepción:
+
+```excel
+G6 = IF(C6="si", E6*$G$4, 0)              <- Transporte: SOLO si es importado
+J6 = IF(C6="si", (E6+G6+H6+I6)*$J$4, 0)   <- DAI:        SOLO si es importado
+I6 = (E6+G6+H6)*$I$4                      <- IVA:        SIEMPRE, importado o no
+```
+
+Las dos primeras preguntan por `IMPORTADO`; la del IVA no. Eso significa
+que la pestaña y la columna pueden contradecirse, y cuando lo hacen el
+número sale mal sin ningún error visible:
+
+- **Un producto de proveedor local metido en `Equipos`** (`IMPORTADO` =
+  `no`) queda sin transporte y sin DAI —correcto— pero también con
+  **0% de IVA**. Si a Grupo Visión sí le cobraron el 13% en esa compra,
+  **el costo queda subvaluado en 13%** y la cotización sale con menos
+  margen del que cree tener. Medido sobre $100 × 10 unidades: el costo
+  nacionalizado unitario pasaría de `$103` a `$116,39`.
+- **Un producto importado metido en `MATERIALES`** (`IMPORTADO` = `si`)
+  recibe transporte y DAI —correcto— y además **13% de IVA que no se
+  pagó**, porque en una importación el impuesto entra por aduanas.
+
+Esto **importa ahora** porque el catálogo ya tiene 193 productos de
+proveedores locales (Seguritronic, ISTC, EPA, Tectel y otros) además de
+los importados. Antes casi todo era importado y la simplificación no se
+notaba.
+
+**No lo estoy llamando un error todavía**, y a propósito: puede ser
+correcto si Grupo Visión **acredita** el IVA de las compras locales
+contra el IVA que le cobra al cliente, en cuyo caso no es un costo y el
+0% de `Equipos` está bien puesto. Eso es una decisión contable de la
+empresa, no algo que se pueda deducir del archivo. Está planteado como
+pregunta en [`pendientes-comercial.md`](pendientes-comercial.md).
+
+**Mientras no se responda:** `armar-cotizacion` no debe mover el IVA de
+la fila 4 por su cuenta. Lo que sí debe hacer es **avisar** cuando una
+línea con `IMPORTADO="no"` cae en una pestaña con IVA 0%, o al revés —
+es el único momento en que se puede detectar la contradicción.
+
+### El impuesto al cliente ya no está quemado (2026-09-22)
+
+La versión anterior de esta regla decía que `COTIZACIÓN ` tenía el 13%
+*"escrito duro en la fórmula `=+J29*0.13`"*. Dos cosas cambiaron: la
+celda es `J75` (no `J29`, que quedó viejo al ampliar a 50 líneas), y ya
+no está quemado. Ver el detalle en R3.
 
 ---
 
@@ -127,6 +187,79 @@ con el tipo de cambio.
 **Regla de ejecución:** si el cliente no está en la tabla, **preguntar**
 y ofrecer agregarlo. Nunca asumir 13% en silencio, y nunca asumir
 exención en silencio.
+
+### La ficha ahora sí manda sobre el impuesto (corregido 2026-09-22)
+
+Hasta la corrida en seco del 2026-09-21, esta regla estaba escrita pero
+**no conectada**: la fila `IMPUESTO` de `COTIZACIÓN ` era literalmente
+`=+J74*0.13`, con el 13% escrito a mano, y lo mismo en
+`COTIZACION (Financ)`. La ficha preguntaba el régimen fiscal y la
+cotización lo ignoraba. Una municipalidad exenta pagaba 13% y **Excel no
+mostraba ningún error** — el modo de falla era silencioso. Medido sobre
+la cotización de prueba: **$793,02 de más sobre un subtotal de
+$6.100,18**.
+
+`J75` de las dos pestañas ahora es:
+
+```excel
+=J74*IF(LOWER(TRIM('Datos del proyecto'!$B$15))="si",0,
+       IF(ISNUMBER('Datos del proyecto'!$B$16),
+          IF('Datos del proyecto'!$B$16>1,
+             'Datos del proyecto'!$B$16/100,
+             'Datos del proyecto'!$B$16),
+          0.13))
+```
+
+Cuatro decisiones dentro de esa fórmula, cada una por una razón:
+
+- **`B15="si"` gana sobre todo lo demás.** Si el cliente está marcado
+  exento, no importa qué diga `B16`: el impuesto es 0.
+- **Ficha vacía = 13%.** El machote en blanco se comporta exactamente
+  como antes, así que nada de lo ya cotizado cambia de valor.
+- **`B16>1` se divide entre 100.** La celda es de formato General: quien
+  escriba `13` queriendo decir `13%` habría cobrado 1.300%. El guard
+  convierte el error tipográfico más probable en el número correcto.
+- **No lleva `IFERROR`.** `ISNUMBER` ya cubre el texto, y devolver `""`
+  rompería `J76 = ROUNDDOWN(J74+J75,2)` con `#¡VALOR!` — es exactamente
+  el bug que tuvo la cotización financiada con `""*cantidad`.
+
+`Datos del proyecto!C16` dejó de ser la pista fija "13% por defecto" y
+ahora muestra **la tasa que de verdad se está aplicando**
+(`Se aplica 0% (vacio = 13%)`), para que la exención no sea invisible
+mientras se llena la ficha. Se calcula multiplicando por 100 y pegando
+el `%`, no con `TEXT(...,"0.##%")`: el código de formato de `TEXT` lo
+interpreta Excel según el idioma de la interfaz, y en español el punto
+es separador de miles — la primera versión mostraba `0.13%`.
+
+**Qué de esto es regla de la empresa y qué lo agregué yo** (distinción
+pedida por Fabián el 2026-09-22 — *"no estamos inventando fórmulas, lo
+que hacemos es analizar lo que ya hay, entender el flujo, e intentar
+mejorarlo y automatizarlo"*):
+
+| Parte | Origen |
+|---|---|
+| Que el impuesto depende del régimen del cliente | **Regla de la empresa**, la explicó preventa |
+| Los campos `B15` / `B16` de la ficha | **Ya existían** en el machote |
+| Que `J75` los lea en vez del 13% quemado | **Automatización** de esa regla, no invención |
+| Que la ficha vacía siga dando 13% | **Conservar** el comportamiento anterior |
+| El guard `>1` (si escriben `13` se divide entre 100) | Lo propuse yo, **Fabián lo confirmó como regla** el 2026-09-22: *"si escriben 13 en vez de 13%, debería tomarlo como 13%"* |
+| El fallback `ISNUMBER` ante texto | **Agregado mío.** Evita que `J76` dé `#¡VALOR!` |
+
+El fallback ante texto sigue siendo criterio mío y se puede quitar; el
+guard `>1` ya no, porque es comportamiento pedido. La celda es de formato
+General, así que sin él escribir `13` queriendo decir `13%` cobraría
+1.300% sin avisar.
+
+Cubierto por la prueba **P-09** de
+[`pruebas-validacion.md`](pruebas-validacion.md), que corre los seis
+escenarios (vacío, exento, 0.04, 4, texto basura, ` SI ` con espacios y
+mayúsculas) más la comprobación de que la financiada respeta la
+exención. Si alguien vuelve a quemar un porcentaje, el smoke test falla.
+
+⚠️ **Lo que esto NO resuelve:** la pestaña `Regimen Fiscal Clientes`
+sigue vacía, así que el valor de `B15`/`B16` hoy lo tiene que escribir
+la persona que cotiza. La fórmula garantiza que *si se escribe, se
+respeta* — no que alguien lo sepa.
 
 ---
 
