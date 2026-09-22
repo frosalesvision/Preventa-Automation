@@ -613,11 +613,25 @@ tocarla: 32 escritas, 0 saltadas.
 La distribución de `Control de acceso` pasó de `40 / 9 / 4 / 2 / 1` a
 **`14 / 9 / 8 / 8 / 8 / 6 / 6`**.
 
-⚠️ **Hallazgo lateral, sin resolver:** la columna `Subcategoria` del
-catálogo **no tiene validación de datos** (`Categoria` sí, con
-`=_listas!$A$2:$A$18`). Quien edite a mano puede escribir cualquier cosa
-ahí. Haría falta una lista dependiente de la categoría elegida, que es
-más trabajo que una validación simple.
+**H-12 (nuevo, mismo día) — los tipos de dato estaban mal en tres
+columnas.** ✅ **Corregido.** Lo destapó el verificador nuevo: `Precio
+USD` estaba como **texto en 1.409 filas** (todas de un mismo proveedor,
+el 55% del catálogo), `Tiempo de entrega` en 1.091, y las fechas en las
+2.550. El valor se veía bien, pero Excel no los puede ordenar ni
+filtrar: al ordenar por precio, `'1000'` quedaba antes que `'950'`. Ya
+son números y fechas reales.
+
+**La `Subcategoria` ya tiene desplegable** (`=_listas!$E$2:$E$72`), y
+una trampa que casi me come: la lista que ya existía en `_listas`
+columna C trae los nombres **con el prefijo de categoría**
+(`Camara > IP / de red`), mientras la columna del catálogo guarda el
+nombre pelado. Apuntar ahí habría obligado a escribir un valor que no
+coincide con ninguna de las 2.550 filas. Se escribió la lista pelada en
+una columna nueva y se verificó: **0 filas con un valor fuera del
+desplegable**.
+
+El desplegable evita el error de dedo, no el de par equivocado. Para eso
+está el paso 2 de `verificar-catalogo.py`.
 
 ### Limpieza
 
@@ -636,6 +650,7 @@ Hay **dos** scripts, y miran cosas distintas:
 
 | Script | Qué mira | Cuándo correrlo |
 |---|---|---|
+| `scripts/verificar-catalogo.py` | El **catálogo**: taxonomía, tipos de dato, campos vacíos, duplicados | Después de cada carga de proveedor y de cualquier edición manual |
 | `scripts/smoke-machote.ps1` | El machote **aislado**: fórmulas, capacidad, errores, financiamiento, impuesto | Después de cualquier cambio estructural en el machote |
 | `scripts/prueba-cotizacion.ps1` | El **flujo entero** como lo vive el asesor: carpeta, copia, escritura, ficha, cotización | Antes de darle el plugin a alguien, y después de tocar `armar-cotizacion` |
 
@@ -710,6 +725,10 @@ para poder abrir el Excel y mirarlo a ojo.
 | 2026-09-22 | Confidencialidad | ✅ Corregido | Se quitaron nombres de clientes reales de 2 docs, 1 script y **10 celdas del catálogo de producción** |
 | 2026-09-22 | **2.ª corrida en seco** (control de acceso) | ⚠️ Pasa con 1 hallazgo | Encontró H-11. H-4 confirmado en vivo: cliente de 63 caracteres → 1 carácter de descripción |
 | 2026-09-22 | **H-11 corregido** | ✅ Pasa | 32 filas reclasificadas, 0 colaterales sobre 2.550. `taxonomia.py` arreglado para que no vuelva |
+| 2026-09-22 | **Verificador de catálogo** | ✅ Nuevo | `scripts/verificar-catalogo.py`, 5 chequeos. Destapó H-12 en su primera corrida |
+| 2026-09-22 | **H-12 corregido** | ✅ Pasa | 1.409 precios, 1.091 tiempos de entrega y 2.550 fechas pasados de texto a su tipo real |
+| 2026-09-22 | Desplegable de Subcategoría | ✅ Pasa | Conectado a `_listas!E`; 0 filas con valor fuera de la lista |
+| 2026-09-22 | Catálogo completo | ✅ Sano | El verificador pasa los 5 chequeos sin nada que revisar |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
 | | Caso patrón | ⬜ Bloqueado | Espera las cotizaciones cerradas |

@@ -421,6 +421,11 @@ PRIORITARIAS = [
     (("Energia", "Bateria"), ["bateria sellada"]),
     (("Accesorio de instalacion", "Montaje"),
      ["montaje tipo u", "montaje l z"]),
+    # Ferreteria de canalizacion: el calibre en fraccion (3/4, 1/2) es lo que
+    # la distingue de un conector de red. "conectores RJ45" es Cableado.
+    (("Materiales de instalacion", "Canalizacion y tuberia"),
+     ["conectores 3/4", "conectores 1/2", "conector 3/4", "conector 1/2",
+      "gazas 3/4", "gazas 1/2"]),
 ]
 
 

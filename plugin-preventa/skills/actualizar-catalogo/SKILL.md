@@ -417,6 +417,81 @@ cuánto cable lleva cada cámara instalada. Sin eso hay materiales pero no
 hay cálculo. Diseño acordado: una pestaña `Proporciones de Instalación`
 en este mismo Excel (mismo criterio que `Tipo de Cambio`). Ver R10.
 
+## Verificar el catálogo después de cada carga (obligatorio)
+
+```
+python scripts/verificar-catalogo.py
+```
+
+**Corrélo después de cada carga de proveedor y después de cualquier
+edición manual.** Solo lee; nunca escribe. Devuelve 0 si está sano.
+
+Existe por H-11: 29 de las 40 filas de una subcategoría no pertenecían
+ahí, y pasó semanas sin que nadie lo notara. Una fila mal
+subcategorizada **no desaparece** —sigue en el catálogo— pero
+`buscar-equipo` filtra por categoría y subcategoría, así que deja de
+aparecer en las búsquedas. El producto se vuelve invisible sin que nada
+falle.
+
+Revisa cinco cosas:
+
+1. Que la categoría exista en la taxonomía.
+2. **Que la subcategoría pertenezca a esa categoría.** Es el chequeo que
+   importa: un desplegable plano deja poner `Montaje` en una fila de
+   cámara, y eso se ve válido pero sigue estando mal.
+3. Qué diría el clasificador hoy. Una diferencia no es error —puede ser
+   una corrección manual a propósito— pero una diferencia grande avisa
+   que `taxonomia.py` quedó viejo.
+4. Campos vacíos que impiden cotizar esa fila. Ojo: un SKU vacío **no**
+   es error en materiales genéricos ni en servicios; nadie le pone
+   número de parte a "tubo metal 3/4".
+5. SKU repetido dentro del mismo proveedor (puede ser legítimo: el mismo
+   artículo con dos precios, uno por stock limitado).
+
+## Los tipos de dato importan, no solo los valores (corregido 2026-09-22)
+
+Tres columnas guardaban números y fechas **como texto**. El valor se
+veía bien y todo parecía normal, pero Excel no los puede ordenar,
+filtrar ni sumar: al ordenar por precio, `'1000'` queda antes que
+`'950'`.
+
+| Columna | Estaban como texto | Consecuencia |
+|---|---|---|
+| `Precio USD` | **1.409 filas**, todas de un mismo proveedor | Es el 55% del catálogo. Ordenar por precio daba un orden equivocado |
+| `Tiempo de entrega (dias)` | 1.091 filas | No se podía filtrar "entrega menor a 30 días" |
+| `Fecha de ultima actualizacion` | las 2.550 | Es justo la columna que sirve para ver qué precios están viejos |
+
+Ya están convertidos. **Al cargar un proveedor nuevo, escribí números
+como números y fechas como fecha real** (`datetime.date` con formato de
+celda `yyyy-mm-dd`), nunca como cadena.
+
+No confundir con `Precio CRC` y `Precio especial GV (CRC)`: esas **sí**
+son texto a veces, y está bien — son fórmulas que devuelven
+`"Actualizar TC"` mientras la pestaña `Tipo de Cambio` esté vacía.
+
+## Desplegables de Categoría y Subcategoría
+
+Las dos columnas tienen validación de datos, o sea desplegable:
+
+- `Categoria` → `=_listas!$A$2:$A$18` (16 categorías + "Sin clasificar")
+- `Subcategoria` → `=_listas!$E$2:$E$72` (71 subcategorías)
+
+⚠️ **La lista de subcategorías vive en `_listas` columna E, no en la C.**
+La columna C tiene los mismos nombres pero **con el prefijo de
+categoría** (`Camara > IP / de red`), que es un formato de lectura y
+**no** coincide con lo que guarda la columna `Subcategoria` del catálogo
+(`IP / de red`, pelado). Apuntar la validación a la C obligaría a
+escribir un valor que no coincide con ninguna de las 2.550 filas
+existentes.
+
+Si agregás una subcategoría nueva: primero a `scripts/taxonomia.py`,
+después regenerás `_listas!E` y ampliás el rango de la validación. Si se
+hace al revés, `buscar-equipo` no la va a encontrar.
+
+**El desplegable es una comodidad, no la garantía.** Evita el error de
+dedo, pero deja poner una subcategoría que existe y no corresponde a esa
+categoría. Para eso está el paso 2 del verificador.
+
 ## Columnas que hoy salen mal o vacías (medido 2026-09-22)
 
 Se contó celda por celda sobre las 2.550 filas del catálogo de
@@ -433,14 +508,8 @@ quedarse como está, prometiendo un dato que no existe.
 **2. `Vigencia del precio` también está vacía en las 2.550.** Mismo
 criterio.
 
-**3. `Fecha de ultima actualizacion` se está escribiendo como texto, no
-como fecha.** Las 2.550 filas tienen un string (`'2026-08-28'` en 2.357
-y `'2026-09-14'` en 193). El valor es correcto y se puede leer, pero
-Excel **no las puede ordenar ni filtrar como fecha**, que es
-precisamente para lo que sirve esa columna cuando alguien quiere ver qué
-precios están viejos. Al escribirla, poné un valor de fecha real
-(`datetime.date`) y dejale un formato de celda `yyyy-mm-dd`, no una
-cadena.
+**3. Las fechas y los precios como texto ya se corrigieron** — ver la
+sección de tipos de dato más arriba.
 
 **Cobertura del resto, por si sirve para priorizar:** `Precio especial
 GV` 945 de 2.550 (solo InVidTech), `Tiempo de entrega` 1.103, `Pais de
