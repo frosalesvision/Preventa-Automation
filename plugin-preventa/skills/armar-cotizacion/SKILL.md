@@ -214,6 +214,33 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    siempre por el régimen del cliente si no lo tenés confirmado**; no
    asumas 13% ni asumas exención.
 
+   **Cómo se aplica desde el 2026-09-22 (importante):** la fila
+   `IMPUESTO` (`J75`) de `COTIZACIÓN ` y de `COTIZACION (Financ)` ya
+   **no** tiene el 13% escrito a mano — lee `Datos del proyecto!B15`
+   (`Cliente exento`, si/no) y `B16` (`% impuesto al cliente`). Eso
+   cambia lo que tenés que hacer: **para que la exención surta efecto
+   hay que escribirla en la ficha**, no basta con saberla. Si dejás
+   las dos celdas vacías, el machote aplica 13% igual que siempre.
+   `C16` muestra en vivo la tasa que se está aplicando — miralo antes
+   de dar la cotización por buena. Hasta esa fecha la ficha preguntaba
+   el régimen fiscal y la cotización lo ignoraba en silencio: un
+   cliente exento pagaba 13% sin ningún error visible en Excel.
+
+   ⚠️ **Y una cosa más sobre el IVA de línea (R2, rastreado 2026-09-22).**
+   El transporte y el DAI se calculan con `IF(IMPORTADO="si", ...)`; el
+   IVA de línea **no** — se aplica siempre, con el porcentaje que tenga
+   la fila 4 de esa pestaña (`Equipos` 0%, `MATERIALES` 13%). O sea que
+   el IVA de una línea lo decide **en qué pestaña la escribiste**, no el
+   producto.
+
+   **Qué tenés que hacer con eso:** cuando escribas una línea cuyo
+   proveedor es local (`IMPORTADO = "no"`) en una pestaña con IVA 0%
+   —o una importada en una con 13%— **decíselo al asesor**. No cambies
+   el porcentaje por tu cuenta: si ese IVA es un costo o se acredita es
+   una decisión contable de la empresa, y está pendiente de respuesta en
+   [`docs/pendientes-comercial.md`](../../../docs/pendientes-comercial.md).
+   Avisar es lo único correcto mientras tanto.
+
    Mostrale al asesor la tabla completa (Modelo | Descripción |
    Importado | Cantidad | Costo Unit) que vas a escribir **antes** de
    tocar el archivo, y esperá confirmación — igual que con cualquier
@@ -228,32 +255,87 @@ verificar el acceso (viven dentro de la carpeta compartida `COMERCIAL
 2024`, no dentro de `CLIENTES` ni en la raíz de OneDrive):
 
 - `Control de cotizaciones 2026.xlsx`, pestaña **"Cotizaciones
-  Pendientes 2026"** (tiene más pestañas, son de otros años/usos, no
-  tocarlas) — columnas confirmadas: Fecha Solicitud, Importancia, letra
-  del asesor, Nombre de cliente, Descripción del producto/servicio,
-  Fecha entrega (hay más columnas a la derecha, no las asumas de
-  memoria — leé el encabezado real antes de escribir).
+  Pendientes 2026"** (tiene 15 pestañas, las demás son de otros
+  años/usos, no tocarlas). Encabezado real leído el 2026-09-21:
+
+  | Col | Encabezado |
+  |---|---|
+  | A | Fecha Solicitud |
+  | B | Importancia |
+  | C | Empleado |
+  | D | Nombre de cliente |
+  | E | Descripción del producto/servicio |
+  | F | Fecha oficial de entrega |
+  | G | Fecha en que se realiza oferta |
+  | H | Fecha de envío |
+  | I | Número de oferta |
+  | **J** | **Monto sin IVA** ← ojo, ver la regla del monto abajo |
+  | K | Días de retraso |
+  | L | Proveedor / Contratista |
+
 - `Cotizaciones en Preventa.xlsx` — **una pestaña por asesor** (hoy:
-  "Katherine", "Alessandro ", ambos nombres con variaciones menores —
-  leé los nombres reales, no los tipees de memoria). Columnas
-  confirmadas: Fecha de oferta, Cliente, Descripción, Número de
-  Oferta, Monto de Oferta, Estado (hay al menos una columna más a la
-  derecha, mismo criterio: leé el encabezado real).
+  `Katherine`, `Alessandro ` —con espacio final— y `IA`).
 
-**El "Monto" que se escribe (crítico, corregido 2026-09-14):**
+  ⚠️ **Las dos pestañas de asesor NO tienen las mismas columnas: están
+  corridas una posición** (verificado 2026-09-21). Escribir la fila de
+  una con el orden de la otra mete el nombre del cliente en la columna
+  de fecha, sin ningún error visible.
 
-- **Usar el TOTAL con impuesto, nunca el subtotal.** La pestaña
-  `Equipos` de la matriz calcula un "Precio Venta" **antes de
-  impuesto** — ese número **no** es el monto que va en los Excels de
-  control. El monto real de la oferta está en la pestaña `COTIZACIÓN `
-  de la matriz, fila con etiqueta "TOTAL" (después de "SUBTOTAL" e
-  "IMPUESTO") — buscá esa fila por su etiqueta, no asumas un número de
-  fila fijo (cambia según cuántas líneas de equipo tenga la
-  cotización). Leé ese valor ya calculado por Excel (con `openpyxl`
-  `data_only=True`, después de que el archivo se guardó con Excel/COM —
-  ver la nota de más abajo sobre por qué no se escribe con `openpyxl`)
-  en vez de sumar manualmente las líneas de `Equipos` — así no hay
-  riesgo de olvidar el impuesto u otro ajuste que la matriz sí aplica.
+  | Col | `Katherine` | `Alessandro ` |
+  |---|---|---|
+  | A | Cliente | Fecha que se realiza la oferta |
+  | B | Descripcion | Cliente |
+  | C | Numero de Oferta | Descripcion |
+  | D | **Monto de Oferta** | Numero de Oferta |
+  | E | Estado | **Monto de Oferta** |
+  | F | Fecha de Ingreso | Estado |
+  | G | Ejecutiva | Fecha de Ingreso |
+  | H | Simb de Estado Cotización | Ejecutiva |
+  | I | Color | Comentarios |
+  | J | — | Simb de Estado Cotización |
+  | K | — | Color |
+
+  La pestaña de Katherine **no tiene columna de fecha de oferta**; la de
+  Alessandro sí, y además tiene `Comentarios`. Esta tabla es una ayuda
+  para saber qué esperar, **no un reemplazo de leer el encabezado
+  real**: si alguien agrega una columna, la tabla queda vieja y el
+  archivo no. Leé siempre la fila 1 de la pestaña en la que vas a
+  escribir.
+
+**El "Monto" que se escribe (corregido 2026-09-22 — la versión del
+2026-09-14 decía lo contrario y estaba mal):**
+
+- **Va el SUBTOTAL, sin el impuesto al cliente.** La columna de
+  `Control de cotizaciones 2026.xlsx` se llama literalmente
+  **`Monto sin IVA`**. La versión anterior de este skill mandaba
+  escribir "el TOTAL con impuesto, nunca el subtotal" — es exactamente
+  al revés para este archivo.
+
+  **La evidencia, para no volver a darlo vuelta sin datos:** se
+  cruzaron los dos Excels por número de oferta (join estricto sobre el
+  formato `T#-#######`). De las **26 ofertas que aparecen en ambos, 19
+  tienen el monto idéntico** y **ninguna** está en relación 1,13 ni
+  1/1,13. Las 7 restantes tienen ratios absurdos (166×, 10.390×), o sea
+  ruido de digitación, no un patrón de impuesto. Conclusión: los dos
+  archivos guardan **el mismo número**, y el único de los dos que dice
+  qué número es lo llama *sin IVA*.
+
+- **De dónde sacarlo:** la pestaña `COTIZACIÓN ` de la matriz, fila con
+  etiqueta **"SUBTOTAL"** (la que está *antes* de "IMPUESTO" y
+  "TOTAL"). Buscá la fila por su etiqueta, no asumas un número fijo
+  —cambia según cuántas líneas tenga la cotización—. Leé el valor ya
+  calculado por Excel (`openpyxl` con `data_only=True`, después de que
+  el archivo se guardó por COM) en vez de sumar las líneas a mano.
+
+- **El mismo número va en los dos archivos.** No conviertas ni ajustes
+  para uno y no para el otro.
+
+  ⚠️ **Confirmalo con preventa la primera vez que lo uses.** El
+  encabezado podría estar viejo y la práctica haber cambiado sin que
+  nadie renombrara la columna. Los datos dicen "subtotal" con bastante
+  fuerza, pero el que sabe es quien llena ese archivo todos los días —
+  y si la respuesta es que va el total, hay que renombrar la columna,
+  no cambiar esta regla en silencio.
 - **Mantené dólares, nunca inventes una conversión a colones.** La
   matriz trabaja en USD; los dos Excels de control no tienen una
   columna de moneda fija — las filas reales existentes muestran el
@@ -444,7 +526,34 @@ confirmación del asesor).
 `references/` tiene el machote oficial de la empresa en uso actual
 (verificado en blanco, sin datos de ningún cliente real — ver
 [`docs/notas-proceso.md`](../../../docs/notas-proceso.md)):
-`Machote Matriz y oferta.xlsx`. Cualquier otro catálogo, tabla de
+`Machote Matriz y oferta.xlsx`.
+
+**Estructura vigente desde el 2026-09-22: 33 pestañas, 17 visibles.**
+Antes eran 40. Se quitaron 10 que contenían la matriz de costo de un
+proyecto real anterior (equipo, precios de compra y el nombre del
+cliente en la fila 1) más una tabla de cantidades fijas de material de
+instalación por cámara, que es el mismo antipatrón de
+`Proporciones Instalacion` y por eso se eliminó (regla R10). A otras dos
+se les borraron 305 constantes numéricas dejando las fórmulas. Todo eso
+viajaba oculto dentro de cada cotización que se le mandaba a un cliente
+distinto.
+
+Se agregaron tres pestañas de inducción, que **no calculan nada** y
+están solo para quien llega nuevo al equipo:
+
+- **`LEEME`** (primera): qué es el archivo, la regla de oro de que solo
+  se escriben cuatro columnas, en qué orden se llena y los tres errores
+  que más caro salen.
+- **`Guia de pestanas`** (penúltima): las 17 visibles, con qué se
+  escribe a mano, qué sale solo y con qué otra pestaña está conectada.
+- **`Guia de formulas`** (última): las fórmulas que deciden la plata,
+  explicadas en palabras — incluido que el margen se aplica sobre el
+  precio de venta y no sobre el costo (27,40% de margen equivale a
+  37,74% sobre el costo), y los vínculos cruzados que sorprenden
+  (`OPEX GV` ← `Equipos`, `OPEX GV` ← `MANO DE OBRA` ← `Transporte`).
+
+Si agregás o quitás pestañas, actualizá esas guías: son documentación,
+se desactualizan solas. Cualquier otro catálogo, tabla de
 precios o machote adicional que se agregue después debe pasar por la
 misma verificación (sin datos reales de clientes, con evidencia de uso
 reciente) antes de subirse acá.
