@@ -120,18 +120,18 @@ categoría es **`Camara`**, no "Camaras".
 |---|---|---|
 | `Camara` | 888 | IP / de red · PTZ · Analogica · Termica · A prueba de explosion · Panoramica / fisheye · LPR / placas |
 | `Grabacion y video` | 561 | NVR · Servidor / appliance · DVR / hibrido · Codificador / decodificador |
-| `Accesorio de instalacion` | 407 | Montaje · Caja / housing · Adaptador / conversor · Otros accesorios · Cubierta / carcasa |
+| `Accesorio de instalacion` | 414 | Montaje · Caja / housing · Adaptador / conversor · Otros accesorios · Cubierta / carcasa |
 | `Software y licencias` | 129 | Suscripcion en la nube · Licencia VMS · Integracion / plugin |
 | `Red y conectividad` | 97 | Switch · Extensor · Switch PoE · Fibra / transceiver · Firewall / router · Accesorio de red · Antena |
-| `Energia` | 73 | Fuente de poder · Bateria · Inyector PoE · Sistema solar · UPS · Proteccion electrica |
-| `Control de acceso` | 71 | Lector / terminal · Torniquete · Intercomunicador · Credencial / tarjeta · Boton de salida · Controladora · Cerradura / electroiman |
+| `Energia` | 75 | Fuente de poder · Bateria · Inyector PoE · Sistema solar · UPS · Proteccion electrica |
 | `Monitor y visualizacion` | 70 | Monitor · Monitor publico (PVM) · Senalizacion digital |
 | `Materiales de instalacion` | 63 | Cableado · Canalizacion y tuberia · Material electrico · Ferreteria / postes |
+| `Control de acceso` | 59 | Torniquete · Intercomunicador · Controladora · Lector / terminal · Credencial / tarjeta · Boton de salida · Cerradura / electroiman |
 | `Optica` | 58 | Lente |
 | `Audio` | 49 | Altavoz · Sistema de audio IP · Microfono |
 | `Deteccion de incendio` | 42 | Notificacion · Detector · Accesorio · Panel |
+| `Alarma e intrusion` | 22 | Accesorio de alarma · Comunicador · Sensor ambiental · Detector de movimiento · Panel de alarma · Contacto magnetico |
 | `Almacenamiento` | 20 | Disco duro · Tarjeta de memoria |
-| `Alarma e intrusion` | 19 | Accesorio de alarma · Comunicador · Sensor ambiental · Detector de movimiento · Panel de alarma · Contacto magnetico |
 | `Servicios` | 2 | Instalacion |
 | `Equipo de computo` | 1 | Computadora / workstation |
 

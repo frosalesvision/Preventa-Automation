@@ -570,6 +570,55 @@ ordenar ni filtrar como fecha.
 **Menor:** `Datos del proyecto!B28` muestra `0,03` donde las demás filas
 de porcentaje muestran `3%`.
 
+**H-11 · `Lector / terminal` era un cajón de sastre** (encontrado en la
+segunda corrida en seco, 2026-09-22). ✅ **Corregido el mismo día.**
+
+Salió justamente porque el protocolo de acotamiento de H-7 funcionó: con
+40 candidatos el skill ya no los lista, los cuenta y los mira — y al
+mirarlos, **29 de los 40 no eran lectores.** Eran gabinetes, botones de
+salida, cerraduras electromagnéticas, teclados de panel de alarma, una
+batería y una fuente de poder.
+
+Lo que lo delataba como error y no como criterio: **las subcategorías
+correctas existían y estaban casi vacías.** `Boton de salida` tenía 2
+filas mientras había 3 botones en el lugar equivocado;
+`Cerradura / electroiman` tenía **1** mientras había 4 cerraduras mal
+puestas.
+
+**La causa, en una línea:** `scripts/taxonomia.py` mapeaba la sección del
+proveedor (`"control de acceso"`, `"invidtech access control"`) dentro de
+`CONFIABLES`, que **corta antes que todas las reglas por nombre**. Las
+reglas para cerradura, botón de salida y gabinete **ya existían** —
+nunca llegaban a correr. Todo lo que el proveedor pusiera en su sección
+de acceso salía como lector, fuera lo que fuera.
+
+**El arreglo:** mover esas dos secciones a `SECCION_FIJA`, que fija la
+categoría y deja que el nombre resuelva la subcategoría, más un resolver
+`_sub_acceso` y una capa `PRIORITARIAS` para los casos en que una palabra
+suelta en medio de la descripción decidía mal:
+
+| Producto | Se iba a | Por qué | Ahora |
+|---|---|---|---|
+| `iDBox` | Monitor | su texto dice *"monitorea* botones y sensores" | Controladora |
+| `iDFace` | Intercomunicador | es terminal facial *con* intercom SIP integrado | Lector / terminal |
+| Los kits de acceso | Credencial | su nombre lista los keyfobs que incluyen | Controladora |
+| Teclados DSC | Lector | el modelo `HS2LCD` vive en el SKU, no en el nombre | Accesorio de alarma |
+
+**Verificación antes de tocar producción:** se corrió el clasificador
+corregido sobre las 2.550 filas. Cambian **exactamente 32, todas del
+cajón de sastre, y cero del resto del catálogo** — las reglas nuevas no
+secuestraron nada. Al escribir se comprobó el SKU de cada fila antes de
+tocarla: 32 escritas, 0 saltadas.
+
+La distribución de `Control de acceso` pasó de `40 / 9 / 4 / 2 / 1` a
+**`14 / 9 / 8 / 8 / 8 / 6 / 6`**.
+
+⚠️ **Hallazgo lateral, sin resolver:** la columna `Subcategoria` del
+catálogo **no tiene validación de datos** (`Categoria` sí, con
+`=_listas!$A$2:$A$18`). Quien edite a mano puede escribir cualquier cosa
+ahí. Haría falta una lista dependiente de la categoría elegida, que es
+más trabajo que una validación simple.
+
 ### Limpieza
 
 La carpeta de prueba quedó en pie para poder inspeccionarla. Para
@@ -659,6 +708,8 @@ para poder abrir el Excel y mirarlo a ojo.
 | 2026-09-22 | Guías del machote | ✅ Pasa | Cuatro pestañas (`LEEME` + 3 guías) con estilo común: sin cuadrícula, bandas de sección, encabezado fijo |
 | 2026-09-22 | **Prueba de cotización completa** | ✅ Pasa | Nuevo `scripts/prueba-cotizacion.ps1`: 10 pasos, de la numeración al monto del control. Incluye el caso de cliente exento |
 | 2026-09-22 | Confidencialidad | ✅ Corregido | Se quitaron nombres de clientes reales de 2 docs, 1 script y **10 celdas del catálogo de producción** |
+| 2026-09-22 | **2.ª corrida en seco** (control de acceso) | ⚠️ Pasa con 1 hallazgo | Encontró H-11. H-4 confirmado en vivo: cliente de 63 caracteres → 1 carácter de descripción |
+| 2026-09-22 | **H-11 corregido** | ✅ Pasa | 32 filas reclasificadas, 0 colaterales sobre 2.550. `taxonomia.py` arreglado para que no vuelva |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
 | | Caso patrón | ⬜ Bloqueado | Espera las cotizaciones cerradas |

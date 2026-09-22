@@ -114,8 +114,6 @@ CONFIABLES = {
     "microphones": ("Audio", "Microfono"),
     "speaker": ("Audio", "Altavoz"),
     "intercoms": ("Control de acceso", "Intercomunicador"),
-    "control de acceso": ("Control de acceso", "Lector / terminal"),
-    "invidtech access control": ("Control de acceso", "Lector / terminal"),
     "instalacion/servicio": ("Servicios", "Instalacion"),
     "network - controller": ("Accesorio de instalacion", "Otros accesorios"),
     "usb - controller": ("Accesorio de instalacion", "Otros accesorios"),
@@ -130,6 +128,15 @@ GENERICAS = {"accessory", "accesorios", "accessories"}
 SECCION_FIJA = {
     "deteccion de incendio": "Deteccion de incendio",
     "fuente de poder/ups": "Energia",
+    # Estas dos estaban en CONFIABLES apuntando directo a "Lector / terminal"
+    # (corregido 2026-09-22). Como CONFIABLES corta antes que las reglas por
+    # nombre, TODO lo que el proveedor pusiera en su seccion de acceso salia
+    # como lector: gabinetes, botones de salida, cerraduras, una bateria y
+    # una fuente de poder. De 40 filas, 29 no eran lectores. Las reglas por
+    # nombre para cerradura, boton de salida y gabinete ya existian; nunca
+    # llegaban a correr.
+    "control de acceso": "Control de acceso",
+    "invidtech access control": "Control de acceso",
 }
 
 
@@ -164,9 +171,32 @@ def _sub_energia(n):
     return "Fuente de poder"
 
 
+def _sub_acceso(n):
+    """Subcategoria dentro de Control de acceso, por el nombre del producto.
+    Solo llega aca lo que ninguna regla por nombre agarro antes, asi que los
+    gabinetes, las cerraduras y los botones ya salieron por su propia via."""
+    for k in ["keyfob", "key fob", "tarjeta de proximidad", "rfid card",
+              "credencial", "virtual key", "^tag$"]:
+        if k.strip("^$") in n:
+            return "Credencial / tarjeta"
+    if n.strip() == "tag":
+        return "Credencial / tarjeta"
+    for k in ["torniquete", "turnstile"]:
+        if k in n:
+            return "Torniquete"
+    for k in ["intercom", "portero"]:
+        if k in n:
+            return "Intercomunicador"
+    for k in ["controller", "controlador", "access kit", "accesskit"]:
+        if k in n:
+            return "Controladora"
+    return "Lector / terminal"
+
+
 SUB_POR_SECCION = {
     "Deteccion de incendio": _sub_incendio,
     "Energia": _sub_energia,
+    "Control de acceso": _sub_acceso,
 }
 
 # --------------------------------------------------------------------------
@@ -358,10 +388,51 @@ def _sub_camara(n, base):
     return base
 
 
+# Reglas que ganan sobre TODAS las demas. Salieron de revisar a mano las 40
+# filas que el bug de CONFIABLES habia mandado a "Lector / terminal"
+# (2026-09-22): ahi se vio que varias las agarraba mal una regla generica.
+# El nombre de estos productos trae la descripcion completa del fabricante,
+# asi que una palabra suelta en medio del texto decide mal:
+#   - "iDBox ... monitorea botones y sensores"  ->  se iba a Monitor
+#   - "iDFace ... Intercomunicador SIP integrado"  ->  se iba a Intercomunicador
+#     siendo una terminal de reconocimiento facial
+#   - los kits listan sus keyfobs, y se iban a Credencial en vez de Controladora
+PRIORITARIAS = [
+    (("Control de acceso", "Lector / terminal"),
+     ["facial recognition terminal", "reconocimiento facial",
+      "identificacion biometrica"]),
+    (("Control de acceso", "Controladora"),
+     # Los kits traen en su nombre la lista de lo que incluyen, empezando por
+     # el controlador ("1 - INVID-AIR-CR, 2 - INVID-KEYFOB, ..."). Por eso se
+     # busca el controlador y no la palabra "kit", que vive en el SKU y no en
+     # el nombre: sin esto el keyfob de la lista los mandaba a Credencial.
+     ["access kit", "accesskit", "controller all in one", "controller 4 relay",
+      "controlador autonomo", "software de acceso web incluido",
+      "invid-air-cr", "invid-icon-pro"]),
+    (("Control de acceso", "Credencial / tarjeta"),
+     ["keyfob", "key fob", "virtual key", "rfid card", "rfid/card", "rfid/tag"]),
+    (("Control de acceso", "Boton de salida"),
+     ["button no touch", "boton de salida"]),
+    # Teclados de panel de alarma. El modelo (HS2LCD...) vive en el SKU, no
+    # en el nombre, asi que hay que reconocerlos por como los describen.
+    (("Alarma e intrusion", "Accesorio de alarma"),
+     ["powerseries", "hs2lcd", "teclado lcd alfanumerico",
+      "teclado cableado lcd alfanumerico"]),
+    (("Energia", "Bateria"), ["bateria sellada"]),
+    (("Accesorio de instalacion", "Montaje"),
+     ["montaje tipo u", "montaje l z"]),
+]
+
+
 def clasificar(nombre, cat_orig):
     """Devuelve (categoria, subcategoria, como_se_resolvio)."""
     n = norm(nombre)
     c = norm(cat_orig).strip()
+
+    for (cat, sub), claves in PRIORITARIAS:
+        for k in claves:
+            if k in n:
+                return cat, sub, "regla prioritaria: '%s'" % k
 
     if c in CONFIABLES:
         cat, sub = CONFIABLES[c]
