@@ -144,7 +144,22 @@ no está quemado. Ver el detalle en R3.
 
 ## R3 — El impuesto al cliente depende del cliente
 
-**Estado: confirmada como regla, pendientes los datos.**
+**Estado: RESUELTA el 2026-09-22.** Llegaron los datos y ya están
+cargados en la pestaña `Regimen Fiscal Clientes` del catálogo.
+
+> **Lo que contestó preventa:** hay una institución de seguridad social
+> exenta; **dos universidades públicas llevan únicamente 2%**, no 13%; y
+> los clientes de zona franca **varían caso por caso** — algunos
+> exonerados y otros no, hay que confirmarlo por cliente y nunca asumir.
+>
+> Sobre el 3% de administración: *"eso nosotros lo dejamos o no lo
+> cobramos dependiendo de qué tan competitivos queramos ser"*. **No es
+> una característica del cliente**, así que esa columna queda vacía a
+> propósito y la decisión se toma al armar cada cotización. No intentes
+> modelarla.
+
+(Los nombres concretos están en el catálogo, que es archivo interno de
+la empresa. No se copian a este repositorio.)
 
 No todos los clientes pagan lo mismo. Casos que dio preventa
 (genéricos a propósito, sin nombrar instituciones en este archivo):
@@ -263,9 +278,33 @@ respeta* — no que alguien lo sepa.
 
 ---
 
-## R4 — El costo unitario no es el precio de lista
+## R4 — Se cotiza siempre con el MSRP; el descuento es manual
 
-**Estado: confirmada la regla, pendientes todos los datos.** Es el
+**Estado: RESUELTA el 2026-09-22, y al revés de como la habíamos
+planteado.**
+
+> **Lo que contestó preventa:** el descuento *"varía dependiendo de la
+> marca, tipo de equipo y qué nivel de partners somos"*, y su propuesta
+> fue **usar siempre los MSRP** y que ellos apliquen el descuento a mano
+> según cliente y proyecto — *"aunque esto sea un proceso manual, es
+> rápido"*. Además, cuando el proyecto se registra *"el proveedor nos
+> manda directamente los precios ya con el descuento"*. Los precios de
+> lista se usan para cotizaciones **base**, y el descuento entra después
+> si el proceso avanza.
+
+**O sea: no hay tabla de reglas de descuento y no la va a haber.** La
+pestaña `Reglas de Descuento` del catálogo queda sin llenar a propósito.
+El orden de precedencia que esta regla describía abajo —regla de
+descuento, después precio especial, después lista— **ya no aplica**: se
+toma el `Precio USD` (MSRP) y punto, diciéndole al asesor que es MSRP.
+
+⚠️ **Consecuencia directa:** la columna que traía el nivel *Dealer
+Program* pasó a llamarse `Precio Dealer del proveedor USD (REFERENCIA -
+NO cotizar con este)` y lleva un comentario de celda explicándolo.
+Cotizar con ella sería cotizar ~50% por debajo. Se conserva porque es
+dato real del proveedor y sirve para negociar, no para cotizar.
+
+Lo que sigue abajo queda como registro de cómo se entendía antes. Es el
 bloqueante número uno del proyecto.
 
 El costo real de Grupo Visión depende de:
@@ -302,30 +341,32 @@ puntual.
   explícitamente que es precio de lista sin descuento.
 - **Nunca** inventar un porcentaje ni aplicar el de otra marca.
 
-### R4.2 — El catálogo tiene tres niveles de precio y no sabemos cuál es el nuestro
+### R4.2 — Cuál de los tres niveles de precio usamos (RESUELTO)
 
-**Hallazgo del 2026-09-18, verificado contra el PDF del proveedor.
-Pendiente de respuesta del equipo.**
+**Resuelto el 2026-09-22.** Preventa lo contestó en dos palabras:
+*"Utilizamos siempre los precios MSRP."*
 
-El PDF de lista de precios de uno de los distribuidores publica en su
-encabezado **tres** columnas: `Dealer Program` · `DEAL` · `MSRP`.
+Vale la pena dejar escrito cómo se llegó ahí, porque la pregunta empezó
+mucho más vaga:
 
-- Nuestra columna `Precio USD` = **MSRP** (el más alto).
-- Nuestra columna `Precio especial GV (USD)` = **Dealer Program** (el más
-  bajo).
-- **La columna intermedia (`DEAL`) no se cargó** — está en el PDF, se
-  puede re-extraer cuando se sepa que hace falta.
+1. Se vio en el PDF del distribuidor que publica **tres** columnas:
+   `Dealer Program`, `DEAL` y `MSRP`, con más de 3× entre la más baja y
+   la más alta.
+2. Midiendo las 945 filas del catálogo que tenían precio especial
+   cargado se descubrió que **669 son exactamente el MSRP dividido entre
+   dos** y 202 son **iguales al MSRP** (software, licencias y accesorios
+   de una línea). Filas de los dos tipos conviven en las mismas páginas,
+   así que no era un error de carga: lo que teníamos cargado era el
+   nivel **Dealer Program**, que es MSRP−50% en hardware y 0% en
+   software.
+3. Eso convirtió la pregunta de *"¿cuál de tres?"* en *"¿compramos al
+   Dealer Program o al DEAL intermedio?"* — mucho más fácil de contestar.
+4. La respuesta fue: ninguno de los dos para cotizar. **Se cotiza con el
+   MSRP** y el descuento lo aplican ellos a mano (ver R4).
 
-En un ítem cualquiera los tres niveles pueden diferir por más de 3×.
-**Cuál de los tres es el costo real de Grupo Visión depende del programa
-de distribuidor en el que esté la empresa, y eso nadie lo ha confirmado.**
-
-⚠️ Riesgo concreto en las dos direcciones: usar el nivel más bajo cuando
-el real es el intermedio produce cotizaciones que **pierden plata** si se
-ganan; usar el MSRP produce cotizaciones **no competitivas**. Por eso la
-regla de ejecución hasta que respondan es: **mostrar los niveles
-disponibles y que el asesor confirme cuál aplica**, nunca elegir uno
-automáticamente.
+**Moraleja para futuras preguntas al equipo comercial:** medir primero y
+preguntar después. La versión medible de la pregunta se contestó en una
+línea; la versión vaga llevaba semanas abierta.
 
 ### R4.3 — Estado real del dato por marca (verificado 2026-09-18)
 
@@ -385,7 +426,18 @@ Sin modelar esto, las reglas de descuento no se pueden ejecutar solas.
 
 ## R6 — Porcentajes por etapa comercial
 
-**Estado: regla confirmada, valores pendientes.**
+**Estado: RESUELTA el 2026-09-22 — no hay valores que cargar.**
+
+> **Lo que contestó preventa:** *"jugamos con muchos márgenes
+> diferentes, no tenemos nada establecido"*. A veces desde estudio de
+> mercado van muy baratos y con otros clientes suben el margen, y
+> depende mucho de la magnitud del proyecto. *"Este cálculo o decisión
+> de margen también nos toca valorarlo de manera variable y manual."*
+
+**No hay tabla de porcentajes por etapa y no la va a haber.** Los
+valores del machote siguen siendo la recomendación inicial, y la ficha
+los muestra para que el asesor los confirme o los cambie por proyecto —
+que es exactamente lo que ya hace. Nada que implementar.
 
 El 95% del trabajo de preventa es gobierno. Una misma necesidad produce
 dos cotizaciones con precios distintos:
@@ -427,7 +479,18 @@ decir "dos juegos independientes" es incorrecto.
 
 ## R7 — Tipo de cambio con colchón hacia arriba
 
-**Estado: regla confirmada, fuente exacta pendiente.**
+**Estado: fuente RESUELTA el 2026-09-22; el redondeo sigue abierto.**
+
+> **Lo que contestó preventa:** *"Podemos manejarlos al tipo de cambio
+> del banco central al precio de venta."*
+
+O sea: **Banco Central de Costa Rica, tipo de cambio de VENTA.** Ya está
+anotado en la nota de la pestaña `Tipo de Cambio` del catálogo. Los
+valores `B3`/`B4` los sigue llenando el equipo a mano.
+
+⚠️ **Lo que no contestaron:** si el redondeo hacia arriba (de 480 a 500,
+por ejemplo) es política de la empresa o criterio de cada quien. Sigue
+en la lista de pendientes.
 
 Se toma el tipo de cambio del banco y **se redondea hacia arriba** como
 colchón ante variación futura. Ejemplo dado por preventa: con el tipo de
@@ -447,7 +510,18 @@ si el redondeo es política de la empresa o criterio de cada asesor.
 
 ## R8 — Mano de obra: mitad tarifario, mitad estimación
 
-**Estado: regla confirmada, tarifario pendiente.**
+**Estado: regla confirmada. El tarifario sigue pendiente, y ahora
+sabemos por qué.**
+
+> **Lo que contestó preventa:** *"eso aún no lo tenemos 100%
+> establecido. Tengo anotado un par de precios base por instalaciones
+> pero de hecho tenemos la tarea de elaborar un cuadro de instalaciones,
+> con costos estandarizados."*
+
+**No es que no contestaran: es que no existe todavía.** Tienen la tarea
+pendiente de armarlo. Hasta entonces la pestaña `MANO DE OBRA` se llena
+a mano en cada cotización, y no hay que insistirles: hay que esperar a
+que lo construyan.
 
 No es todo estimación. Hay dos mitades y solo una se automatiza.
 
@@ -481,7 +555,29 @@ que el equipo comercial la llene.
 
 ## R9 — Transporte terrestre y combustible
 
-**Estado: mecanismo ya existe en el machote, datos pendientes.**
+**Estado: RESUELTA el 2026-09-22 — ya estaba resuelto en el machote.**
+
+> **Lo que contestó preventa:** *"En la matriz, en la hoja de mano de
+> obra es donde calculamos la parte de kilometraje, viáticos y
+> hospedaje, esa parte creo que sí la tenemos automatizada en la misma
+> matriz."*
+
+Verificado y es cierto: `Transporte` calcula
+`kms × viajes × carros × costo por km`, y `MANO DE OBRA` toma el
+combustible de ahí con `=Transporte!I3`. La cadena funciona.
+
+**Pero al verificarlo aparecieron dos cosas** (2026-09-22):
+
+1. **Un error real, ya corregido.** El total de viáticos era
+   `=(H5*E5*F5)+(I5*E5)+((J5*E5)-1)`. Ese `-1` **restaba un dólar
+   siempre**: en el machote en blanco el total daba −$1,00. No hay regla
+   de negocio que reste exactamente un dólar. Quitado.
+2. **Dos inconsistencias que hay que preguntar, no corregir solos:**
+   - En la fila 5 el **hospedaje se multiplica solo por días, no por
+     personas**. Si dos técnicos duermen fuera, se cobra una habitación.
+   - Las filas 6 a 8 usan una fórmula **distinta** a la de la fila 5:
+     `((H+I+J)*E)*F`, que multiplica todo por días *y* personas,
+     incluido el combustible. Las dos no pueden estar bien a la vez.
 
 Preventa lo hace a mano hoy: *"¿cuántos kilómetros hay de aquí a
 \[destino]? En otra tabla se mete el kilometraje y te lo jala acá."*
@@ -516,7 +612,20 @@ distintas con el mismo nombre.
 
 ## R10 — Materiales de instalación: sí en el catálogo, no en una tabla de proporciones
 
-**Estado: decidido 2026-09-21. La pestaña de proporciones se eliminó.**
+**Estado: decidido 2026-09-21 y CONFIRMADO POR EL NEGOCIO el 2026-09-22.**
+
+> **Lo que contestó preventa cuando se les pidió la tabla de
+> proporciones:** *"eso varía totalmente. A como puede instalarse una
+> cámara a 5 metros de distancia del grabador, pueden ser 70, 80 mts…
+> no tenemos forma de estandarizarlo, cada cámara lleva diferentes
+> distancias. Esto es una de las cosas que sí o sí nos toca sacar
+> manualmente."*
+
+La decisión se había tomado por criterio —que una tabla le daría a una
+estimación la autoridad de una fuente de verdad— y el negocio llegó a la
+misma conclusión por su cuenta. **No reabrir esto.** Se eliminaron tres
+versiones de esa misma tabla (`Proporciones Instalacion`, `calc mat`, y
+la petición al equipo); si aparece una cuarta, es el mismo error.
 
 Además del equipo principal y de los accesorios de montaje, una
 instalación consume **materiales**: tubería conduit, gazas, cable,

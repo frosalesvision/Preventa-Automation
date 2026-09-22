@@ -63,45 +63,38 @@ Esto se queda sin resolver hoy y genera trabajo manual repetido.
    Esto aplica en cualquier punto donde se muestre un precio del
    catálogo, incluyendo `armar-cotizacion` al tomar el "Costo Unit".
 
-**Sobre el "Costo Unit" que se usa (reescrito 2026-09-18 — ver la regla
-R4 en [`docs/reglas-negocio.md`](../../../docs/reglas-negocio.md)):**
+**Sobre el "Costo Unit" que se usa (RESUELTO 2026-09-22 por preventa —
+ver R4 en [`docs/reglas-negocio.md`](../../../docs/reglas-negocio.md)):**
 
-El precio del catálogo **es precio de lista, no el costo de Grupo
-Visión**. Preventa lo confirmó: el costo real depende del registro del
-proyecto, del monto mínimo de compra, de la marca y hasta de la familia
-de producto, y **por ahora esa columna se llena a mano**.
+**Siempre se cotiza con el MSRP**, que es la columna `Precio USD` del
+catálogo. Sin excepciones y sin buscar reglas de descuento.
 
-Orden de precedencia, sin excepciones:
+La respuesta de preventa, textual en lo esencial: el descuento *"varía
+dependiendo de la marca, tipo de equipo y qué nivel de partners somos"*,
+así que prefieren **usar el MSRP y aplicar ellos el descuento a mano**
+según el cliente y el proyecto. Y cuando el proyecto se registra, *"el
+proveedor nos manda directamente los precios ya con el descuento"*. Los
+precios de lista se usan para las cotizaciones **base**; el descuento
+entra después, si el proceso avanza.
 
-1. **Si hay una regla de descuento documentada** para ese proveedor y
-   ese proyecto → calculá el costo con esa regla y decí cuál aplicaste.
-2. **Si la fila del catálogo tiene un `Precio especial GV (USD)`** →
-   mostralo, **pero aclarando de qué nivel de precio del proveedor
-   salió** (ver abajo) y pidiendo confirmación antes de usarlo.
-3. **Si no hay ninguna de las dos** → usá el "Precio USD" tal cual y
-   **decí explícitamente que es precio de lista sin descuento.**
+**Qué significa para vos, en concreto:**
 
-**Nunca inventes un porcentaje, nunca reuses el descuento de otra marca,
-y nunca escribas un costo en la matriz que una persona no haya
-confirmado.**
+1. Tomá el `Precio USD` (MSRP) y usalo tal cual.
+2. **Decí que es MSRP**, para que el asesor sepa que ahí todavía no hay
+   descuento aplicado. No es un aviso de error: es el flujo normal.
+3. **No busques reglas de descuento** ni propongas un porcentaje. Esa
+   decisión no es tuya ni del catálogo; la toma preventa por proyecto.
+4. Si el asesor te dice que ese proyecto ya está registrado y tiene
+   precios del proveedor con descuento, usá **los que él te dé**, no los
+   del catálogo.
 
-⚠️ **El catálogo tiene más de un nivel de precio y no sabemos cuál es el
-nuestro** (hallazgo 2026-09-18, verificado contra el PDF del proveedor).
-La lista de precios de uno de los distribuidores publica **tres**
-columnas en su encabezado: `Dealer Program`, `DEAL` y `MSRP`. Nuestra
-columna "Precio USD" es el **MSRP** y "Precio especial GV" es el
-**Dealer Program**; la intermedia no se cargó. Entre la más baja y la
-más alta puede haber más de 3× de diferencia, y **cuál aplica a Grupo
-Visión nadie lo ha confirmado todavía**. Por eso, mientras no
-respondan: **mostrale al asesor los niveles que existan para esa fila y
-que él confirme cuál usar** — nunca elijas uno por tu cuenta. Elegir el
-más bajo cuando el real es el intermedio produce cotizaciones que
-pierden plata; elegir el MSRP produce cotizaciones no competitivas.
-
-Nota de estado: la marca con más filas del catálogo **no tiene ningún
-precio especial cargado** porque su lista oficial solo publica un precio;
-el descuento que preventa menciona para esa marca tiene que llegar como
-regla escrita del equipo. Ver R4.3.
+⚠️ **NUNCA uses la columna `Precio Dealer del proveedor USD`.** Existe en
+el catálogo como referencia —es el nivel *Dealer Program* de la lista de
+un distribuidor, aproximadamente **la mitad del MSRP**— y está renombrada
+justo para que nadie la confunda. Cotizar con ella sería cotizar
+alrededor del 50% por debajo de lo que la empresa quiere cobrar. Si el
+asesor pregunta por ella, mostrala como dato de referencia para negociar,
+nunca como el costo.
 
 ### Cómo filtrar el catálogo (agregado 2026-09-22 — H-5, H-6, H-7)
 

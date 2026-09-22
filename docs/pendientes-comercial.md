@@ -13,53 +13,52 @@
 
 ---
 
-## Bloqueante — sin esto el cálculo no sirve
+## Lo que ya se resolvió
 
-### 1. Reglas de descuento por proveedor y marca `R4`
+### Contestadas por preventa el 2026-09-22
 
-Por cada marca o distribuidor con el que se compra:
+Llegaron siete de las nueve. **Varias no se contestaron con un dato sino
+con una decisión: eso se hace a mano y no se va a automatizar.** Eso es
+una respuesta válida y cierra el tema.
 
-- ¿Qué descuento da sobre el precio de lista?
-- ¿De qué depende? (registro del proyecto, monto mínimo de compra,
-  familia de producto, tipo de cliente)
-- ¿Aplica a todo el catálogo de esa marca o solo a parte?
-- Si hay varios niveles de descuento, cuáles son y qué activa cada uno.
+| Pregunta | Cómo quedó |
+|---|---|
+| **1. Descuentos por proveedor y marca** | **No hay tabla y no la va a haber.** El descuento depende de marca, tipo de equipo, nivel de partner y proyecto. Se cotiza con MSRP y ellos aplican el descuento a mano. Cuando el proyecto se registra, el proveedor manda los precios ya con descuento. Ver R4 |
+| **2. En qué nivel de precio compramos** | **MSRP, siempre.** La columna del nivel Dealer quedó renombrada como referencia con aviso de no usar. Ver R4.2 |
+| **3. Clientes exentos** | ✅ **Datos cargados** en `Regimen Fiscal Clientes`. Una institución de seguridad social exenta, dos universidades públicas al 2%, zona franca varía caso por caso. El 3% de administración **no se modela**: lo deciden según qué tan competitivos quieran ser |
+| **5. Proporciones de materiales** | **Confirmado que no se puede estandarizar.** *"Una cámara puede instalarse a 5 metros del grabador, pueden ser 70, 80 mts."* Coincide con lo que ya se había decidido. Ver R10 |
+| **6. Destinos y kilometraje** | **Ya estaba resuelto en el machote** y ellos lo sabían: `Transporte` + `MANO DE OBRA` lo calculan. Al verificarlo apareció un `-1` en la fórmula de viáticos, ya corregido. Ver R9 |
+| **7. Porcentajes por etapa** | **No hay valores establecidos y es a propósito.** Varía por magnitud del proyecto y por cuán agresivos quieran ser. Queda manual. Ver R6 |
+| **8. Tipo de cambio** | **Banco Central, precio de venta.** Ya anotado en la pestaña `Tipo de Cambio` |
 
-**Prioridad dentro de este punto:** la marca donde el descuento es del
-50%. Esa es justamente la que **no tiene ningún precio especial cargado**
-hoy, porque su lista de precios oficial solo publica el precio de lista.
+---
 
-**Si no llega:** toda cotización que arme la IA parte de un costo
-inflado, el margen se calcula sobre un número equivocado y la oferta sale
-cara. Es el único punto que bloquea absolutamente todo lo demás.
+## Lo que sigue pendiente
 
-### 2. En qué nivel de precio compra Grupo Visión `R4.2`
+### 4. Tarifario de mano de obra `R8`
 
-La lista de precios de uno de los distribuidores publica **tres**
-columnas de precio: `Dealer Program`, `DEAL` y `MSRP`. Entre la más baja
-y la más alta puede haber más de 3× de diferencia.
+**No es que no contestaran: no existe todavía.** Tienen anotados un par
+de precios base y **la tarea pendiente de armar un cuadro de
+instalaciones con costos estandarizados**.
 
-**Pregunta concreta (afinada el 2026-09-22):** ya sabemos exactamente
-qué nivel cargamos. De las 945 filas con precio especial, **669 son
-exactamente el MSRP dividido entre dos** y 202 son **iguales al MSRP**
-(todas ellas software, licencias y accesorios de una línea). Filas de
-los dos tipos conviven en las mismas páginas del PDF, así que no es un
-error de carga: el nivel *Dealer Program* es **MSRP − 50% en hardware y
-0% en software**.
+**Qué hacer mientras tanto:** nada, y no insistir. La pestaña
+`MANO DE OBRA` se llena a mano en cada cotización. Cuando construyan el
+cuadro, se carga en la pestaña `Tarifario Mano de Obra` del catálogo,
+que ya está lista y vacía esperándolo.
 
-Entonces la pregunta ya no es "cuál de tres", es una sola:
+### 7b. El redondeo del tipo de cambio `R7`
 
-> **¿Grupo Visión compra al nivel Dealer Program (o sea el MSRP menos
-> 50%), o al nivel intermedio DEAL que no cargamos?**
-
-**Si no llega:** hoy tenemos cargada la más baja y la más alta. Usar la
-más baja cuando en realidad compramos en la intermedia significa cotizar
-por debajo del costo y perder plata en los proyectos que se ganen. Es la
-pregunta con el riesgo más caro de toda la lista.
+Confirmaron la fuente (Banco Central, precio de venta) pero **no el
+redondeo**: subir de 480 a 500, ¿es política de la empresa o criterio de
+cada quien? Sin esto, la automatización propone el tipo de cambio tal
+cual viene y el asesor lo ajusta.
 
 ### 2b. ¿El IVA de las compras locales es un costo o se acredita? `R2`
 
-Rastreando las fórmulas del machote apareció esto: **el transporte y el
+Esta no estaba en el mensaje que se les envió, así que sigue sin
+preguntar.
+
+Rastreando las fórmulas del machote apareció que **el transporte y el
 DAI solo se cobran si la línea dice `IMPORTADO = si`, pero el IVA de
 línea se aplica siempre**, con el porcentaje que tenga la pestaña. En
 `Equipos` ese porcentaje es 0% y en `MATERIALES` es 13%. O sea que el
@@ -69,103 +68,27 @@ IVA lo decide *en qué pestaña se escribió la línea*, no el producto.
 local y le cobran el 13% de IVA, ¿ese IVA **es un costo** del proyecto,
 o **se acredita** contra el IVA que después se le cobra al cliente?
 
-**Por qué importa ahora:** el catálogo ya tiene 193 productos de
-proveedores locales (Seguritronic, ISTC, EPA, Tectel y otros). Si ese
-IVA es un costo, una línea de proveedor local escrita en `Equipos`
-—que tiene IVA 0%— sale con el costo **subvaluado en 13%**: sobre $100
-por unidad, el costo nacionalizado pasaría de $103 a $116,39. Si se
-acredita, está bien como está y no hay nada que cambiar.
+**Por qué importa:** el catálogo tiene 193 productos de proveedores
+locales. Si ese IVA es un costo, una línea de proveedor local escrita en
+`Equipos` —que tiene IVA 0%— sale con el costo **subvaluado en 13%**:
+sobre $100 por unidad, el costo nacionalizado pasaría de $103 a $116,39.
+Si se acredita, está bien como está.
 
-**Si no llega:** no se toca nada. La automatización solo va a **avisar**
-cuando una línea de proveedor local caiga en una pestaña con IVA 0%,
-para que quien cotiza lo revise.
+**Si no llega:** no se toca nada. La automatización solo **avisa**
+cuando una línea de proveedor local cae en una pestaña con IVA 0%.
 
-### 3. Clientes con régimen fiscal especial `R3`
+### 6b. Dos inconsistencias en la fórmula de viáticos `R9`
 
-Una lista de clientes con:
+Salieron al verificar la respuesta del punto 6:
 
-- ¿Se le cobra impuesto o es exento?
-- Si se le cobra, ¿qué porcentaje? (se mencionó un caso de 2% en vez de 13%)
-- ¿Se le carga el 3% de administración o no?
+- El **hospedaje se multiplica solo por días, no por personas**. Si dos
+  técnicos duermen fuera, se cobra una sola habitación.
+- Las filas 6 a 8 de `MANO DE OBRA` usan una fórmula **distinta** a la
+  de la fila 5: multiplican todo por días *y* personas, incluido el
+  combustible. Las dos no pueden estar bien a la vez.
 
-No hace falta que esté completa de una vez: con los clientes recurrentes
-de gobierno alcanza para arrancar, y se van agregando.
-
-**Si no llega:** se cobra impuesto de más o de menos en una licitación de
-gobierno. Es un error visible para el cliente y difícil de explicar.
-
----
-
-## Necesario para cotizar instalación completa
-
-### 4. Tarifario de mano de obra `R8`
-
-Los precios que no cambian entre proyectos:
-
-- Instalación por cámara (se mencionaron 48 dólares)
-- Instalación por poste
-- Programación / configuración
-- Capacitación
-- Cualquier otro concepto que se cobre por unidad
-
-**Nota:** los días, la cantidad de personas y la complejidad **no** entran
-acá. Eso se sigue preguntando en cada proyecto porque depende del trabajo.
-
-### 5. Tabla de destinos y kilometraje `R9`
-
-- Lista de **destinos/localidades** habituales con kilómetros ida y
-  vuelta (la tabla ya tiene San José, Cartago, Liberia, Paso Canoas y
-  algunos más; se trata de completar los que falten).
-- Costo por kilómetro vigente.
-- Viáticos: alimentación y hospedaje por día y por persona.
-
-Esta tabla ya existe en el machote con unos pocos destinos cargados; se
-trata de completarla. **Solo los kilómetros**: cuántos viajes y cuántos
-vehículos lleva cada proyecto se pregunta al cotizar, no va en la tabla.
-
-> **Ya no hace falta pedir las proporciones de materiales.** Se había
-> pedido "cuántos metros de tubo por cámara"; esa tabla se descartó
-> (regla R10) porque la cantidad depende del sitio y guardarla como dato
-> fijo le daría autoridad de verdad a una estimación. Se va a preguntar
-> en cada cotización. **Un punto menos de la lista.**
-
----
-
-## Reglas de cálculo
-
-### 6. Porcentajes por etapa `R6`
-
-Para cada uno de estos: transporte, imprevistos, administración y margen,
-cuál es el valor típico en **estudio de mercado**, en **oferta de
-licitación** y en **cliente privado**, y entre qué rango se mueve.
-
-Lo que ya sabemos: transporte ya no es el 10% fijo (se consulta a
-compras por proyecto y se han visto 2% y 6%); administración baja a 2% o
-0% en licitaciones agresivas; el margen ronda 28% y sube a 30–35% en
-estudio de mercado.
-
-### 7. Tipo de cambio `R7`
-
-- ¿Banco Central o Banco de Costa Rica?
-- ¿Tipo de cambio de compra o de venta?
-- El redondeo hacia arriba (por ejemplo de 480 a 500) ¿es política de la
-  empresa o criterio de cada asesor?
-
-### 8. Registro de proyecto `R5`
-
-- ¿Con qué distribuidores se registra?
-- ¿Cuánto dura el registro antes de vencer?
-- ¿Dónde se anota hoy, si es que se anota en algún lado?
-- ¿Se puede agregar una columna al control de cotizaciones para llevarlo?
-  (esto necesita permiso de quien administra ese archivo)
-
-> **Ya resuelto, no hace falta preguntarlo:** la antigüedad del precio
-> quedó fijada en **2 meses** (regla R12). Pasado ese plazo hay que
-> reconfirmar con el proveedor; debajo de él igual se muestran los días.
-
----
-
-## Para poder validar que funciona
+**Pregunta concreta:** ¿cuál de las dos es la correcta, y el hospedaje
+se cobra por persona o por viaje?
 
 ### 10. Dos o tres cotizaciones cerradas completas
 
@@ -214,6 +137,12 @@ que nadie las vuelva a abrir.
 ---
 
 # Mensaje para Teams
+
+> ⚠️ **Este mensaje ya se envió y ya lo contestaron** (2026-09-22). Se
+> conserva como registro. Lo que quedó pendiente está arriba; para
+> preguntarlo hace falta un mensaje nuevo y mucho más corto.
+
+---
 
 > Copiar y pegar. Está escrito para que se pueda contestar por partes y
 > sin abrir ningún documento.
