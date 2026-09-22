@@ -55,12 +55,10 @@ Esto se queda sin resolver hoy y genera trabajo manual repetido.
    explícitamente además del número. La responsabilidad de confirmar el
    precio vigente es de quien cotiza; vos solo informás.
 
-   ⚠️ **Umbral sin cerrar:** este skill documentaba **2 meses**
-   (confirmado 2026-09-14) y en la conversación del 2026-09-18 se
-   mencionó **2 semanas**. Hasta que el equipo fije uno, usá 2 meses
-   como umbral de advertencia pero **mostrá siempre los días exactos**,
-   que es lo que de verdad sirve. Está en la lista de pendientes del
-   equipo comercial.
+   **El umbral es 2 meses** (cerrado por Fabián el 2026-09-22; ya se
+   había confirmado el 2026-09-14 y una mención a "2 semanas" quedó
+   descartada). Aun así **mostrá siempre los días exactos**, que es lo
+   que de verdad le sirve al asesor para decidir.
 
    Esto aplica en cualquier punto donde se muestre un precio del
    catálogo, incluyendo `armar-cotizacion` al tomar el "Costo Unit".
@@ -104,6 +102,71 @@ Nota de estado: la marca con más filas del catálogo **no tiene ningún
 precio especial cargado** porque su lista oficial solo publica un precio;
 el descuento que preventa menciona para esa marca tiene que llegar como
 regla escrita del equipo. Ver R4.3.
+
+### Cómo filtrar el catálogo (agregado 2026-09-22 — H-5, H-6, H-7)
+
+Este skill se escribió **antes** de que el catálogo se normalizara, así
+que decía "buscá candidatos" sin explicar por dónde. Con 2.550 filas eso
+no alcanza. El orden que sí funciona:
+
+**1. Filtrá primero por `Categoria` y `Subcategoria`.** Son las columnas
+4 y 5, y solas bajan el universo de 2.550 a unos cientos. Hay **16
+categorías y 64 subcategorías**, todas con valor en las 2.550 filas
+(medido 2026-09-22). La pestaña `Glosario de categorias` del mismo
+archivo las explica una por una. Cuidado con los singulares: la
+categoría es **`Camara`**, no "Camaras".
+
+| Categoría | Filas | Subcategorías |
+|---|---|---|
+| `Camara` | 888 | IP / de red · PTZ · Analogica · Termica · A prueba de explosion · Panoramica / fisheye · LPR / placas |
+| `Grabacion y video` | 561 | NVR · Servidor / appliance · DVR / hibrido · Codificador / decodificador |
+| `Accesorio de instalacion` | 407 | Montaje · Caja / housing · Adaptador / conversor · Otros accesorios · Cubierta / carcasa |
+| `Software y licencias` | 129 | Suscripcion en la nube · Licencia VMS · Integracion / plugin |
+| `Red y conectividad` | 97 | Switch · Extensor · Switch PoE · Fibra / transceiver · Firewall / router · Accesorio de red · Antena |
+| `Energia` | 73 | Fuente de poder · Bateria · Inyector PoE · Sistema solar · UPS · Proteccion electrica |
+| `Control de acceso` | 71 | Lector / terminal · Torniquete · Intercomunicador · Credencial / tarjeta · Boton de salida · Controladora · Cerradura / electroiman |
+| `Monitor y visualizacion` | 70 | Monitor · Monitor publico (PVM) · Senalizacion digital |
+| `Materiales de instalacion` | 63 | Cableado · Canalizacion y tuberia · Material electrico · Ferreteria / postes |
+| `Optica` | 58 | Lente |
+| `Audio` | 49 | Altavoz · Sistema de audio IP · Microfono |
+| `Deteccion de incendio` | 42 | Notificacion · Detector · Accesorio · Panel |
+| `Almacenamiento` | 20 | Disco duro · Tarjeta de memoria |
+| `Alarma e intrusion` | 19 | Accesorio de alarma · Comunicador · Sensor ambiental · Detector de movimiento · Panel de alarma · Contacto magnetico |
+| `Servicios` | 2 | Instalacion |
+| `Equipo de computo` | 1 | Computadora / workstation |
+
+**2. Buscá el texto en `Nombre de equipo/producto` (col. 1) y
+`Descripcion` (col. 14).** Nada más.
+
+⚠️ **No busques en `Especificaciones tecnicas clave`.** Una versión
+anterior de este skill mandaba comparar contra esa columna: **está
+vacía en las 2.550 filas** (medido 2026-09-22), igual que `Vigencia del
+precio`. Existen como encabezado y nunca se llenaron.
+
+**3. Contá los candidatos antes de mostrarlos.** Una especificación
+normal deja muchos más de los que se pueden leer: "exterior, 4MP, con
+IR" dio **68 candidatos** en la corrida del 2026-09-21.
+
+- **Hasta 10 candidatos:** mostralos todos con su detalle, como dice el
+  Paso 1.
+- **Más de 10:** **no los listes.** Decí cuántos hay, agrupalos por
+  marca con su rango de precio, y preguntá por dónde acotar —marca,
+  techo de precio, tipo de lente (fijo o motorizado), formato (bullet,
+  domo, turret)—. Una lista de 68 filas no es una respuesta, es
+  devolverle el problema al asesor.
+
+**4. Descartá los que contradicen el pedido, aunque el texto coincida.**
+Un filtro por palabras clave produce falsos positivos reales, medidos en
+la misma corrida:
+
+- Una cámara **interior** entró en una búsqueda de exterior porque su
+  descripción menciona IP66.
+- Cámaras **multisensor** de 2MP × 2 entraron en una búsqueda de 4MP
+  porque la suma da 4MP.
+- Si piden fija, una **PTZ** no sirve aunque cumpla resolución e IR.
+
+Leé el nombre completo antes de proponer una fila. El filtro acota; la
+decisión de si sirve es tuya.
 
 ### Formatos de entrada que debés soportar
 

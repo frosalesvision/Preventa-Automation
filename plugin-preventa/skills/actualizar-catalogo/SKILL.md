@@ -417,6 +417,37 @@ cuánto cable lleva cada cámara instalada. Sin eso hay materiales pero no
 hay cálculo. Diseño acordado: una pestaña `Proporciones de Instalación`
 en este mismo Excel (mismo criterio que `Tipo de Cambio`). Ver R10.
 
+## Columnas que hoy salen mal o vacías (medido 2026-09-22)
+
+Se contó celda por celda sobre las 2.550 filas del catálogo de
+producción. Tres cosas que hay que corregir al próximo cargue:
+
+**1. `Especificaciones tecnicas clave` está vacía en las 2.550 filas.**
+La columna existe desde el diseño original y **nunca se llenó**. No es
+un detalle cosmético: `buscar-equipo` mandaba explícitamente a comparar
+las especificaciones contra esa columna, así que media instrucción
+apuntaba al vacío (ya corregido ahí). Al cargar un proveedor, o se llena
+con lo que traiga la ficha, o la columna se elimina — pero no puede
+quedarse como está, prometiendo un dato que no existe.
+
+**2. `Vigencia del precio` también está vacía en las 2.550.** Mismo
+criterio.
+
+**3. `Fecha de ultima actualizacion` se está escribiendo como texto, no
+como fecha.** Las 2.550 filas tienen un string (`'2026-08-28'` en 2.357
+y `'2026-09-14'` en 193). El valor es correcto y se puede leer, pero
+Excel **no las puede ordenar ni filtrar como fecha**, que es
+precisamente para lo que sirve esa columna cuando alguien quiere ver qué
+precios están viejos. Al escribirla, poné un valor de fecha real
+(`datetime.date`) y dejale un formato de celda `yyyy-mm-dd`, no una
+cadena.
+
+**Cobertura del resto, por si sirve para priorizar:** `Precio especial
+GV` 945 de 2.550 (solo InVidTech), `Tiempo de entrega` 1.103, `Pais de
+origen` 1.122, `Peso` 992, `Dimensiones` 1.009, `Codigo HTS` 1.111,
+`Codigo EAN` 1.409. `Categoria`, `Subcategoria`, `Proveedor`,
+`Precio USD` y `Unidad de venta` están al 100%.
+
 ## Sobre quién mantiene esto al día
 
 No hay una persona encargada — hoy preventa son 2 personas. La

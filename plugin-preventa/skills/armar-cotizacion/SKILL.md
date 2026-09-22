@@ -75,15 +75,36 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    cualquier caso, esperá confirmación antes de crear la carpeta.
 4. **Descripción corta:** preguntale al asesor la descripción breve que
    va en el nombre de la carpeta (ej. "mantenimiento control de acceso").
-   **Antes de seguir, calculá la ruta completa** que va a tener el
-   archivo más profundo (el machote dentro de `Matriz-Oferta/`, o
-   `Implementacion/Documentación del proyecto/`) con ese nombre de
-   cliente + carpeta de año + descripción. Windows/Excel no puede abrir
-   archivos con ruta de más de ~259 caracteres — si la ruta calculada se
-   acerca a ese límite (dejá margen, ej. más de 230), avisale al asesor
-   y pedile una descripción más corta antes de crear nada. Esto es
-   más probable con clientes de nombre largo (ej. nombres de
-   licitaciones completos) — no lo asumas como caso raro.
+
+   ⚠️ **Antes de pedirla, calculá cuántos caracteres caben, y decí el
+   número** (corregido 2026-09-22 — H-4). Windows y Excel no abren
+   archivos con ruta de más de **259 caracteres**, y la versión anterior
+   de este paso solo decía "pedile una descripción más corta" sin decir
+   *cuánto*, que es justo el dato que el asesor necesita.
+
+   El cálculo, para ese cliente concreto:
+
+   1. Armá las dos rutas más profundas que va a tener la cotización: el
+      machote en `…/Matriz-Oferta/Matriz y oferta <desc>.xlsx` y la
+      carpeta `…/Implementacion/Documentación del proyecto`.
+   2. Ojo: **la descripción aparece dos veces** en la primera (en el
+      nombre de la carpeta y en el del archivo), así que cada carácter
+      que agregues cuesta dos.
+   3. `caracteres disponibles = 259 − (todo lo fijo)`, y
+      `máximo de la descripción = disponibles ÷ 2`.
+   4. Decíselo así: *"para este cliente la descripción puede tener hasta
+      N caracteres"*. Si N es muy chico, proponé vos dos o tres opciones
+      que quepan en vez de hacerlo adivinar.
+
+   **No es un caso raro.** Medido sobre los 286 clientes reales de la
+   carpeta compartida: **83 (el 29%) solo admiten 20 caracteres o
+   menos**, y el de nombre más largo —una institución pública con razón
+   social completa y siglas, 62 caracteres— admite **1 solo carácter**.
+   Con esos clientes hay que negociar el nombre, no pedir "algo más
+   corto".
+
+   Y verificá el resultado: después de crear la carpeta, medí la ruta
+   real del machote y confirmá que quedó bajo 259.
 5. **Crear la carpeta** `Cotización #N-AAAA <descripción>/` con las 5
    subcarpetas estándar:
    ```
