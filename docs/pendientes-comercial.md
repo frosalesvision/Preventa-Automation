@@ -41,22 +41,37 @@ una respuesta válida y cierra el tema.
 de precios base y **la tarea pendiente de armar un cuadro de
 instalaciones con costos estandarizados**.
 
+⚠️ **Asumir que no va a llegar** (criterio de Fabián, 2026-09-23:
+*"posiblemente no lo pasen"*). O sea: el plugin tiene que funcionar
+bien **sin** tarifario de forma permanente, no "mientras tanto". La
+pestaña `MANO DE OBRA` se llena a mano y eso es el estado final, no un
+estado transitorio.
+
 **Qué hacer mientras tanto:** nada, y no insistir. La pestaña
 `MANO DE OBRA` se llena a mano en cada cotización. Cuando construyan el
 cuadro, se carga en la pestaña `Tarifario Mano de Obra` del catálogo,
 que ya está lista y vacía esperándolo.
 
-### 7b. El redondeo del tipo de cambio `R7`
+### ~~7b. El redondeo del tipo de cambio~~ — CERRADO el 2026-09-23
 
-Confirmaron la fuente (Banco Central, precio de venta) pero **no el
-redondeo**: subir de 480 a 500, ¿es política de la empresa o criterio de
-cada quien? Sin esto, la automatización propone el tipo de cambio tal
-cual viene y el asesor lo ajusta.
+Es criterio por proyecto: a veces se usa el del BCCR tal cual, a veces
+se sube un poco a favor de la empresa. **No hay regla que cargar.** La
+ficha pregunta el precio de compra y el de venta en cada cotización.
 
-### 2b. ¿El IVA de las compras locales es un costo o se acredita? `R2`
+### 2b. ¿El IVA de las compras locales se acredita? `R2` — va a contabilidad, no a preventa
 
-Esta no estaba en el mensaje que se les envió, así que sigue sin
-preguntar.
+**Esta pregunta estaba mal dirigida** (aclarado 2026-09-23). No es sobre
+los dos IVA —eso ya está claro en R2 y preventa lo tiene claro—; es una
+pregunta **contable**:
+
+> Cuando Grupo Visión compra local y paga 13% de IVA, ¿ese dinero **se
+> recupera** después contra el IVA que la empresa le cobra a sus
+> clientes, o **se queda como costo** del proyecto?
+
+Si se recupera, no es un costo y el 0% de `Equipos` está bien. Si no se
+recupera, es un costo real y hoy está faltando en las líneas de
+proveedor local. **La respuesta la tiene quien lleva la contabilidad o
+los impuestos de la empresa, no preventa.**
 
 Rastreando las fórmulas del machote apareció que **el transporte y el
 DAI solo se cobran si la línea dice `IMPORTADO = si`, pero el IVA de
@@ -77,18 +92,59 @@ Si se acredita, está bien como está.
 **Si no llega:** no se toca nada. La automatización solo **avisa**
 cuando una línea de proveedor local cae en una pestaña con IVA 0%.
 
-### 6b. Dos inconsistencias en la fórmula de viáticos `R9`
+### 6b. La pestaña `MANO DE OBRA` tiene dos fórmulas distintas para lo mismo `R9`
 
-Salieron al verificar la respuesta del punto 6:
+Salió al verificar la respuesta del punto 6, y es más concreto de lo que
+suena. En esa pestaña, las columnas de viáticos son: `H` alimentación,
+`I` combustible, `J` hospedaje, `E` días, `F` personas. El total va en
+`K`. **Pero `K` no se calcula igual en todas las filas:**
 
-- El **hospedaje se multiplica solo por días, no por personas**. Si dos
-  técnicos duermen fuera, se cobra una sola habitación.
-- Las filas 6 a 8 de `MANO DE OBRA` usan una fórmula **distinta** a la
-  de la fila 5: multiplican todo por días *y* personas, incluido el
-  combustible. Las dos no pueden estar bien a la vez.
+```excel
+fila 5   (Configurador)   K5 = (H5*E5*F5) + (I5*E5) + (J5*E5)
+filas 6-8 (Supervisor,    K6 = ((H6+I6+J6)*E6)*F6
+           PM, Diseño)
+```
 
-**Pregunta concreta:** ¿cuál de las dos es la correcta, y el hospedaje
-se cobra por persona o por viaje?
+En la fila 5, la alimentación se multiplica por días **y** personas,
+pero el combustible y el hospedaje **solo por días**. En las filas 6 a
+8, **todo** se multiplica por días y personas, incluido el combustible.
+
+**Con los mismos datos, dan distinto.** Dos técnicos, tres días,
+alimentación $12 por día, combustible $21,60, hospedaje $40 la noche:
+
+| | Cálculo | Total |
+|---|---|---|
+| Fórmula de la fila 5 | 72 + 64,80 + 120 | **$256,80** |
+| Fórmula de las filas 6-8 | (73,60 × 3) × 2 | **$441,60** |
+
+**$184,80 de diferencia por el mismo viaje**, según en qué fila se
+escriba el rol.
+
+**Dos preguntas concretas:**
+
+1. El **hospedaje**, ¿se paga por persona (dos técnicos, dos
+   habitaciones) o por viaje?
+2. El **combustible**, ¿se multiplica por la cantidad de personas? En la
+   fila 5 no, en las filas 6-8 sí. Intuitivamente van en el mismo carro,
+   así que la de la fila 5 parece la correcta — pero es criterio de
+   ellos, no nuestro.
+
+**No se tocó ninguna de las dos fórmulas.** Solo se quitó un `-1` que
+restaba un dólar siempre y que no tenía explicación posible.
+
+### 1b. ¿La cotización base debe quedar a 1,85× el MSRP? `R4.1`
+
+Preventa dijo que se cotiza siempre con MSRP. Medido lo que eso produce:
+escribir el MSRP en `Costo Unit` hace que **el cliente vea 1,85 veces el
+MSRP**, porque la matriz le suma transporte, DAI, administración y
+margen encima.
+
+**Pregunta concreta:** ¿es eso lo que esperan de una cotización base, o
+la intención era que el cliente viera un precio más cerca del MSRP?
+
+**Por qué importa:** es conservador y nunca se cotiza bajo costo, que
+está bien. Pero si un competidor cotiza cerca del MSRP, una oferta base
+a 1,85× queda fuera de rango antes de empezar a negociar.
 
 ### 10. Dos o tres cotizaciones cerradas completas
 

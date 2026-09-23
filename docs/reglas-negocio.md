@@ -304,6 +304,44 @@ NO cotizar con este)` y lleva un comentario de celda explicándolo.
 Cotizar con ella sería cotizar ~50% por debajo. Se conserva porque es
 dato real del proveedor y sirve para negociar, no para cotizar.
 
+### R4.1 — Lo que el MSRP como costo le hace al precio final
+
+**Medido el 2026-09-23, y hay que confirmarlo con preventa.**
+
+Hay que separar dos cosas que suenan iguales:
+
+- **Cotizar "con MSRP"** = escribir el MSRP en la columna `Costo Unit`
+  de `Equipos`. Es la base sobre la que la matriz calcula.
+- **Cotizarle al cliente "a MSRP"** = que el precio que ve el cliente
+  *sea* el MSRP.
+
+**La matriz hace lo primero, no lo segundo.** Sobre el `Costo Unit` le
+suma transporte, imprevistos, DAI, administración y margen. Medido sobre
+una cámara importada con los porcentajes de fábrica:
+
+| Se escribe en `Costo Unit` | Precio de venta unitario | Factor |
+|---|---|---|
+| $135 (nivel Dealer) | $249,55 | 1,85× |
+| **$270 (MSRP)** | **$499,11** | **1,85×** |
+
+Desglose del caso del MSRP: costo 270 → transporte 27 → imprevistos 8,91
+→ DAI 45,89 → **costo nacionalizado 351,80** → administración 10,55 →
+margen 136,75 → **precio de venta 499,11**.
+
+O sea: **con el MSRP como costo, el cliente ve 1,85 veces el MSRP.**
+
+Eso es coherente con lo que dijo preventa —los precios de lista son para
+cotizaciones *base*, y el descuento entra después si el proceso avanza—
+y es conservador: nunca se cotiza por debajo del costo. Pero conviene
+que lo confirmen, porque si un competidor cotiza cerca del MSRP, una
+oferta base a 1,85× queda fuera de rango.
+
+⚠️ **Y una limitación que hay que tener presente:** mientras el costo
+real de Grupo Visión no viva en ningún lado, **la matriz no puede decir
+cuál es el margen real**. Calcula el margen sobre un costo que no es el
+nuestro. El número de "utilidad" de la matriz es, hoy, una utilidad
+teórica sobre precio de lista.
+
 Lo que sigue abajo queda como registro de cómo se entendía antes. Es el
 bloqueante número uno del proyecto.
 
@@ -479,18 +517,30 @@ decir "dos juegos independientes" es incorrecto.
 
 ## R7 — Tipo de cambio con colchón hacia arriba
 
-**Estado: fuente RESUELTA el 2026-09-22; el redondeo sigue abierto.**
+**Estado: RESUELTA del todo el 2026-09-23.**
 
-> **Lo que contestó preventa:** *"Podemos manejarlos al tipo de cambio
-> del banco central al precio de venta."*
+> **Preventa:** *"Podemos manejarlos al tipo de cambio del banco central
+> al precio de venta."*
+>
+> **Fabián, cerrando el punto:** *"es política de cada proyecto, a veces
+> se usa el monto del BCCR, o a veces se sube un poco hacia arriba para
+> beneficiar a la empresa. Creo que es necesario consultar siempre
+> cuando el usuario solicita una cotización, preguntar por el precio
+> venta y compra del dólar."*
 
-O sea: **Banco Central de Costa Rica, tipo de cambio de VENTA.** Ya está
-anotado en la nota de la pestaña `Tipo de Cambio` del catálogo. Los
-valores `B3`/`B4` los sigue llenando el equipo a mano.
+**No hay una regla fija, y no hace falta que la haya.** El tipo de
+cambio del BCCR es la referencia; subirlo un poco a favor de la empresa
+es una decisión por proyecto.
 
-⚠️ **Lo que no contestaron:** si el redondeo hacia arriba (de 480 a 500,
-por ejemplo) es política de la empresa o criterio de cada quien. Sigue
-en la lista de pendientes.
+**Lo que tiene que hacer la automatización:** en la ficha, **preguntar
+siempre los dos valores** —precio de **compra** y precio de **venta** del
+dólar— al armar cada cotización. Se puede proponer el del BCCR como
+punto de partida, pero el número que se use lo confirma quien cotiza.
+Nunca tomar el del catálogo en silencio.
+
+La pestaña `Tipo de Cambio` del catálogo sigue existiendo como
+referencia compartida para convertir precios a colones, pero **no manda
+sobre la cotización**: la cotización usa el que se preguntó en la ficha.
 
 Se toma el tipo de cambio del banco y **se redondea hacia arriba** como
 colchón ante variación futura. Ejemplo dado por preventa: con el tipo de

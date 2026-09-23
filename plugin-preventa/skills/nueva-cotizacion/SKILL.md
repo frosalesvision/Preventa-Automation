@@ -57,7 +57,7 @@ preguntar; lo que no se sabe **siempre** se pregunta.
 | 12 | **Mano de obra** | Días y personas: se preguntan siempre. El precio unitario sale del tarifario (R8) |
 | 12b | **Viajes al sitio** | Cuántos viajes, cuántos vehículos y si hay hospedaje. **Se preguntan**: solo los kilómetros salen de la tabla de destinos (R9) |
 | 13 | **Financiamiento** | **Siempre preguntar**, sin importar el tamaño del proyecto. Si va: plazo y tasa. Si no: la columna `Financ.` queda vacía (R13) |
-| 14 | **Tipo de cambio** | El del banco con el redondeo hacia arriba, propuesto para aceptar o corregir (R7) |
+| 14 | **Tipo de cambio** | **Preguntar siempre el precio de COMPRA y el de VENTA del dólar.** No hay una regla fija: a veces se usa el del BCCR tal cual y a veces se sube un poco a favor de la empresa, y eso se decide por proyecto (R7) |
 | 15 | **Vigencia** | Días de validez de la oferta y fecha límite de entrega |
 
 ⚠️ **Lo que la ficha pregunta y no busca en ninguna tabla.** Hay datos
