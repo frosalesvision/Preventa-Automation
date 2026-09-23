@@ -651,6 +651,54 @@ desplegable**.
 El desplegable evita el error de dedo, no el de par equivocado. Para eso
 está el paso 2 de `verificar-catalogo.py`.
 
+**H-14 · Los accesorios de montaje estaban escondidos como cámaras**
+(encontrado el 2026-09-23). ✅ **Corregido el mismo día.**
+
+Salió de una pregunta de Fabián: si en las cotizaciones reales usaron
+algo para montar las cámaras de una marca que en el catálogo no tenía
+ningún accesorio. Se minaron **936 matrices reales** y aparecieron SKU
+como `IPM-JB6 Junction Box for Paramont Series Cameras`. Al buscarlos en
+el catálogo, estaban — **clasificados como cámaras**:
+
+| SKU | Qué dice su nombre | Dónde estaba |
+|---|---|---|
+| `IPM-JB6` | Junction Box for Paramont Series Cameras | `Camara / Termica` |
+| `IPM-CMFIXDOME` | Ceiling Mount for PAR-ALLDRXIRBD | `Camara / Analogica` |
+| `IPM-WALLFIXDOME` | Wall Mount for PAR-ALLDRXIRBD | `Camara / Analogica` |
+| `IPM-PTZWALLJBPOLE` | Pole mount bracket for PTZ camera | `Camara / PTZ` |
+
+**78 filas en total**, 58 de una sola marca, y **35 dicen explícitamente
+"for \<modelo\>"**. Misma causa que H-11: el PDF del proveedor las traía
+bajo un encabezado de sección *CAMERAS* y el clasificador le creyó a la
+sección antes de mirar el nombre.
+
+**Corrige una afirmación anterior de este documento.** Se había escrito
+que esa marca tenía "224 cámaras y 0 accesorios". Los accesorios
+existen; estaban contados como cámaras.
+
+**El arreglo:** una regla que corre **antes que todo**, incluido
+`CONFIABLES`, y que mira si el nombre dice que la fila es un montaje.
+Con un cuidado explícito: *"PTZ camera **with** wall mount"* es una
+cámara que incluye su soporte, no un soporte. Por eso se exige que el
+nombre **empiece** con la palabra de accesorio, o que diga
+*"\<accesorio\> **for** \<modelo\>"*.
+
+**Verificado antes de tocar producción:** 49 filas cambian sobre 2.550.
+42 salen de `Camara`; las otras 7 también eran errores (montajes de
+intercomunicador, un acople de cielorraso, brackets de iluminador IR, y
+dos "Ceiling Mount" clasificados como monitores). Cero falsos positivos.
+
+⚠️ **Regenerar la pestana de compatibilidad NO agregó pares** — sigue en
+793. El generador ya escaneaba todas las filas sin mirar la categoría,
+tal como estaba documentado. Lo que la reclasificación sí arregla es que
+ahora `buscar-equipo` **los encuentra al filtrar por
+`Accesorio de instalacion`**, que antes era imposible.
+
+⚠️ **Y destapó una trampa seria:** `generar_matriz_accesorios.py` guarda
+con `openpyxl` y eso **borra los desplegables de Categoría y
+Subcategoría sin avisar**. Se comprobó: quedaron en cero. Se agregó
+`scripts/reparar-desplegables.ps1` y un aviso en el propio script.
+
 ### Limpieza
 
 La carpeta de prueba quedó en pie para poder inspeccionarla. Para
@@ -826,6 +874,9 @@ termina la automatización.
 | 2026-09-22 | Catálogo completo | ✅ Sano | El verificador pasa los 5 chequeos sin nada que revisar |
 | 2026-09-23 | **Caso patrón #1** | ⚠️ 1 de 2 líneas | Modelo exacto en una, producto faltante del catálogo en la otra. Porcentajes exactos |
 | 2026-09-23 | H-1 en un caso real | ✅ Confirmado | Cliente privado con impuesto 0%: sin el arreglo habría salido con 13% |
+| 2026-09-23 | **C-01 a C-09** | ✅ 8 de 9 | C-03 se reescribió: la regla cambió bajo sus pies. Ver arriba |
+| 2026-09-23 | **H-14 corregido** | ✅ Pasa | 49 filas reclasificadas, 42 salían de `Camara`. Cero falsos positivos sobre 2.550 |
+| 2026-09-23 | Desplegables tras el generador | ⚠️ Trampa | `openpyxl` los borra sin avisar. Nuevo `reparar-desplegables.ps1` |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
 | | Caso patrón | ⬜ Bloqueado | Espera las cotizaciones cerradas |

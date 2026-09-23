@@ -488,6 +488,16 @@ Si agregás una subcategoría nueva: primero a `scripts/taxonomia.py`,
 después regenerás `_listas!E` y ampliás el rango de la validación. Si se
 hace al revés, `buscar-equipo` no la va a encontrar.
 
+⚠️ **El generador de la matriz de accesorios borra los desplegables.**
+`generar_matriz_accesorios.py` guarda con `openpyxl`, que no soporta la
+extensión x14 de la validación con rango en otra hoja, y la **elimina sin
+avisar**. Se comprobó el 2026-09-23: después de correrlo, las dos
+validaciones quedaron en cero. **Siempre después de correrlo:**
+
+```
+powershell -File scripts/reparar-desplegables.ps1
+```
+
 **El desplegable es una comodidad, no la garantía.** Evita el error de
 dedo, pero deja poner una subcategoría que existe y no corresponde a esa
 categoría. Para eso está el paso 2 del verificador.

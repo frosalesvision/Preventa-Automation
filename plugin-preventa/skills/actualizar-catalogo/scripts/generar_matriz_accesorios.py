@@ -17,6 +17,20 @@ import sys
 import re
 from collections import Counter
 
+# =========================================================================
+# AVISO (medido 2026-09-23): ESTE SCRIPT BORRA LOS DESPLEGABLES
+#
+# Guarda con openpyxl, que no soporta la extension x14 que usa la validacion
+# de datos con rango en otra hoja. Al guardar la elimina SIN AVISAR: el
+# archivo queda sano, los datos intactos, y los desplegables de Categoria y
+# Subcategoria simplemente dejan de existir.
+#
+# Se comprobo: correr este script dejo las dos validaciones en cero.
+#
+# DESPUES DE CORRERLO, siempre:
+#     powershell -File scripts/reparar-desplegables.ps1
+# =========================================================================
+
 import openpyxl
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.styles import Font, Alignment

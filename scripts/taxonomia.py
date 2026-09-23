@@ -428,11 +428,50 @@ PRIORITARIAS = [
       "gazas 3/4", "gazas 1/2"]),
 ]
 
+# H-14 (2026-09-23): 78 filas estaban como "Camara" siendo accesorios de
+# montaje, 58 de ellas de una sola marca. Misma causa que H-11: el PDF del
+# proveedor las traia bajo un encabezado de seccion "CAMERAS" y CONFIABLES le
+# creyo a la seccion. Las reglas por nombre nunca llegaban a correr.
+#
+# Ojo con el falso positivo obvio: "PTZ camera WITH wall mount" es una CAMARA
+# que incluye su montaje, no un montaje. Por eso se exige que el nombre
+# EMPIECE con la palabra de accesorio, o que diga "<accesorio> for <modelo>".
+import re as _re
+
+_ACC_INICIO = _re.compile(
+    r"(?i)^\s*(paramont\s+)?"
+    r"(ceiling|in-?ceiling|wall|pole|corner|parapet|pendant|flush|stand|short|heavy duty)?\s*"
+    r"(mount|bracket|junction box|back box)\b")
+_ACC_PARA = _re.compile(
+    r"(?i)\b(mount|bracket|junction box|back box|pedestal)\s+(bracket\s+)?for\b")
+_NO_ACC = _re.compile(r"(?i)\b(with|incluye|con)\s+(wall\s+)?mount\b")
+
+
+def es_accesorio_de_montaje(nombre):
+    """True si el NOMBRE dice que la fila es un montaje, no una camara."""
+    n = str(nombre or "")
+    if _NO_ACC.search(n):
+        return False
+    return bool(_ACC_INICIO.match(n) or _ACC_PARA.search(n))
+
+
+def _sub_montaje(nombre):
+    n = str(nombre or "").lower()
+    if "junction box" in n or "back box" in n:
+        return "Caja / housing"
+    return "Montaje"
+
 
 def clasificar(nombre, cat_orig):
     """Devuelve (categoria, subcategoria, como_se_resolvio)."""
     n = norm(nombre)
     c = norm(cat_orig).strip()
+
+    # H-14: si el nombre dice que es un montaje, gana sobre la seccion del
+    # proveedor. Va antes que todo lo demas, incluido CONFIABLES.
+    if es_accesorio_de_montaje(nombre):
+        return ("Accesorio de instalacion", _sub_montaje(nombre),
+                "el nombre dice que es un montaje, no una camara")
 
     for (cat, sub), claves in PRIORITARIAS:
         for k in claves:
