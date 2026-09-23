@@ -472,10 +472,60 @@ Sin modelar esto, las reglas de descuento no se pueden ejecutar solas.
 > depende mucho de la magnitud del proyecto. *"Este cálculo o decisión
 > de margen también nos toca valorarlo de manera variable y manual."*
 
-**No hay tabla de porcentajes por etapa y no la va a haber.** Los
-valores del machote siguen siendo la recomendación inicial, y la ficha
-los muestra para que el asesor los confirme o los cambie por proyecto —
-que es exactamente lo que ya hace. Nada que implementar.
+**No hay tabla escrita, pero el comportamiento SÍ tiene patrón**
+(medido el 2026-09-23 sobre las cotizaciones reales de 2026).
+
+### Lo que dicen las 182 matrices de 2026
+
+Se leyeron las 249 matrices de 2026 de la carpeta compartida
+(`scripts/analizar-matrices.py`); 182 tenían la fila de porcentajes
+legible. Preventa tenía razón en que no hay nada *establecido*, y aun
+así hacen casi siempre lo mismo:
+
+| Porcentaje | Valor dominante | En cuántas |
+|---|---|---|
+| Transporte | **10%** | 93% |
+| DAI | **15%** (y 14% en otro 18%) | 75% |
+| Imprevistos | **3%** | 76% |
+| Administración | **3%** | 76% |
+| IVA de línea | **0%** | 73% |
+| Margen GV | **27,4%** | 59% |
+
+**El margen es el que de verdad se mueve: el 41% de las cotizaciones lo
+cambió.** Y no lo cambian al azar — lo cambian según el tipo:
+
+| Tipo de cotización | n | Cuántas movieron el margen | Mediana de las que movieron | Rango |
+|---|---|---|---|---|
+| **Estudio de mercado** | 4 | **100%** | **35%** | 35–42% |
+| **Licitación** | 7 | **86%** | **23%** | 22–24% |
+| Mantenimiento | 7 | 43% | 25% | 25–29% |
+| Otro / privado | 117 | 40% | 25,2% | 8–38% |
+
+**El orden es claro y tiene sentido de negocio:**
+
+> licitación ~23%  <  privado ~27%  <  estudio de mercado ~35%
+
+En una licitación se compite por precio, así que aprietan. Un estudio de
+mercado es un precio de referencia sin compromiso, así que van holgados.
+
+⚠️ **Con qué confianza.** Las muestras de licitación (7) y estudio de
+mercado (4) son chicas: sirven para orientar, no para fijar una regla.
+Lo que sí es sólido es que **el 100% de los estudios de mercado y el 86%
+de las licitaciones movieron el margen a propósito** — eso no es ruido,
+es una decisión deliberada y repetida. El bloque "otro / privado" es un
+cajón: incluye todo lo que el clasificador no pudo tipificar, y su
+mediana de 27,4% refleja en parte a quien simplemente no tocó el default.
+
+### Qué hacer con esto
+
+**No convertirlo en una tabla que decida sola.** Sigue siendo criterio
+del asesor. Pero la ficha puede dejar de preguntar a ciegas: si el tipo
+de cotización es estudio de mercado, proponer ~35% en vez de 27,4%; si
+es licitación, proponer ~23%. Mostrando siempre de dónde sale el número
+y dejando que lo cambien.
+
+Es la diferencia entre *"¿qué margen querés?"* y *"en estudios de
+mercado el equipo suele usar 35%, ¿lo dejamos ahí?"*.
 
 El 95% del trabajo de preventa es gobierno. Una misma necesidad produce
 dos cotizaciones con precios distintos:
@@ -572,6 +622,36 @@ sabemos por qué.**
 pendiente de armarlo. Hasta entonces la pestaña `MANO DE OBRA` se llena
 a mano en cada cotización, y no hay que insistirles: hay que esperar a
 que lo construyan.
+
+### Pero en las matrices hay números, y hay que leerlos con cuidado
+
+Medido el 2026-09-23 sobre 184 matrices de 2026 con datos de mano de
+obra:
+
+| Dato | Valor | Frecuencia |
+|---|---|---|
+| Hora hombre | **$8,90** | 183 de 184 (99%) |
+| Precio por día | **$48,00** | 183 de 184 (99%) |
+| Alimentación | **$12,00** | 116 de 128 (91%) |
+| Costo por kilómetro | **$0,60** | 182 de 182 (100%) |
+
+⚠️ **Un valor que aparece en el 99% de los archivos NO prueba que sea una
+tarifa acordada.** El machote trae `$8,90` y `$48` escritos a mano en la
+fila del Configurador. Si nadie los toca, se ven en todas las matrices
+aunque no representen ninguna decisión. Y hay una pista fuerte de que es
+justo eso: **$8,90 × 8 horas = $71,20, pero el precio por día dice
+$48,00.** Los dos valores del propio machote no son consistentes entre
+sí — y el único archivo que muestra $71,20 es aquel donde alguien dejó
+que la fórmula calculara.
+
+**Conclusión: son defaults heredados, no un tarifario.** Coincide con lo
+que contestó preventa, y confirma que no hay que tratarlos como verdad.
+
+**El contraste que lo demuestra:** el hospedaje solo está lleno en **11
+de 249** matrices (4%), y cuando está, vale $45, $50, $55, $60 o $100.
+Pocos, pero variados — **eso sí es gente decidiendo**. Un número que
+varía es una decisión; un número idéntico en el 99% de los archivos es
+una celda que nadie tocó.
 
 No es todo estimación. Hay dos mitades y solo una se automatiza.
 

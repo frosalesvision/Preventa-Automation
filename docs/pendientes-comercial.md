@@ -146,7 +146,62 @@ la intención era que el cliente viera un precio más cerca del MSRP?
 está bien. Pero si un competidor cotiza cerca del MSRP, una oferta base
 a 1,85× queda fuera de rango antes de empezar a negociar.
 
-### 10. Dos o tres cotizaciones cerradas completas
+### ~~10. Dos o tres cotizaciones cerradas~~ — YA LAS TENEMOS, sin pedirlas
+
+**Resuelto el 2026-09-23 yendo a la carpeta compartida en vez de
+pidiéndolas.** Medido:
+
+- **165 cotizaciones de 2025-2026** tienen a la vez **visita técnica con
+  contenido y matriz** en su carpeta.
+- Cruzando `Proyeccion de Ventas 2026.xlsx` (que sí registra el cierre)
+  contra las carpetas de cliente: **35 negocios ganados en 2026** por
+  $780.427, de los cuales **16 tienen matriz y visita técnica**
+  ($367.019 entre ellos).
+
+Esos 16 son el caso patrón, disponibles hoy. No hace falta pedir nada.
+
+⚠️ **Lo que sí falta preguntar, y es más importante:** el resultado de
+una oferta vive en un archivo distinto (`Proyeccion de Ventas`), con una
+llave distinta (cliente + proyecto, **sin número de oferta**), mientras
+el `Control de cotizaciones` solo llega hasta *Enviada*. Ver abajo.
+
+### 12. No se registra qué ofertas se ganan
+
+De los estados del `Control de cotizaciones` —751 cotizaciones entre
+2025 y 2026— **ninguno indica que una oferta se haya ganado**:
+
+| Estado | 2026 | 2025 |
+|---|---|---|
+| Enviada | 253 | 338 |
+| Descartada | 75 | 59 |
+| Pendiente | 14 | 1 |
+| En espera | 7 | — |
+
+El flujo termina en *Enviada*. Lo ganado se anota aparte, en la
+proyección de ventas, sin número de oferta que permita volver a la
+cotización que lo produjo.
+
+**Pregunta concreta:** ¿se puede agregar el número de oferta a la
+proyección de ventas, o un estado "Ganada/Adjudicada" al control?
+
+**Por qué importa más de lo que parece:** hoy no se puede contestar
+*"¿qué margen llevaban las ofertas que ganamos?"*, que es exactamente lo
+que haría falta para saber a qué precio se gana. Con un solo campo en
+común, esa pregunta se contesta sola.
+
+### 13. Dos números del machote que nadie decidió
+
+El machote trae la hora hombre en **$8,90** y el precio por día en
+**$48,00**, y se copian a casi todas las cotizaciones sin que nadie los
+toque (99% de 184 matrices de 2026).
+
+**Pero no son consistentes entre sí: $8,90 × 8 horas = $71,20, no $48.**
+
+**Pregunta concreta:** ¿cuál de los dos es el correcto, o ninguno? Lo
+mismo con la alimentación en $12,00 por día y el costo por kilómetro en
+$0,60, que aparecen idénticos en el 91% y el 100% de las matrices.
+
+### 10b. Las cotizaciones cerradas siguen sirviendo, para otra cosa
 
 De proyectos ya entregados, con:
 
