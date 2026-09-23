@@ -527,6 +527,39 @@ y dejando que lo cambien.
 Es la diferencia entre *"¿qué margen querés?"* y *"en estudios de
 mercado el equipo suele usar 35%, ¿lo dejamos ahí?"*.
 
+### Una pista de por qué el margen varía tanto (sin probar)
+
+Al leer el pliego del caso más atípico del censo —una compra de tarjetas
+con margen 20%, imprevistos 0% y administración 0%— apareció que era una
+**licitación reducida de un commodity, sin instalación**, y que el
+documento **publicaba el presupuesto disponible**:
+
+| | Monto |
+|---|---|
+| Presupuesto publicado | ₡2.084.380 |
+| Total de la oferta | ₡2.019.571 |
+| | **96,9% del techo** |
+
+Eso sugiere que en licitación **el margen no se elige, se deduce**: se
+parte del precio al que se quiere llegar y el margen sale de ahí. Si
+fuera cierto explicaría todo el rango de 8% a 42% sin necesidad de
+ninguna tabla.
+
+⚠️ **Está sin probar, y hay que decirlo así.** Se intentó verificar sobre
+los 28 pares pliego↔matriz disponibles
+(`scripts/probar-hipotesis-presupuesto.py`) y **solo uno** dio los dos
+números comparables — y ese salió en **108%**, o sea *por encima* del
+presupuesto. La extracción falla porque los pliegos escriben el
+presupuesto de muchas formas distintas, a veces dentro de tablas, y las
+matrices viejas tienen estructuras heterogéneas.
+
+**Entonces: un caso a favor, un caso en contra, 26 sin medir.** No se
+puede concluir nada todavía. Lo que sí quedó es el método y el script;
+para cerrarlo haría falta mejorar la extracción del presupuesto, o
+preguntarle directamente a preventa: *"cuando el pliego publica un
+presupuesto, ¿arman la oferta contra ese techo?"* — que es una pregunta
+mucho más precisa que "¿qué margen usan?".
+
 El 95% del trabajo de preventa es gobierno. Una misma necesidad produce
 dos cotizaciones con precios distintos:
 
