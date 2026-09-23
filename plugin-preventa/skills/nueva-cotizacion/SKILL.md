@@ -43,7 +43,7 @@ preguntar; lo que no se sabe **siempre** se pregunta.
 | # | Campo | Default / de dónde sale |
 |---|---|---|
 | 1 | **Tipo de cotización** | Estudio de mercado · Oferta de licitación · Cliente privado. Define los porcentajes de abajo (regla R6) |
-| 2 | **Cliente** | Si está en la tabla de régimen fiscal, se precarga exención y porcentajes. Si no está, se pregunta y se ofrece agregarlo (R3) |
+| 2 | **Cliente** | Si está en la tabla de régimen fiscal, se precarga exención y porcentajes. Si no está, se pregunta ofreciendo **13% como primera opción recomendada** — ver abajo (R3) |
 | 3 | **Proyecto** | Descripción corta y número de licitación si aplica |
 | 4 | **Ubicación** | Para el kilometraje. La **distancia** sale de la columna `Destino / localidad` de la pestaña `Transporte` del machote; si el destino no está, se pregunta y se ofrece agregarlo (R9) |
 | 5 | **Asesor responsable** | Para los Excel de control y la firma de la cotización |
@@ -53,7 +53,7 @@ preguntar; lo que no se sabe **siempre** se pregunta.
 | 8 | **Transporte %** | Valor del machote; preguntar si compras ya dio el del proyecto |
 | 9 | **Imprevistos %** | Valor del machote |
 | 10 | **Administración %** | Valor del machote; puede bajar a 0 en licitaciones agresivas |
-| 11 | **Margen %** | Valor del machote (27,4%). **Avisar que cambiarlo en `Equipos` mueve también `OPEX GV`.** Si ya se sabe el tipo de cotización, mencionar lo que el equipo hizo de verdad — ver abajo |
+| 11 | **Margen %** | **27,4%, el estándar. No proponer cambiarlo.** Aclarar que se puede cambiar a mano en el Excel, y que hacerlo en `Equipos` mueve también `OPEX GV` |
 | 12 | **Mano de obra** | Días y personas: se preguntan siempre. El precio unitario sale del tarifario (R8) |
 | 12b | **Viajes al sitio** | Cuántos viajes, cuántos vehículos y si hay hospedaje. **Se preguntan**: solo los kilómetros salen de la tabla de destinos (R9) |
 | 13 | **Financiamiento** | **Siempre preguntar**, sin importar el tamaño del proyecto. Si va: plazo y tasa. Si no: la columna `Financ.` queda vacía (R13) |
@@ -74,16 +74,37 @@ reales de 2025 y 2026 (regla R6):
 | Mantenimiento | mediana 25% entre los que lo movieron |
 | Privado / otro | la mayoría deja el 27,4% |
 
-**La diferencia está en cómo se dice.** No es *"voy a usar 35%"*, es:
+**Decisión de Fabián (2026-09-23): el 27,4% es el estándar y se deja.**
+No lo cambies, y **tampoco propongas cambiarlo** — la ficha no tiene que
+convertir cada cotización en una negociación sobre el margen.
 
-> *"El margen del machote es 27,4%. En estudios de mercado el equipo lo
-> subió en los 6 casos que revisé, con mediana de 35%. ¿Lo dejo en
-> 27,4% o lo subo?"*
+Lo que sí: al mostrar los porcentajes, aclará que **se pueden cambiar a
+mano en el Excel** si ese proyecto lo amerita. Y si el asesor pregunta
+qué suele usarse en un tipo de cotización, ahí sí le das la tabla de
+arriba. **Responder si preguntan, no ofrecer.**
 
-Preventa fue clara en que el margen es variable y se decide por proyecto
-—por la magnitud y por cuán competitivos quieran ser—, así que **el dato
-se muestra como referencia y la decisión sigue siendo del asesor.**
-Nunca aplicarlo solo.
+### Cuando el cliente no está en la tabla de régimen fiscal
+
+No preguntes en abstracto. **Ofrecé el 13% como primera opción** — es lo
+que aplica a la mayoría — y listá al lado los otros casos que el equipo
+ya confirmó que existen:
+
+> *"Ese cliente no está en la tabla de régimen fiscal. ¿Cuál le aplica?*
+> - ***13%** — lo normal, es lo que lleva la mayoría* ← recomendada
+> - *Exento — hay instituciones que no pagan*
+> - *2% — algunas universidades públicas*
+> - *Otro porcentaje*
+>
+> *Si es de zona franca hay que confirmarlo caso por caso: unos están
+> exonerados y otros no."*
+
+**Nunca lo apliques en silencio, ni el 13% ni la exención.** El default
+del machote ya es 13% si la ficha queda vacía, así que no preguntar
+equivale a elegir — y en el caso real que se midió, un cliente **privado**
+llevaba **0%**.
+
+Cuando conteste, ofrecé **agregarlo a la tabla** del catálogo para la
+próxima vez.
 
 ⚠️ **Lo que la ficha pregunta y no busca en ninguna tabla.** Hay datos
 que dependen del sitio y no de un catálogo: **la cantidad de material de

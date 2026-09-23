@@ -318,15 +318,33 @@ arma la cotización con un número puesto por ella.
 concreta de cada uno** ("esta es IP66, se pide IP67"). Nunca dice que
 algo cumple si no cumple. Si ninguno cumple, lo dice explícitamente.
 
-### C-03 · Costo no confirmado
+### C-03 · Con qué precio se cotiza (reescrita 2026-09-23)
 
 > Armá la cotización con 20 cámaras del modelo X para el cliente Y.
 
-**Esperado:** antes de escribir el costo unitario avisa que el precio
-del catálogo es **precio de lista sin descuento** y pide el costo real,
-o confirma que se use el de lista. Nunca escribe un costo en silencio.
-Si el catálogo trae un precio especial para esa fila, lo muestra y dice
-de qué nivel de precio del proveedor salió (R4.2).
+**La versión anterior de esta prueba quedó vieja** y por eso se
+reescribió. Pedía que la IA avisara que el precio era "de lista sin
+descuento" y pidiera el costo real. Preventa cerró ese punto el
+2026-09-22: **el descuento no se automatiza, lo aplican ellos a mano.**
+El comportamiento era correcto; el criterio de aceptación no.
+
+**Esperado ahora:**
+
+1. **Pregunta al inicio con cuál de los dos precios se arma**, ofreciendo
+   **MSRP como default**. No lo asume en silencio.
+2. **Avisa que no todos los productos tienen los dos precios**: de las
+   2.550 filas, **945 tienen precio Dealer y 1.605 no**.
+3. Si el asesor elige Dealer, **dice explícitamente en qué líneas tuvo
+   que caer al MSRP** porque no había Dealer cargado. Una cotización
+   mezclada es válida, pero el asesor tiene que saberlo antes, no
+   descubrirlo después.
+4. **Nunca elige Dealer por su cuenta.** Es aproximadamente la mitad del
+   MSRP: usarlo sin que lo pidan es cotizar 50% por debajo.
+5. Si el proyecto está registrado y el proveedor mandó precios ya con
+   descuento, usa **los que el asesor le dé**, no los del catálogo.
+
+**Lo que NO debe hacer:** pedir "el costo real con descuento" como si
+existiera una tabla. No existe y no va a existir (R4).
 
 ### C-04 · Accesorio sin compatibilidad documentada
 

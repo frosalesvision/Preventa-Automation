@@ -66,8 +66,30 @@ Esto se queda sin resolver hoy y genera trabajo manual repetido.
 **Sobre el "Costo Unit" que se usa (RESUELTO 2026-09-22 por preventa —
 ver R4 en [`docs/reglas-negocio.md`](../../../docs/reglas-negocio.md)):**
 
-**Siempre se cotiza con el MSRP**, que es la columna `Precio USD` del
-catálogo. Sin excepciones y sin buscar reglas de descuento.
+**Preguntale al asesor, al principio, con cuál de los dos precios se
+arma esta cotización.** El default es el **MSRP** (columna `Precio USD`),
+que es lo que preventa usa normalmente — pero preguntalo, no lo asumas.
+
+> *"¿Armo esta cotización con MSRP o con precio Dealer? Por defecto uso
+> MSRP, que es lo normal para una cotización base."*
+
+⚠️ **Y avisale de entrada que no todos los productos tienen los dos
+precios** (medido sobre las 2.550 filas):
+
+| | Filas | |
+|---|---|---|
+| Con MSRP | **2.550** | todas |
+| Con precio Dealer cargado | **945** | solo de un distribuidor |
+| Sin precio Dealer | **1.605** | ahí solo se puede usar MSRP |
+
+Y dentro de las 945, **202 tienen el Dealer igual al MSRP** (software,
+licencias y accesorios de una línea): en esas, elegir Dealer no cambia
+nada.
+
+**Entonces, si el asesor elige Dealer:** usá el Dealer donde exista y
+**decile explícitamente en cuáles líneas tuviste que caer al MSRP porque
+no hay Dealer cargado.** Una cotización mezclada no es un error — pero
+tiene que saberlo, no descubrirlo después.
 
 La respuesta de preventa, textual en lo esencial: el descuento *"varía
 dependiendo de la marca, tipo de equipo y qué nivel de partners somos"*,
@@ -88,13 +110,12 @@ entra después, si el proceso avanza.
    precios del proveedor con descuento, usá **los que él te dé**, no los
    del catálogo.
 
-⚠️ **NUNCA uses la columna `Precio Dealer del proveedor USD`.** Existe en
-el catálogo como referencia —es el nivel *Dealer Program* de la lista de
-un distribuidor, aproximadamente **la mitad del MSRP**— y está renombrada
-justo para que nadie la confunda. Cotizar con ella sería cotizar
-alrededor del 50% por debajo de lo que la empresa quiere cobrar. Si el
-asesor pregunta por ella, mostrala como dato de referencia para negociar,
-nunca como el costo.
+⚠️ **Nunca elijas el precio Dealer por tu cuenta.** Es el nivel *Dealer
+Program* de la lista de un distribuidor, aproximadamente **la mitad del
+MSRP**. Usarlo sin que el asesor lo haya pedido significa cotizar
+alrededor del 50% por debajo de lo que la empresa quiere cobrar. Solo se
+usa si te lo piden explícitamente, y siempre diciendo en qué líneas
+aplicó y en cuáles no.
 
 ### Cómo filtrar el catálogo (agregado 2026-09-22 — H-5, H-6, H-7)
 
