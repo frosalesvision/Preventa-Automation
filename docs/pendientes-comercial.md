@@ -189,65 +189,23 @@ proyección de ventas, o un estado "Ganada/Adjudicada" al control?
 que haría falta para saber a qué precio se gana. Con un solo campo en
 común, esa pregunta se contesta sola.
 
-### 13. ¿El día de mano de obra son $48 o $71,20?
+### ~~13 a 16~~ — CERRADAS por Fabián el 2026-09-23
 
-Medido sobre 523 matrices de 2025 y 2026. El machote trae la hora hombre
-en **$8,90**, que nadie cambia nunca (99% los dos años). Pero el precio
-por día tiene **dos valores compitiendo**:
+Las cuatro se resolvieron con el mismo criterio: **el machote es el valor
+por defecto, y siempre se puede cambiar a mano en el Excel.** No hay que
+preguntarle nada de esto al equipo comercial.
 
-| Valor | 2025 | 2026 |
-|---|---|---|
-| **$48,00** escrito a mano | 252 (74%) | 183 (99%) |
-| **$71,20** = $8,90 × 8, calculado | **79 (23%)** | 1 |
+| Pregunta | Cómo quedó |
+|---|---|
+| ¿El día son $48 o $71,20? | **$48.** Katherine lo había dicho así. El `$71,20` calculado queda descartado |
+| ¿El DAI es 14% o 15%? | **Como lo trae el machote de 2026**: 15% en `Equipos`, 14% en `MATERIALES`. Sin preguntas |
+| Los porcentajes estables (transporte 10%, admin 3%, imprevistos 3%, km $0,60) | **Se quedan como están** |
+| ¿Se cotiza contra el techo del pliego? | Ver abajo: la pregunta estaba mal explicada |
 
-En 2025 casi una de cada cuatro cotizaciones dejaba que la fórmula
-calculara; en 2026 eso desapareció. Alguien reemplazó la fórmula por un
-48 fijo y esa versión se propagó.
-
-**Pregunta concreta:** ¿el día de trabajo son $48 o $71,20? Difieren un
-48%, y hoy conviven en las cotizaciones.
-
-### 14. El DAI pasó de 14% a 15% entre 2025 y 2026
-
-| Año | DAI dominante | En cuántas |
-|---|---|---|
-| 2025 | 14% | 307 de 312 (98%) |
-| 2026 | 15% | 136 de 182 (75%) |
-
-**Pregunta concreta:** ¿fue un cambio de arancel, o alguien cambió el
-machote? El machote actual trae 15% en `Equipos` y 14% en `MATERIALES`,
-y conviene saber si esa diferencia es intencional.
-
-### 15. Cuando el pliego publica un presupuesto, ¿se cotiza contra ese techo?
-
-Es la pregunta que reemplaza a *"¿qué margen usan?"*, que ya contestaron
-diciendo que varía.
-
-En un caso medido —una licitación reducida de commodity— el pliego
-publicaba ₡2.084.380 y la oferta sumó ₡2.019.571: el **96,9% del techo**,
-con margen 20%, imprevistos 0% y administración 0%.
-
-Si la respuesta es sí, se explica todo el rango de margen observado (8%
-a 42%) sin necesidad de ninguna tabla: **el margen sería el resultado,
-no la entrada.**
-
-⚠️ Está **sin probar**: de 28 pares pliego↔matriz solo uno dio los dos
-números comparables, y ese salió en 108%. Por eso se pregunta en vez de
-afirmarse.
-
-### 16. Los porcentajes que sí son estables, solo para confirmar
-
-Medido sobre las 499 matrices legibles de 2025-2026. No hace falta
-contestar si están bien; basta con avisar si alguno está mal:
-
-| Porcentaje | Valor | En cuántas |
-|---|---|---|
-| Transporte | 10% | 97% |
-| Administración | 3% | 87% |
-| Imprevistos | 3% | 78% |
-| IVA de línea | 0% | 77% |
-| Costo por kilómetro | $0,60 | 99% |
-| Hora hombre | $8,90 | 99% |
+**La condición que aplica a las cuatro:** son valores por defecto, no
+valores fijos. La ficha los muestra al armar cada cotización y el asesor
+puede cambiarlos; y quien prefiera hacerlo directo en el Excel, también
+puede. La automatización **nunca** los impone.
 
 El machote trae la hora hombre en **$8,90** y el precio por día en
 **$48,00**, y se copian a casi todas las cotizaciones sin que nadie los

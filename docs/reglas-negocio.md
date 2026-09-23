@@ -505,9 +505,11 @@ Esto salió al separar los años, y es un dato duro:
 | 2026 | **15%** | 136 de 182 (75%), con 14% en otro 18% |
 
 2025 fue casi monolítico en 14%. 2026 se movió a 15% con una cola de
-transición. **Algo cambió entre un año y otro** —un arancel, o una
-versión nueva del machote— y vale preguntarlo, porque el machote actual
-trae 15% en `Equipos` y 14% en `MATERIALES`.
+transición.
+
+**Decisión de Fabián (2026-09-23): se deja como lo trae el machote de
+2026** — 15% en `Equipos`, 14% en `MATERIALES` — y no se pregunta nada.
+Si en algún proyecto corresponde otro, se cambia en el Excel.
 
 ### Lo que dicen las 182 matrices de 2026
 
@@ -744,8 +746,13 @@ haya decidido: es que **alguien reemplazó la fórmula por un 48 fijo y
 esa versión se propagó.** Los dos números están en circulación y
 difieren un 48%.
 
-**La pregunta correcta entonces no es "¿cuál es la tarifa?" sino "¿el
-día son $48 o $71,20?"** — y por qué dejó de calcularse.
+**Resuelto por Fabián el 2026-09-23: son $48.** Katherine lo había dicho
+así, y el `$71,20` calculado queda descartado. El `48` escrito a mano en
+el machote es correcto, no un error — lo que pasó es que reemplazó a una
+fórmula que daba otro número, y eso explica los 79 casos de 2025.
+
+**Como todos los valores del machote, es un default y no una imposición:**
+quien cotiza puede cambiarlo en el Excel cuando el trabajo lo amerite.
 
 **La prueba que sigue sirviendo:** un número que varía es una decisión;
 uno idéntico en el 99% de los archivos es una celda que nadie tocó. Lo
