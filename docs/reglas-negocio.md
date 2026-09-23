@@ -475,6 +475,40 @@ Sin modelar esto, las reglas de descuento no se pueden ejecutar solas.
 **No hay tabla escrita, pero el comportamiento SÍ tiene patrón**
 (medido el 2026-09-23 sobre las cotizaciones reales de 2026).
 
+### Lo que dicen las 499 matrices de 2025 y 2026
+
+Se leyeron las 649 matrices de los dos años (`scripts/analizar-matrices.py`);
+**499 tenían la fila de porcentajes legible** (317 de 2025, 182 de 2026).
+Las que faltan no se pudieron bajar de OneDrive.
+
+| Tipo de cotización | n | Movieron el margen | Mediana de las que movieron | Rango |
+|---|---|---|---|---|
+| **Estudio de mercado** | 6 | **100%** | **35%** | 35–42% |
+| **Licitación** | 15 | **80%** | **23%** | 20,8–30% |
+| Mantenimiento | 9 | 33% | 25% | 25–29% |
+| Otro / privado | 346 | 34% | 30% | 8–40% |
+
+**El patrón aguantó al duplicar la muestra.** Licitación pasó de 7 a 15
+casos y siguió igual: el 80% mueve el margen, mediana 23%. Estudio de
+mercado sigue en 100% con 6 casos — pocos, pero *todos* lo mueven, y
+siempre hacia arriba.
+
+> licitación ~23%  <  privado ~27%  <  estudio de mercado ~35%
+
+### El DAI cambió entre 2025 y 2026
+
+Esto salió al separar los años, y es un dato duro:
+
+| Año | DAI dominante | En cuántas |
+|---|---|---|
+| 2025 | **14%** | 307 de 312 (98%) |
+| 2026 | **15%** | 136 de 182 (75%), con 14% en otro 18% |
+
+2025 fue casi monolítico en 14%. 2026 se movió a 15% con una cola de
+transición. **Algo cambió entre un año y otro** —un arancel, o una
+versión nueva del machote— y vale preguntarlo, porque el machote actual
+trae 15% en `Equipos` y 14% en `MATERIALES`.
+
 ### Lo que dicen las 182 matrices de 2026
 
 Se leyeron las 249 matrices de 2026 de la carpeta compartida
@@ -677,14 +711,45 @@ $48,00.** Los dos valores del propio machote no son consistentes entre
 sí — y el único archivo que muestra $71,20 es aquel donde alguien dejó
 que la fórmula calculara.
 
-**Conclusión: son defaults heredados, no un tarifario.** Coincide con lo
-que contestó preventa, y confirma que no hay que tratarlos como verdad.
+### Corregido al sumar 2025: la conclusión era demasiado amplia
 
-**El contraste que lo demuestra:** el hospedaje solo está lleno en **11
-de 249** matrices (4%), y cuando está, vale $45, $50, $55, $60 o $100.
-Pocos, pero variados — **eso sí es gente decidiendo**. Un número que
-varía es una decisión; un número idéntico en el 99% de los archivos es
-una celda que nadie tocó.
+La primera lectura (solo 2026) decía que *todos* esos números eran
+defaults heredados. Con los dos años, **hay que separar**:
+
+**Sí son defaults que nadie toca:**
+
+| Dato | 2025 | 2026 |
+|---|---|---|
+| Hora hombre $8,90 | 337 de 339 (99%) | 183 de 184 (99%) |
+| Costo por km $0,60 | 316 de 317 (99%) | 182 de 182 (100%) |
+
+**No: estos sí se editan.**
+
+| Dato | Variación real |
+|---|---|
+| Alimentación | $12 domina, pero hay $30 (×17), $20, $11, $16, $14… en 42 de 288 casos en 2025 |
+| Hospedaje | 2025: $100 (×34), $85 (×8), $200 (×3), $60. 2026: $60, $100, $55, $50, $45 |
+
+Y el **precio por día tiene dos valores compitiendo**, que es más grave
+que un default olvidado:
+
+| Valor | 2025 | 2026 |
+|---|---|---|
+| **$48,00** (escrito a mano) | 252 (74%) | 183 (99%) |
+| **$71,20** (= $8,90 × 8, calculado) | **79 (23%)** | 1 |
+
+**En 2025, casi una de cada cuatro matrices usó $71,20** — o sea la
+fórmula calculando — y en 2026 eso casi desapareció. No es que nadie
+haya decidido: es que **alguien reemplazó la fórmula por un 48 fijo y
+esa versión se propagó.** Los dos números están en circulación y
+difieren un 48%.
+
+**La pregunta correcta entonces no es "¿cuál es la tarifa?" sino "¿el
+día son $48 o $71,20?"** — y por qué dejó de calcularse.
+
+**La prueba que sigue sirviendo:** un número que varía es una decisión;
+uno idéntico en el 99% de los archivos es una celda que nadie tocó. Lo
+que cambió es a cuáles se aplica.
 
 No es todo estimación. Hay dos mitades y solo una se automatiza.
 
