@@ -589,12 +589,16 @@ presupuesto. La extracción falla porque los pliegos escriben el
 presupuesto de muchas formas distintas, a veces dentro de tablas, y las
 matrices viejas tienen estructuras heterogéneas.
 
-**Entonces: un caso a favor, un caso en contra, 26 sin medir.** No se
-puede concluir nada todavía. Lo que sí quedó es el método y el script;
-para cerrarlo haría falta mejorar la extracción del presupuesto, o
-preguntarle directamente a preventa: *"cuando el pliego publica un
-presupuesto, ¿arman la oferta contra ese techo?"* — que es una pregunta
-mucho más precisa que "¿qué margen usan?".
+**Entonces: un caso a favor, un caso en contra, 26 sin medir.**
+
+**Cerrado el 2026-09-23 sin preguntarlo.** No tiene sentido llevarle al
+equipo comercial una pregunta que nosotros mismos no pudimos verificar:
+les costaría tiempo contestar algo que igual no podríamos contrastar.
+
+Queda acá como **observación**, no como regla ni como pregunta abierta,
+por si algún día aparece una razón nueva para retomarla. El script
+`scripts/probar-hipotesis-presupuesto.py` sigue en el repositorio con su
+limitación documentada.
 
 El 95% del trabajo de preventa es gobierno. Una misma necesidad produce
 dos cotizaciones con precios distintos:

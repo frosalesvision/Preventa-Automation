@@ -53,12 +53,37 @@ preguntar; lo que no se sabe **siempre** se pregunta.
 | 8 | **Transporte %** | Valor del machote; preguntar si compras ya dio el del proyecto |
 | 9 | **Imprevistos %** | Valor del machote |
 | 10 | **Administración %** | Valor del machote; puede bajar a 0 en licitaciones agresivas |
-| 11 | **Margen %** | Valor del machote. **Avisar que cambiarlo en `Equipos` mueve también `OPEX GV`** |
+| 11 | **Margen %** | Valor del machote (27,4%). **Avisar que cambiarlo en `Equipos` mueve también `OPEX GV`.** Si ya se sabe el tipo de cotización, mencionar lo que el equipo hizo de verdad — ver abajo |
 | 12 | **Mano de obra** | Días y personas: se preguntan siempre. El precio unitario sale del tarifario (R8) |
 | 12b | **Viajes al sitio** | Cuántos viajes, cuántos vehículos y si hay hospedaje. **Se preguntan**: solo los kilómetros salen de la tabla de destinos (R9) |
 | 13 | **Financiamiento** | **Siempre preguntar**, sin importar el tamaño del proyecto. Si va: plazo y tasa. Si no: la columna `Financ.` queda vacía (R13) |
 | 14 | **Tipo de cambio** | **Preguntar siempre el precio de COMPRA y el de VENTA del dólar.** No hay una regla fija: a veces se usa el del BCCR tal cual y a veces se sube un poco a favor de la empresa, y eso se decide por proyecto (R7) |
 | 15 | **Vigencia** | Días de validez de la oferta y fecha límite de entrega |
+
+### Sobre el margen: informar, no decidir (agregado 2026-09-23)
+
+El default **sigue siendo el del machote, 27,4%**, y no cambia solo.
+Pero al preguntarlo, si ya sabés el tipo de cotización, contale al
+asesor qué hizo el equipo en casos parecidos. Sale de leer 499 matrices
+reales de 2025 y 2026 (regla R6):
+
+| Tipo | Lo que hizo el equipo |
+|---|---|
+| Estudio de mercado | 6 de 6 lo subieron. Mediana **35%**, rango 35–42% |
+| Licitación | 12 de 15 lo movieron. Mediana **23%**, rango 20,8–30% |
+| Mantenimiento | mediana 25% entre los que lo movieron |
+| Privado / otro | la mayoría deja el 27,4% |
+
+**La diferencia está en cómo se dice.** No es *"voy a usar 35%"*, es:
+
+> *"El margen del machote es 27,4%. En estudios de mercado el equipo lo
+> subió en los 6 casos que revisé, con mediana de 35%. ¿Lo dejo en
+> 27,4% o lo subo?"*
+
+Preventa fue clara en que el margen es variable y se decide por proyecto
+—por la magnitud y por cuán competitivos quieran ser—, así que **el dato
+se muestra como referencia y la decisión sigue siendo del asesor.**
+Nunca aplicarlo solo.
 
 ⚠️ **Lo que la ficha pregunta y no busca en ninguna tabla.** Hay datos
 que dependen del sitio y no de un catálogo: **la cantidad de material de
