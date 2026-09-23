@@ -13,29 +13,14 @@
 
 ---
 
-## Lo que ya se resolvió
+# Lo que sigue pendiente
 
-### Contestadas por preventa el 2026-09-22
+Son **8**, en orden de cuánto cambian el resultado. La numeración
+anterior mezclaba cuatro épocas distintas (4, 7b, 2b, 6b, 1b, 10, 12,
+13-16, 10b, 17, 11) y se rehizo el 2026-09-23.
 
-Llegaron siete de las nueve. **Varias no se contestaron con un dato sino
-con una decisión: eso se hace a mano y no se va a automatizar.** Eso es
-una respuesta válida y cierra el tema.
+## 1. Tarifario de mano de obra `R8`
 
-| Pregunta | Cómo quedó |
-|---|---|
-| **1. Descuentos por proveedor y marca** | **No hay tabla y no la va a haber.** El descuento depende de marca, tipo de equipo, nivel de partner y proyecto. Se cotiza con MSRP y ellos aplican el descuento a mano. Cuando el proyecto se registra, el proveedor manda los precios ya con descuento. Ver R4 |
-| **2. En qué nivel de precio compramos** | **MSRP, siempre.** La columna del nivel Dealer quedó renombrada como referencia con aviso de no usar. Ver R4.2 |
-| **3. Clientes exentos** | ✅ **Datos cargados** en `Regimen Fiscal Clientes`. Una institución de seguridad social exenta, dos universidades públicas al 2%, zona franca varía caso por caso. El 3% de administración **no se modela**: lo deciden según qué tan competitivos quieran ser |
-| **5. Proporciones de materiales** | **Confirmado que no se puede estandarizar.** *"Una cámara puede instalarse a 5 metros del grabador, pueden ser 70, 80 mts."* Coincide con lo que ya se había decidido. Ver R10 |
-| **6. Destinos y kilometraje** | **Ya estaba resuelto en el machote** y ellos lo sabían: `Transporte` + `MANO DE OBRA` lo calculan. Al verificarlo apareció un `-1` en la fórmula de viáticos, ya corregido. Ver R9 |
-| **7. Porcentajes por etapa** | **No hay valores establecidos y es a propósito.** Varía por magnitud del proyecto y por cuán agresivos quieran ser. Queda manual. Ver R6 |
-| **8. Tipo de cambio** | **Banco Central, precio de venta.** Ya anotado en la pestaña `Tipo de Cambio` |
-
----
-
-## Lo que sigue pendiente
-
-### 4. Tarifario de mano de obra `R8`
 
 **No es que no contestaran: no existe todavía.** Tienen anotados un par
 de precios base y **la tarea pendiente de armar un cuadro de
@@ -52,13 +37,8 @@ estado transitorio.
 cuadro, se carga en la pestaña `Tarifario Mano de Obra` del catálogo,
 que ya está lista y vacía esperándolo.
 
-### ~~7b. El redondeo del tipo de cambio~~ — CERRADO el 2026-09-23
+## 2. ¿El IVA de las compras locales se acredita? `R2` — va a contabilidad, no a preventa
 
-Es criterio por proyecto: a veces se usa el del BCCR tal cual, a veces
-se sube un poco a favor de la empresa. **No hay regla que cargar.** La
-ficha pregunta el precio de compra y el de venta en cada cotización.
-
-### 2b. ¿El IVA de las compras locales se acredita? `R2` — va a contabilidad, no a preventa
 
 **Esta pregunta estaba mal dirigida** (aclarado 2026-09-23). No es sobre
 los dos IVA —eso ya está claro en R2 y preventa lo tiene claro—; es una
@@ -92,7 +72,8 @@ Si se acredita, está bien como está.
 **Si no llega:** no se toca nada. La automatización solo **avisa**
 cuando una línea de proveedor local cae en una pestaña con IVA 0%.
 
-### 6b. La pestaña `MANO DE OBRA` tiene dos fórmulas distintas para lo mismo `R9`
+## 3. La pestaña `MANO DE OBRA` tiene dos fórmulas distintas para lo mismo `R9`
+
 
 Salió al verificar la respuesta del punto 6, y es más concreto de lo que
 suena. En esa pestaña, las columnas de viáticos son: `H` alimentación,
@@ -132,7 +113,8 @@ escriba el rol.
 **No se tocó ninguna de las dos fórmulas.** Solo se quitó un `-1` que
 restaba un dólar siempre y que no tenía explicación posible.
 
-### 1b. ¿La cotización base debe quedar a 1,85× el MSRP? `R4.1`
+## 4. ¿La cotización base debe quedar a 1,85× el MSRP? `R4.1`
+
 
 Preventa dijo que se cotiza siempre con MSRP. Medido lo que eso produce:
 escribir el MSRP en `Costo Unit` hace que **el cliente vea 1,85 veces el
@@ -146,26 +128,8 @@ la intención era que el cliente viera un precio más cerca del MSRP?
 está bien. Pero si un competidor cotiza cerca del MSRP, una oferta base
 a 1,85× queda fuera de rango antes de empezar a negociar.
 
-### ~~10. Dos o tres cotizaciones cerradas~~ — YA LAS TENEMOS, sin pedirlas
+## 5. No se registra qué ofertas se ganan
 
-**Resuelto el 2026-09-23 yendo a la carpeta compartida en vez de
-pidiéndolas.** Medido:
-
-- **165 cotizaciones de 2025-2026** tienen a la vez **visita técnica con
-  contenido y matriz** en su carpeta.
-- Cruzando `Proyeccion de Ventas 2026.xlsx` (que sí registra el cierre)
-  contra las carpetas de cliente: **35 negocios ganados en 2026** por
-  $780.427, de los cuales **16 tienen matriz y visita técnica**
-  ($367.019 entre ellos).
-
-Esos 16 son el caso patrón, disponibles hoy. No hace falta pedir nada.
-
-⚠️ **Lo que sí falta preguntar, y es más importante:** el resultado de
-una oferta vive en un archivo distinto (`Proyeccion de Ventas`), con una
-llave distinta (cliente + proyecto, **sin número de oferta**), mientras
-el `Control de cotizaciones` solo llega hasta *Enviada*. Ver abajo.
-
-### 12. No se registra qué ofertas se ganan
 
 De los estados del `Control de cotizaciones` —751 cotizaciones entre
 2025 y 2026— **ninguno indica que una oferta se haya ganado**:
@@ -189,57 +153,8 @@ proyección de ventas, o un estado "Ganada/Adjudicada" al control?
 que haría falta para saber a qué precio se gana. Con un solo campo en
 común, esa pregunta se contesta sola.
 
-### ~~13 a 16~~ — CERRADAS por Fabián el 2026-09-23
+## 6. Hay una línea de producto entera que se cotiza y no está en el catálogo
 
-Las cuatro se resolvieron con el mismo criterio: **el machote es el valor
-por defecto, y siempre se puede cambiar a mano en el Excel.** No hay que
-preguntarle nada de esto al equipo comercial.
-
-| Pregunta | Cómo quedó |
-|---|---|
-| ¿El día son $48 o $71,20? | **$48.** Katherine lo había dicho así. El `$71,20` calculado queda descartado |
-| ¿El DAI es 14% o 15%? | **Como lo trae el machote de 2026**: 15% en `Equipos`, 14% en `MATERIALES`. Sin preguntas |
-| Los porcentajes estables (transporte 10%, admin 3%, imprevistos 3%, km $0,60) | **Se quedan como están** |
-| ¿Se cotiza contra el techo del pliego? | Ver abajo: la pregunta estaba mal explicada |
-
-**La condición que aplica a las cuatro:** son valores por defecto, no
-valores fijos. La ficha los muestra al armar cada cotización y el asesor
-puede cambiarlos; y quien prefiera hacerlo directo en el Excel, también
-puede. La automatización **nunca** los impone.
-
-El machote trae la hora hombre en **$8,90** y el precio por día en
-**$48,00**, y se copian a casi todas las cotizaciones sin que nadie los
-toque (99% de 184 matrices de 2026).
-
-**Pero no son consistentes entre sí: $8,90 × 8 horas = $71,20, no $48.**
-
-**Pregunta concreta:** ¿cuál de los dos es el correcto, o ninguno? Lo
-mismo con la alimentación en $12,00 por día y el costo por kilómetro en
-$0,60, que aparecen idénticos en el 91% y el 100% de las matrices.
-
-### 10b. Las cotizaciones cerradas siguen sirviendo, para otra cosa
-
-De proyectos ya entregados, con:
-
-- La especificación original que mandó el cliente
-- La matriz final tal como quedó
-- Qué porcentajes se usaron
-- El monto total ofertado
-
-**Idealmente:** una con financiamiento, una sin, y al menos una de más de
-30 líneas.
-
-**Para qué:** se reconstruye esa misma cotización con la IA sin mirar el
-resultado, y se comparan los dos archivos celda por celda. Todo lo que no
-coincida es una regla que falta. **Es lo único de toda esta lista que no
-se puede reemplazar con criterio propio** — sin un caso real contra el
-cual comparar, no hay forma de saber si la herramienta acierta.
-
----
-
-## Catálogos y documentos
-
-### 17. Hay una línea de producto entera que se cotiza y no está en el catálogo
 
 Minando 936 matrices reales aparecieron **149 líneas distintas** de
 productos **Panasonic i-PRO** que el equipo cotiza y que el catálogo no
@@ -277,7 +192,8 @@ sale de una cotización y no de una lista de proveedor.
 InVidTech**, el mismo proveedor cuya lista ya está cargada, pero no vino
 en ella. Puede que esa carga haya dejado más productos afuera.
 
-### 11. Lo que falte cargar
+## 7. Lo que falte cargar al catálogo
+
 
 - PDFs o Excel de proveedores que todavía no estén cargados.
 - La "lista de precios general" de la nube que se mencionó.
@@ -286,7 +202,109 @@ en ella. Puede que esa carga haya dejado más productos afuera.
 No hace falta pasarlos a ningún formato: el PDF o el Excel tal como
 llegó del proveedor sirve.
 
-### Cerradas el 2026-09-22 (no preguntar de nuevo)
+## 8. Las cotizaciones cerradas sirven para otra cosa
+
+
+De proyectos ya entregados, con:
+
+- La especificación original que mandó el cliente
+- La matriz final tal como quedó
+- Qué porcentajes se usaron
+- El monto total ofertado
+
+**Idealmente:** una con financiamiento, una sin, y al menos una de más de
+30 líneas.
+
+**Para qué:** se reconstruye esa misma cotización con la IA sin mirar el
+resultado, y se comparan los dos archivos celda por celda. Todo lo que no
+coincida es una regla que falta. **Es lo único de toda esta lista que no
+se puede reemplazar con criterio propio** — sin un caso real contra el
+cual comparar, no hay forma de saber si la herramienta acierta.
+
+---
+
+# Lo que ya se cerró
+
+Se conserva para que nadie lo vuelva a preguntar.
+
+## Contestadas por preventa el 2026-09-22
+
+
+Llegaron siete de las nueve. **Varias no se contestaron con un dato sino
+con una decisión: eso se hace a mano y no se va a automatizar.** Eso es
+una respuesta válida y cierra el tema.
+
+| Pregunta | Cómo quedó |
+|---|---|
+| **1. Descuentos por proveedor y marca** | **No hay tabla y no la va a haber.** El descuento depende de marca, tipo de equipo, nivel de partner y proyecto. Se cotiza con MSRP y ellos aplican el descuento a mano. Cuando el proyecto se registra, el proveedor manda los precios ya con descuento. Ver R4 |
+| **2. En qué nivel de precio compramos** | **MSRP, siempre.** La columna del nivel Dealer quedó renombrada como referencia con aviso de no usar. Ver R4.2 |
+| **3. Clientes exentos** | ✅ **Datos cargados** en `Regimen Fiscal Clientes`. Una institución de seguridad social exenta, dos universidades públicas al 2%, zona franca varía caso por caso. El 3% de administración **no se modela**: lo deciden según qué tan competitivos quieran ser |
+| **5. Proporciones de materiales** | **Confirmado que no se puede estandarizar.** *"Una cámara puede instalarse a 5 metros del grabador, pueden ser 70, 80 mts."* Coincide con lo que ya se había decidido. Ver R10 |
+| **6. Destinos y kilometraje** | **Ya estaba resuelto en el machote** y ellos lo sabían: `Transporte` + `MANO DE OBRA` lo calculan. Al verificarlo apareció un `-1` en la fórmula de viáticos, ya corregido. Ver R9 |
+| **7. Porcentajes por etapa** | **No hay valores establecidos y es a propósito.** Varía por magnitud del proyecto y por cuán agresivos quieran ser. Queda manual. Ver R6 |
+| **8. Tipo de cambio** | **Banco Central, precio de venta.** Ya anotado en la pestaña `Tipo de Cambio` |
+
+---
+
+
+## ~~7b. El redondeo del tipo de cambio~~ — CERRADO el 2026-09-23
+
+
+Es criterio por proyecto: a veces se usa el del BCCR tal cual, a veces
+se sube un poco a favor de la empresa. **No hay regla que cargar.** La
+ficha pregunta el precio de compra y el de venta en cada cotización.
+
+## ~~10. Dos o tres cotizaciones cerradas~~ — YA LAS TENEMOS, sin pedirlas
+
+
+**Resuelto el 2026-09-23 yendo a la carpeta compartida en vez de
+pidiéndolas.** Medido:
+
+- **165 cotizaciones de 2025-2026** tienen a la vez **visita técnica con
+  contenido y matriz** en su carpeta.
+- Cruzando `Proyeccion de Ventas 2026.xlsx` (que sí registra el cierre)
+  contra las carpetas de cliente: **35 negocios ganados en 2026** por
+  $780.427, de los cuales **16 tienen matriz y visita técnica**
+  ($367.019 entre ellos).
+
+Esos 16 son el caso patrón, disponibles hoy. No hace falta pedir nada.
+
+⚠️ **Lo que sí falta preguntar, y es más importante:** el resultado de
+una oferta vive en un archivo distinto (`Proyeccion de Ventas`), con una
+llave distinta (cliente + proyecto, **sin número de oferta**), mientras
+el `Control de cotizaciones` solo llega hasta *Enviada*. Ver abajo.
+
+## ~~13 a 16~~ — CERRADAS por Fabián el 2026-09-23
+
+
+Las cuatro se resolvieron con el mismo criterio: **el machote es el valor
+por defecto, y siempre se puede cambiar a mano en el Excel.** No hay que
+preguntarle nada de esto al equipo comercial.
+
+| Pregunta | Cómo quedó |
+|---|---|
+| ¿El día son $48 o $71,20? | **$48.** Katherine lo había dicho así. El `$71,20` calculado queda descartado |
+| ¿El DAI es 14% o 15%? | **Como lo trae el machote de 2026**: 15% en `Equipos`, 14% en `MATERIALES`. Sin preguntas |
+| Los porcentajes estables (transporte 10%, admin 3%, imprevistos 3%, km $0,60) | **Se quedan como están** |
+| ¿Se cotiza contra el techo del pliego? | Ver abajo: la pregunta estaba mal explicada |
+
+**La condición que aplica a las cuatro:** son valores por defecto, no
+valores fijos. La ficha los muestra al armar cada cotización y el asesor
+puede cambiarlos; y quien prefiera hacerlo directo en el Excel, también
+puede. La automatización **nunca** los impone.
+
+El machote trae la hora hombre en **$8,90** y el precio por día en
+**$48,00**, y se copian a casi todas las cotizaciones sin que nadie los
+toque (99% de 184 matrices de 2026).
+
+**Pero no son consistentes entre sí: $8,90 × 8 horas = $71,20, no $48.**
+
+**Pregunta concreta:** ¿cuál de los dos es el correcto, o ninguno? Lo
+mismo con la alimentación en $12,00 por día y el costo por kilómetro en
+$0,60, que aparecen idénticos en el 91% y el 100% de las matrices.
+
+## Cerradas el 2026-09-22 (no preguntar de nuevo)
+
 
 Se resolvieron sin necesidad del equipo comercial. Quedan anotadas para
 que nadie las vuelva a abrir.
@@ -414,3 +432,4 @@ pasado, mándenmelo como esté — el PDF o el Excel tal cual les llegó me
 sirve, no hay que pasarlo a ningún formato.
 
 Gracias 🙌
+
