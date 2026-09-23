@@ -692,6 +692,83 @@ para poder abrir el Excel y mirarlo a ojo.
 
 ---
 
+## Caso patrón: primera corrida contra una cotización real (2026-09-23)
+
+La primera vez que se rehizo una cotización real sin mirar el resultado,
+y se comparó después. **Acertó una de dos líneas.**
+
+### Cómo se hizo
+
+Se eligió por metadatos una cotización **ganada** de 2026 que tuviera
+documento de entrada y matriz. La entrada era un informe de
+mantenimiento de un sistema de detección de incendios (documento de un
+tercero: se usó como contexto, **nada de su contenido entró al
+repositorio**). Sus hallazgos pedían dos cosas: reemplazar **detectores
+de gas** y un **detector beam antiguo**.
+
+Se buscó en el catálogo **antes** de abrir la matriz.
+
+### El resultado, línea por línea
+
+| | Lo que el plugin propondría | Lo que se cotizó | Veredicto |
+|---|---|---|---|
+| **Detector beam** | `OSI-R-SS` Simplex, $503 | `OSI-R-SS`, costo $536 | ✅ **Modelo exacto**, costo con **6,6% de diferencia** |
+| **Detector de gas** | `GD-6`, $510,52 | `GD-2A` Macurco, $142 | ❌ **Modelo distinto y 3,6× más caro** |
+
+**Los porcentajes sí habrían coincidido exacto:** transporte 10%,
+imprevistos 3%, IVA de línea 0%, DAI 15%, administración 3%, margen
+27,4%. Los del machote, sin cambios.
+
+**El impuesto al cliente fue 0%** — y es un cliente **privado**. Sin la
+corrección de H-1, la cotización habría salido con 13% y un total
+equivocado. Con la ficha preguntando, sale bien. Es la primera evidencia
+en un caso real de que ese arreglo importó.
+
+### Los tres huecos que destapó
+
+**1. Falta producto en el catálogo.** El `GD-2A` de Macurco **no existe
+en el catálogo**, ni ningún otro Macurco. La única fila que menciona esa
+marca es un `GD-6` de otro fabricante, 3,6 veces más caro. El plugin no
+puede proponer lo que no tiene cargado.
+
+**2. El precio del catálogo está viejo.** Para el modelo que sí acertó,
+el catálogo dice $503 y la cotización real usó $536: **6,6% de
+diferencia**. Sobre esa línea son $33, pero el margen se calcula sobre
+el costo, así que el error se propaga a todo lo que sigue.
+
+**3. H-13 (nuevo): los detectores de gas están en la categoría
+equivocada para este trabajo.** El `GD-6` está en
+`Alarma e intrusion / Sensor ambiental`. El protocolo de acotamiento de
+H-7 manda filtrar por categoría, así que en un trabajo de detección de
+incendios **ni siquiera lo habría encontrado** — la búsqueda dentro de
+`Deteccion de incendio` solo devolvió un falso positivo (un detector de
+humo). Un detector de gas de un sistema de incendios pertenece a las dos
+categorías según el trabajo, y hoy solo está en una.
+
+### Lo que esto dice del plugin
+
+Lo que **funciona**: encontrar el modelo correcto cuando está en el
+catálogo, y aplicar los porcentajes bien.
+
+Lo que **no**: el catálogo es el techo de lo que se puede proponer. Dos
+de los tres huecos son de datos, no de lógica — producto faltante y
+precio viejo. Ninguna mejora de los skills los arregla.
+
+**Un caso no es una medición.** Hay 16 cotizaciones ganadas de 2026 con
+matriz y visita técnica disponibles para repetir esto.
+
+### Un límite que también apareció
+
+Se intentó primero con otra cotización ganada, de un proyecto eléctrico.
+Su documento de entrada era un **conteo de símbolos sobre planos**: la
+columna Descripción está vacía y los ítems viven dentro de dos imágenes
+incrustadas. **Para ese tipo de proyecto la entrada no es legible por
+máquina** y el plugin no puede partir de ahí; alguien tiene que
+interpretar el plano primero. No es un defecto a corregir, es dónde
+termina la automatización.
+
+---
+
 ## Bitácora de corridas
 
 | Fecha | Prueba | Resultado | Notas |
@@ -729,6 +806,8 @@ para poder abrir el Excel y mirarlo a ojo.
 | 2026-09-22 | **H-12 corregido** | ✅ Pasa | 1.409 precios, 1.091 tiempos de entrega y 2.550 fechas pasados de texto a su tipo real |
 | 2026-09-22 | Desplegable de Subcategoría | ✅ Pasa | Conectado a `_listas!E`; 0 filas con valor fuera de la lista |
 | 2026-09-22 | Catálogo completo | ✅ Sano | El verificador pasa los 5 chequeos sin nada que revisar |
+| 2026-09-23 | **Caso patrón #1** | ⚠️ 1 de 2 líneas | Modelo exacto en una, producto faltante del catálogo en la otra. Porcentajes exactos |
+| 2026-09-23 | H-1 en un caso real | ✅ Confirmado | Cliente privado con impuesto 0%: sin el arreglo habría salido con 13% |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
 | | Caso patrón | ⬜ Bloqueado | Espera las cotizaciones cerradas |
