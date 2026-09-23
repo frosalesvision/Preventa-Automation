@@ -183,8 +183,31 @@ automatización **no puede proponerla** — no existe para ella. El asesor
 tiene que buscar el precio en una cotización vieja, que es exactamente lo
 que este proyecto quiere eliminar.
 
-**Ya se cargaron dos a mano** con lo que se pudo verificar: el montaje
-`PUM9` y la solución solar `INVID-ISSS-300W`. Los dos quedaron marcados
+**Se cargaron 21 a mano** (2026-09-23) con lo que se pudo verificar: los
+dos primeros más un lote de 19.
+
+### Cómo se separo lo real del ruido
+
+Vale dejarlo escrito porque el método sirve para la próxima. Un barrido
+inicial dio **1.452 "SKU faltantes"**, pero casi todos eran basura:
+`BUILT-IN`, `VARI-FOCAL`, `POE/12VDC`, `TCP/IP`, `WI-FI`. Términos
+técnicos que el extractor confundió con modelos.
+
+El filtro que funcionó fue **la estabilidad del precio**:
+
+> Un producto real vale siempre más o menos lo mismo. Un token de ruido
+> hereda el precio de la línea donde cayó, así que su precio varía
+> muchisimo entre cotizaciones.
+
+Con eso, de 203 candidatos quedaron **101 con precio estable** (variación
+≤ 2%) y 102 descartados. Y aun así **hubo que curar a mano**: entre los
+101 seguían colándose cosas como un SKU con la palabra "gabinete" pegada
+(`GABINETE-INVID-ISSS-300W`), o el modelo de la cámara en lugar del
+montaje (`XBLPRC-GEN3` a $4,15, cuando el producto era `EWMOUNTULPR`).
+
+**Se cargaron solo los 21 que se pudieron verificar uno por uno.** Los
+otros 80 necesitan ojos humanos: no vale la pena meter al catálogo un
+SKU que nadie confirmó. Los dos quedaron marcados
 en la columna de origen con **"PRECIO NO CONFIRMADO"**, porque el número
 sale de una cotización y no de una lista de proveedor.
 

@@ -425,6 +425,22 @@ PRIORITARIAS = [
     # gabinete. Sin esto la palabra "gabinete" la manda a Caja / housing.
     (("Energia", "Sistema solar"),
      ["solucion solar", "solar surveillance", "panel solar", "sistema solar"]),
+    # --- terminos en ESPANOL (agregado 2026-09-23) ---
+    # Casi todas las reglas de este archivo estan en ingles, porque salieron
+    # de listas de precios de proveedores gringos. Cuando alguien carga un
+    # producto a mano lo describe en espanol, y ahi el clasificador quedaba
+    # ciego: "Grabador de video en red" caia en "Sin clasificar".
+    (("Grabacion y video", "NVR"),
+     ["grabador de video en red", "grabador ip", "grabador de red"]),
+    (("Grabacion y video", "DVR / hibrido"),
+     ["grabador analogico", "grabador hibrido"]),
+    (("Alarma e intrusion", "Boton de panico"),
+     ["boton de emergencia", "boton de panico", "boton antipanico"]),
+    (("Red y conectividad", "Switch"),
+     ["conmutador de red", "conmutador poe", "conmutador gestionado"]),
+    (("Accesorio de instalacion", "Montaje"),
+     ["montaje de poste", "montaje de pared", "montaje de cielo", "montaje pendant",
+      "soporte de poste", "soporte de pared", "brazo para camara", "brazos para camara"]),
     # Ferreteria de canalizacion: el calibre en fraccion (3/4, 1/2) es lo que
     # la distingue de un conector de red. "conectores RJ45" es Cableado.
     (("Materiales de instalacion", "Canalizacion y tuberia"),
@@ -476,6 +492,13 @@ def clasificar(nombre, cat_orig):
     if es_accesorio_de_montaje(nombre):
         return ("Accesorio de instalacion", _sub_montaje(nombre),
                 "el nombre dice que es un montaje, no una camara")
+
+    # Un panel de incendio EMPIEZA diciendo "Panel". Si la palabra aparece en
+    # medio suele ser un dispositivo PARA un panel: el sensor GD-6 se llama
+    # "Sensor de Gas ... para Panel de Deteccion de Incendio" y una regla por
+    # subcadena lo convertia en panel.
+    if _re.match(r"(?i)^\s*panel\b.*(incendio|fire)", str(nombre or "")):
+        return "Deteccion de incendio", "Panel", "el nombre empieza con Panel de incendio"
 
     for (cat, sub), claves in PRIORITARIAS:
         for k in claves:
