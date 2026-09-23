@@ -877,6 +877,7 @@ termina la automatización.
 | 2026-09-23 | **C-01 a C-09** | ✅ 8 de 9 | C-03 se reescribió: la regla cambió bajo sus pies. Ver arriba |
 | 2026-09-23 | **H-14 corregido** | ✅ Pasa | 49 filas reclasificadas, 42 salían de `Camara`. Cero falsos positivos sobre 2.550 |
 | 2026-09-23 | Desplegables tras el generador | ⚠️ Trampa | `openpyxl` los borra sin avisar. Nuevo `reparar-desplegables.ps1` |
+| 2026-09-23 | **Productos cargados** | ✅ 2 de 149 | `PUM9` y `INVID-ISSS-300W`, sacados de cotizaciones reales. Quedan 147 líneas i-PRO sin cargar |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
 | | Caso patrón | ⬜ Bloqueado | Espera las cotizaciones cerradas |

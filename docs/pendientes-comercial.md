@@ -239,6 +239,44 @@ cual comparar, no hay forma de saber si la herramienta acierta.
 
 ## Catálogos y documentos
 
+### 17. Hay una línea de producto entera que se cotiza y no está en el catálogo
+
+Minando 936 matrices reales aparecieron **149 líneas distintas** de
+productos **Panasonic i-PRO** que el equipo cotiza y que el catálogo no
+tiene. Las más repetidas:
+
+| Producto | Veces | Costo visto |
+|---|---|---|
+| NVR de 16 canales | 16 | $1.213,26 |
+| Cámara box de interior 1080p | 26 | $281 y $326 |
+| Lente 2.8-8.0mm | 11 | $219 |
+| Montaje pendant/pared | 15 | $13,26 y $18 |
+| Cámara bullet 5MP AI con zoom | 7 | $1.052,68 |
+| Cámara PTZ 6MP 30x | 5 | $2.501,70 |
+| Servidor NVR 128TB | 5 | $16.279 a $16.641 |
+
+**Preguntas concretas:**
+
+1. ¿De qué proveedor se compra i-PRO? No aparece en ninguna lista de
+   precios de las que tenemos cargadas.
+2. ¿Hay lista de precios de esa marca? Si la hay, se carga completa y se
+   deja de cotizar de memoria.
+3. Los costos de arriba salen de cotizaciones viejas: ¿siguen vigentes?
+
+**Por qué importa:** hoy, si alguien pide una cámara i-PRO, la
+automatización **no puede proponerla** — no existe para ella. El asesor
+tiene que buscar el precio en una cotización vieja, que es exactamente lo
+que este proyecto quiere eliminar.
+
+**Ya se cargaron dos a mano** con lo que se pudo verificar: el montaje
+`PUM9` y la solución solar `INVID-ISSS-300W`. Los dos quedaron marcados
+en la columna de origen con **"PRECIO NO CONFIRMADO"**, porque el número
+sale de una cotización y no de una lista de proveedor.
+
+⚠️ Y un detalle que conviene revisar: **`INVID-ISSS-300W` es un SKU de
+InVidTech**, el mismo proveedor cuya lista ya está cargada, pero no vino
+en ella. Puede que esa carga haya dejado más productos afuera.
+
 ### 11. Lo que falte cargar
 
 - PDFs o Excel de proveedores que todavía no estén cargados.

@@ -421,6 +421,10 @@ PRIORITARIAS = [
     (("Energia", "Bateria"), ["bateria sellada"]),
     (("Accesorio de instalacion", "Montaje"),
      ["montaje tipo u", "montaje l z"]),
+    # Una solucion solar que viene en gabinete es un sistema solar, no un
+    # gabinete. Sin esto la palabra "gabinete" la manda a Caja / housing.
+    (("Energia", "Sistema solar"),
+     ["solucion solar", "solar surveillance", "panel solar", "sistema solar"]),
     # Ferreteria de canalizacion: el calibre en fraccion (3/4, 1/2) es lo que
     # la distingue de un conector de red. "conectores RJ45" es Cableado.
     (("Materiales de instalacion", "Canalizacion y tuberia"),
