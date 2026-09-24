@@ -979,6 +979,7 @@ puntos.
 | 2026-09-24 | **Caso patron #3** | ❌ Falla grave | El costo base no es el MSRP sino el precio dealer. Ver abajo |
 | 2026-09-24 | **Medicion de la base de costo** | ✅ Concluyente | 1.119 matrices, 57.607 lineas. El MSRP no se usa como costo **ni una vez** |
 | 2026-09-24 | **Caso patron #4** | ❌ 0 de 10 lineas | Los porcentajes salen bien; el catalogo no tiene **ninguno** de los equipos |
+| 2026-09-24 | **Impuesto al cliente** | ✅ Medido | 873 cotizaciones. El 13% es solo 2 de cada 3; **el 29% van exentas** |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -1456,3 +1457,62 @@ Con el caso #3 corregido, la cadena de precio ya calcula bien. Este caso dice
 que eso no alcanza: **el limite ahora es la cobertura del catalogo**, no la
 logica. Ampliar el catalogo mas alla de los dos proveedores pesa hoy mas que
 cualquier ajuste de formula.
+
+
+## Que impuesto se le cobro de verdad al cliente (2026-09-24)
+
+Fabian levanto que el 13% no siempre aplica, y se acordo de las
+universidades. En vez de tratar de recordar que entidades son especiales, se
+saco de las cotizaciones: en la pestana que ve el cliente estan el SUBTOTAL y
+el IMPUESTO, asi que la tasa efectiva es una division.
+
+Lo mide `scripts/medir-impuesto-al-cliente.py`, que solo lee.
+
+### El resultado, sobre 873 cotizaciones legibles
+
+| Tasa | Cotizaciones | |
+|---|---|---|
+| **13%** | 585 | **67,0%** |
+| **0% (exenta)** | 257 | **29,4%** |
+| **2%** | 16 | 1,8% |
+| 20% | 4 | 0,5% |
+| otras sueltas | 11 | 1,3% |
+
+### Lo que esto cambia
+
+**Casi un tercio de las cotizaciones van exentas.** La exencion no es un caso
+raro: es rutina. Asumir el 13% en silencio estaria mal **una de cada tres
+veces**, y del lado caro, que es el que hace perder la oferta.
+
+Esto confirma que preguntarlo al inicio --como quedo tras el arreglo H-1-- no
+es una formalidad: es la diferencia entre acertar dos de cada tres y acertar
+casi siempre.
+
+**El 2% existe y se repite**, 16 veces. Es la tasa de UCR y TEC, que ya estan
+en la hoja `Regimen Fiscal Clientes`. Pero la hoja tiene **cuatro entradas** y
+aca hay 16 cotizaciones al 2% mas 257 exentas: hay muchas mas entidades
+especiales de las que tenemos anotadas.
+
+**Las tasas sueltas (11,70%, 12,59%, 6,89%, 6,40%, 9,07%, 1,30%) parecen
+exenciones parciales**, donde solo una parte de la oferta lleva impuesto. Costa
+Rica tiene tasas reducidas ademas del 13%, asi que encaja. No hay suficientes
+casos de cada una para sacar una regla; lo que dicen es que **la tasa no
+siempre es uniforme dentro de una misma cotizacion**.
+
+El 20% aparece 4 veces y no corresponde a ninguna tasa conocida de IVA. Queda
+anotado como algo que mirar, no como regla.
+
+### Una falla de dato que aparecio de paso
+
+En 7 cotizaciones el subtotal y el impuesto estan en **monedas distintas** --el
+subtotal en dolares y el impuesto en colones, o la lectura tomo una celda de
+otra parte--. Dan tasas absurdas, de 117% a 74.911%. Son pocas pero conviene
+mirarlas: si alguien las mando asi, el cliente recibio un total que no cierra.
+
+### Lo que hay que hacer
+
+1. **Ampliar `Regimen Fiscal Clientes`.** Cuatro entradas no cubren 257
+   cotizaciones exentas. Lo puede llenar preventa, o se puede derivar
+   cruzando cliente contra tasa efectiva en las cotizaciones ya hechas.
+2. **La pregunta del impuesto se queda**, y con mas razon: es la que evita
+   equivocarse en un tercio de los casos.
