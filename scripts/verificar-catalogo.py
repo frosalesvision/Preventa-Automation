@@ -21,6 +21,7 @@ Devuelve 0 si todo esta bien, 1 si hay algo que revisar.
 
 import collections
 import os
+import re
 import sys
 import warnings
 
@@ -45,6 +46,7 @@ RUTA_POR_DEFECTO = os.path.expandvars(
 COL_NOMBRE, COL_MARCA, COL_SKU = 0, 1, 2
 COL_CATEGORIA, COL_SUBCATEGORIA, COL_PROVEEDOR = 3, 4, 5
 COL_PRECIO = 6
+COL_CRC, COL_DEALER_USD, COL_DEALER_CRC = 7, 8, 9
 
 
 def cargar(ruta):
@@ -54,6 +56,18 @@ def cargar(ruta):
     filas = list(wb["Catalogo"].iter_rows(min_row=2, values_only=True))
     wb.close()
     return filas
+
+
+def cargar_formulas(ruta):
+    """Las formulas en texto, que `cargar` no ve porque pide los valores."""
+    wb = openpyxl.load_workbook(ruta, read_only=True)
+    hoja = wb["Catalogo"]
+    out = []
+    for n, f in enumerate(hoja.iter_rows(min_row=2, values_only=True), start=2):
+        out.append((n, f[COL_CRC] if len(f) > COL_CRC else None,
+                    f[COL_DEALER_CRC] if len(f) > COL_DEALER_CRC else None))
+    wb.close()
+    return out
 
 
 def main():
@@ -156,20 +170,126 @@ def main():
         print("           (normal: materiales genericos y servicios no llevan SKU)")
     print()
 
-    # --- 5. SKU repetido para el mismo proveedor ---
-    vistos = collections.Counter()
-    for r in filas:
-        if r[COL_SKU] and r[COL_PROVEEDOR]:
-            vistos[(str(r[COL_SKU]).strip().lower(), str(r[COL_PROVEEDOR]).strip().lower())] += 1
-    repes = {k: v for k, v in vistos.items() if v > 1}
-    print("--- 5. Mismo SKU repetido para el mismo proveedor ---")
-    if repes:
-        print("    %d SKU repetidos (puede ser legitimo: dos precios distintos" % len(repes))
-        print("    del mismo articulo, ej. uno con descuento por stock limitado)")
-        for (sku, prov), v in sorted(repes.items(), key=lambda x: -x[1])[:8]:
-            print("      %-26s %-22s x%d" % (sku[:26], prov[:22], v))
-    else:
-        print("    OK: ningun SKU repetido dentro del mismo proveedor")
+    # --- 5. Mismo producto cargado dos veces ---
+    #
+    # Existe por un error del 2026-09-23: cargue "SS2421EM-ES" sin ver que el
+    # catalogo ya tenia "SS2421EMES".  Compare las cadenas EXACTAS y un guion
+    # basto para colar una fila repetida con otro precio.  Paso tres veces.
+    #
+    # Dos cosas que hay que tener claras para leer esto:
+    #
+    #   1. El SKU se compara NORMALIZADO (sin guiones, puntos ni espacios) y
+    #      el nombre con los espacios colapsados.  Doce filas repetidas se
+    #      escondian nada mas detras de un espacio de mas.
+    #
+    #   2. El catalogo es POR PROVEEDOR: el mismo producto ofrecido por dos
+    #      proveedores son dos filas legitimas, y es justo lo que se quiere
+    #      poder comparar al cotizar.  Un duplicado de verdad es una fila de
+    #      mas DEL MISMO PROVEEDOR.
+    def clave(v):
+        return re.sub(r"[^A-Z0-9]", "", str(v).upper())
+
+    def nombre(v):
+        return re.sub(r"\s+", " ", str(v or "")).strip().lower()
+
+    def precio(v):
+        try:
+            return round(float(v), 2)
+        except (TypeError, ValueError):
+            return None
+
+    grupos = collections.defaultdict(list)
+    for n, r in enumerate(filas, start=2):
+        if r[COL_SKU] and clave(r[COL_SKU]):
+            grupos[clave(r[COL_SKU])].append(n)
+
+    repetidas, precio_raro, varios_prov = [], [], []
+    for k, nums in grupos.items():
+        if len(nums) < 2:
+            continue
+        por_prov = collections.defaultdict(list)
+        for n in nums:
+            por_prov[nombre(filas[n - 2][COL_PROVEEDOR])].append(n)
+        if len(por_prov) > 1:
+            varios_prov.append((k, sorted(nums)))
+        for mismos in por_prov.values():
+            if len(mismos) < 2:
+                continue
+            base = filas[mismos[0] - 2]
+            for n in mismos[1:]:
+                r = filas[n - 2]
+                if precio(r[COL_PRECIO]) == precio(base[COL_PRECIO]):
+                    repetidas.append((k, mismos[0], n, precio(base[COL_PRECIO])))
+                else:
+                    precio_raro.append((k, mismos[0], n,
+                                        precio(base[COL_PRECIO]), precio(r[COL_PRECIO])))
+
+    print("--- 5. Mismo producto cargado dos veces ---")
+    if repetidas:
+        problemas += len(repetidas)
+        print("    GRAVE: %d fila(s) sobran.  Mismo proveedor, mismo SKU y el" % len(repetidas))
+        print("    mismo precio: es la misma fila cargada dos veces.")
+        for k, a, b, pre in repetidas[:12]:
+            print("      %-22s filas %d y %d   $%s" % (k[:22], a, b, pre))
+    if precio_raro:
+        problemas += len(precio_raro)
+        print("    REVISAR: %d caso(s) del MISMO proveedor con el mismo SKU a" % len(precio_raro))
+        print("    dos precios.  O una fila quedo vieja, o son articulos")
+        print("    distintos con el codigo mal puesto.  Hay que verlo a mano.")
+        for k, a, b, p1, p2 in precio_raro[:12]:
+            print("      %-22s filas %d y %d   $%s vs $%s" % (k[:22], a, b, p1, p2))
+    if varios_prov:
+        print("    %d producto(s) los ofrece mas de un proveedor.  Es normal y" % len(varios_prov))
+        print("    es lo que se busca: deja comparar precio al cotizar.")
+        for k, nums in varios_prov[:5]:
+            print("      %-22s filas %s" % (k[:22], ", ".join(str(n) for n in nums)))
+    if not (repetidas or precio_raro):
+        print("    OK: ninguna fila esta cargada dos veces")
+    print()
+
+    # --- 6. Formulas de colones apuntando a otra fila ---
+    #
+    # Existe por lo que aparecio el 2026-09-24: 2.534 de 2.569 filas tenian
+    # el precio en colones de OTRO producto.
+    #
+    # La causa es una trampa de openpyxl: al borrar filas NO reajusta las
+    # formulas. Una que decia `G500` en la fila 500 se mueve a la 499 y
+    # sigue diciendo `G500`. Cada borrado corre una fila mas el desfase, y
+    # no falla nada: la celda muestra un numero perfectamente creible que
+    # pertenece a otro producto.
+    #
+    # Por eso se revisa que cada formula mire su PROPIA fila. La de Excel
+    # (COM) si reajusta bien; la trampa es solo de openpyxl.
+    print("--- 6. Precio en colones apuntando a otra fila ---")
+    corridas, rotas = [], []
+    for n, f_crc, f_dealer in cargar_formulas(ruta):
+        for col, f in (("Precio CRC", f_crc), ("Dealer CRC", f_dealer)):
+            if not isinstance(f, str) or not f.startswith("="):
+                continue
+            if "#REF!" in f:
+                rotas.append((n, col))
+                continue
+            m = re.search(r"IF\(([GI])(\d+)=", f)
+            if m and int(m.group(2)) != n:
+                corridas.append((n, col, int(m.group(2)) - n))
+    if rotas:
+        problemas += len(rotas)
+        print("    GRAVE: %d celda(s) con #REF!.  Quedaron apuntando a una" % len(rotas))
+        print("    fila que se borro.  La celda no muestra ningun precio.")
+        for n, col in rotas[:6]:
+            print("      fila %-6d %s" % (n, col))
+    if corridas:
+        problemas += len(corridas)
+        print("    GRAVE: %d celda(s) muestran el precio en colones de OTRO" % len(corridas))
+        print("    producto.  No da error: da un numero creible y equivocado.")
+        desfases = collections.Counter(d for _, _, d in corridas)
+        for d in sorted(desfases):
+            print("      corridas %+d fila(s): %d celdas" % (d, desfases[d]))
+        print("    Se arregla reescribiendo la formula de cada fila para que")
+        print("    mire su propia fila.  El precio en dolares NO esta afectado:")
+        print("    es un dato fijo, no una formula.")
+    if not (rotas or corridas):
+        print("    OK: cada precio en colones sale del dolar de su misma fila")
     print()
 
     print("=" * 66)

@@ -111,6 +111,15 @@ definidos a nivel de libro que las referencian: `TipoCambioCompra` y
   columna `Subcategoria`: antes eran `F` e `H`.
   Si `B4` todavía no tiene un valor cargado, la celda muestra
   "Actualizar TC" en vez de 0, para que no se lea como un precio real.
+
+  ⚠️ **Nunca borres filas del catálogo con `openpyxl`.** No reajusta
+  estas fórmulas: una que decía `G500` en la fila 500 se mueve a la 499
+  y sigue diciendo `G500`. El 2026-09-24 se encontraron **2.534 filas**
+  mostrando el precio en colones de otro producto por esta causa. No
+  falla ni avisa: muestra un número creible y equivocado. Borrá filas
+  con Excel por COM, que sí las reajusta, y cerrá con
+  `python scripts/verificar-catalogo.py`, cuyo chequeo 6 compara cada
+  fórmula contra la fila en la que está.
 - **Al agregar una fila nueva**: escribí el precio en dólares en
   "Precio USD" (columna 7, `G`) y dejá que la fórmula de "Precio CRC"
   calcule sola — no escribas un valor literal en esa columna. Copiá la

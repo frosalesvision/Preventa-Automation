@@ -973,7 +973,158 @@ puntos.
 | 2026-09-23 | **Productos cargados** | ✅ 21 | De 1.452 tokens a 101 por estabilidad de precio, y de ahí 21 curados a mano. Catálogo: 2.550 → 2.571 |
 | 2026-09-24 | **Caso patrón #2** | ⚠️ Mixto | Comportamiento correcto (no sustituir marca amarrada), porcentajes muy lejos |
 | 2026-09-24 | Duplicados por SKU | ✅ Corregido | Dos filas repetidas que el cotejo exacto no vio. Ahora se normaliza el SKU |
+| 2026-09-24 | **Auditoria de duplicados** | ✅ Corregido | 13 filas de mas borradas (1 mia, 12 ajenas). Ver la seccion de abajo |
+| 2026-09-24 | **Precio en colones corrido** | ✅ Corregido | 5.026 celdas mostraban el precio de otro producto. Lo destapo el borrado |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
 | | Caso patrón | ⬜ Bloqueado | Espera las cotizaciones cerradas |
+
+
+## Auditoria de duplicados del catalogo (2026-09-24)
+
+Salio de una pregunta de Fabian: si cargue un producto sin ver que ya estaba
+con el SKU escrito de otra forma, cuantas veces mas paso? La respuesta corta
+es **una mas**, pero al ir a buscarla aparecio un problema mayor que no viene
+de las cargas nuevas.
+
+Este documento no lleva precios ni nombres de proveedor: se sube a git. Los
+numeros de fila permiten encontrar cada caso en el catalogo.
+
+### Como se busco
+
+El error original fue comparar el SKU como cadena exacta: un guion de
+diferencia basto para colar una fila repetida. El barrido nuevo compara:
+
+- el **SKU normalizado**, sin guiones, puntos ni espacios;
+- el **nombre con los espacios colapsados** — doce filas repetidas se
+  escondian nada mas detras de un espacio de mas en distinto lugar;
+- **dentro de cada proveedor**, no entre todos. El catalogo es *por
+  proveedor*: el mismo producto ofrecido por dos proveedores son dos filas
+  legitimas, y es justo lo que se quiere poder comparar al cotizar.
+
+Ese ultimo punto importa. La fila que cargue mal decia `NO SE RECONOCE
+PROVEEDOR` y la vieja traia el proveedor real, asi que comparando proveedor
+contra proveedor **no se habrian cruzado nunca**. El chequeo 5 de
+`verificar-catalogo.py` tenia las dos fallas y quedo reescrito.
+
+### Lo que era mio
+
+Tres de las 16 cargas nuevas chocaban con una fila que ya existia:
+
+| Como se colo | Estado |
+|---|---|
+| un guion de diferencia | corregido el 2026-09-23 |
+| guiones de diferencia, y ademas con un precio bastante menor al real | corregido el 2026-09-23 |
+| el catalogo lo tenia **sin la letra inicial** del modelo | pendiente de aplicar |
+
+En los tres el criterio fue el que dio Fabian: **queda la fila vieja, la del
+precio mas alto**, que ademas viene de lista de precios y no de una
+cotizacion. Si la mia traia mejor categoria o mejor grafia del SKU, eso se le
+pasa a la que se queda.
+
+Las otras 13 cargas estan limpias. Dos parejas que parecian duplicados
+(`WV-S1136` / `WV-S1136A` y `WV-S3131L` / `WV-S3531L`) son modelos de verdad
+distintos.
+
+### Lo que no era mio
+
+Todo lo de abajo viene de la lista de precios general y es anterior a las
+cargas nuevas.
+
+**12 filas que sobran.** Mismo proveedor, mismo SKU, mismo nombre y el mismo
+precio: la misma fila cargada dos veces. Estan todas entre las filas 2.387 y
+2.457. Dos productos aparecen **tres veces** cada uno. Borrarlas no pierde
+nada.
+
+**Un codigo que no es un SKU.** El mismo codigo de tres letras esta puesto en
+tres productos que no tienen nada que ver entre si, con precios de tres
+ordenes distintos (filas 2.452, 2.453 y 2.454). Es lo mas peligroso de todo
+lo encontrado, porque `buscar-equipo` busca por codigo: quien pida uno puede
+llevarse cualquiera de los otros dos. Hay que decidir a mano que codigo lleva
+cada uno.
+
+**4 articulos del mismo proveedor a dos precios** (filas 2.387/2.396,
+2.388/2.397, 2.414/2.446 y 2.513/2.539). En uno de ellos la diferencia es
+casi del doble. O una fila quedo vieja, o son articulos distintos con el
+codigo mal puesto.
+
+Los otros 30 de ese grupo **si** son el caso ya conocido y documentado: un
+proveedor publica el mismo articulo en dos listas, una con descuento por
+stock limitado. Esos no se tocan.
+
+**2 productos los ofrecen dos proveedores** (filas 2.462/2.468 y
+2.510/2.541). Eso no es un error: es exactamente para lo que sirve un
+catalogo por proveedor.
+
+### Como quedo
+
+Se borraron 13 filas (1 mia y las 12 ajenas) con respaldo previo. El catalogo
+paso de 2.569 a 2.556 filas. Los desplegables de Categoria y Subcategoria
+siguen conectados y no quedaron celdas en error.
+
+Quedan sin tocar, a proposito, los 34 casos de "mismo proveedor y mismo SKU a
+dos precios": 30 son el caso ya conocido y legitimo, y los otros 4 hay que
+verlos a mano. Tambien queda por decidir el codigo de tres letras puesto en
+tres productos distintos.
+
+
+## El precio en colones estaba corrido (2026-09-24)
+
+Esto aparecio de rebote, al borrar los duplicados: el borrado dejo 18 celdas
+en `#REF!` y al ir a ver por que, se destapo algo mucho mas grande.
+
+**2.534 de 2.569 filas mostraban el precio en colones de OTRO producto.**
+
+### Por que nadie lo noto
+
+Porque no falla. La celda no da error ni queda vacia: muestra un numero
+perfectamente creible, con su simbolo de colones y sus dos decimales, que
+resulta ser el de otro producto. La unica forma de verlo es comparar la
+formula contra la fila en la que esta.
+
+### La causa
+
+Una trampa de `openpyxl`: **al borrar filas no reajusta las formulas**. Una
+que decia `G500` en la fila 500 se mueve a la 499 y sigue diciendo `G500`.
+Cada borrado corre el desfase una fila mas. Excel por COM si las reajusta
+bien; la trampa es solo de `openpyxl`.
+
+El reparto del desfase lo confirma:
+
+| Corrimiento | Celdas |
+|---|---|
+| correcto | 34 |
+| +1 fila | 4.838 |
+| +2 filas | 184 |
+| +20 filas | 4 |
+| `#REF!` | 18 |
+
+`scripts/construir-catalogo-v2.py`, que fue quien escribio estas formulas en
+su momento, las escribe **bien**: cada fila mira su propia fila. El dano vino
+despues, de borrados hechos con `openpyxl`.
+
+### Lo que NO estaba afectado
+
+**El precio que se cotiza.** La columna de Precio USD (MSRP) tiene cero
+formulas: es un dato fijo. Las afectadas eran solo las dos columnas
+*derivadas* de colones. Ninguna cotizacion salio mal por esto, porque
+`armar-cotizacion` trabaja en dolares y tiene instruccion expresa de no
+convertir a colones por su cuenta.
+
+### Como se arreglo
+
+Reescribiendo las dos columnas con Excel por COM para que cada fila mire su
+propia fila, que es lo que ya documentaba `construir-catalogo-v2.py`.
+Resultado: 0 formulas corridas, 0 `#REF!`, 0 celdas en error.
+
+### Para que no vuelva
+
+`verificar-catalogo.py` tiene un chequeo 6 nuevo que compara cada formula de
+colones contra la fila donde esta. Es la clase de error que solo se ve
+midiendo, asi que ahora se mide en cada corrida.
+
+**Regla que deja esto:** despues de cualquier borrado de filas con `openpyxl`,
+correr el verificador. Ya sabiamos que `openpyxl` borra los desplegables sin
+avisar (por eso existe `reparar-desplegables.ps1`); ahora sabemos que tambien
+descuadra las formulas.
