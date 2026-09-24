@@ -1,9 +1,12 @@
-# Lo que hace falta del equipo comercial
+# Lo que falta, y de dónde sale
 
-> Una sola lista, no una por persona. Katherine y Alessandro se reparten
-> quién contesta qué; lo importante es que el paquete quede completo.
-> Cada punto dice **por qué** se necesita y **qué pasa si no llega**, para
-> que se pueda priorizar si no hay tiempo de contestar todo junto.
+> **Casi nada falta ya del equipo comercial.** Este documento empezó
+> siendo una lista de nueve preguntas para ellos y hoy tiene **una sola**,
+> que además no es para preventa sino para contabilidad.
+>
+> El resto se resolvió **midiendo 649 cotizaciones reales** en vez de
+> preguntando. Abajo está lo que quedó abierto, lo que se resolvió
+> midiendo, y lo que ellos contestaron en su momento.
 >
 > Contexto: comprometido en la reunión del 2026-09-14 — una primera pasada
 > para el 16/17 de setiembre y el resto la semana siguiente. Meta conjunta:
@@ -15,234 +18,71 @@
 
 # Lo que sigue pendiente
 
-Son **8**, en orden de cuánto cambian el resultado. La numeración
-anterior mezclaba cuatro épocas distintas (4, 7b, 2b, 6b, 1b, 10, 12,
-13-16, 10b, 17, 11) y se rehizo el 2026-09-23.
+> **Cambio de estrategia, 2026-09-23.** Fabián lo dijo así:
+>
+> > *"ellos ahorita están muy ocupados, no pueden responder. Nuestro
+> > filtro de verdad son las cotizaciones a las que podemos acceder y
+> > estudiar, tal cual lo hemos hecho."*
+>
+> **Dejamos de preguntar y empezamos a medir.** Ya se leyeron 649
+> matrices reales de 2025 y 2026; ahí está lo que el equipo hace de
+> verdad, y sale más rápido y más confiable que una entrevista. Lo que
+> antes era una lista de nueve preguntas quedó en **una sola**, y ni
+> siquiera es para preventa.
 
-## 1. Tarifario de mano de obra `R8`
+## La única que sigue abierta
 
+### ¿El IVA de las compras locales se acredita? `R2`
 
-**No es que no contestaran: no existe todavía.** Tienen anotados un par
-de precios base y **la tarea pendiente de armar un cuadro de
-instalaciones con costos estandarizados**.
+**Aplazada a propósito.** No es para preventa: la contesta quien lleva
+la contabilidad o los impuestos de la empresa.
 
-⚠️ **Asumir que no va a llegar** (criterio de Fabián, 2026-09-23:
-*"posiblemente no lo pasen"*). O sea: el plugin tiene que funcionar
-bien **sin** tarifario de forma permanente, no "mientras tanto". La
-pestaña `MANO DE OBRA` se llena a mano y eso es el estado final, no un
-estado transitorio.
+Cuando Grupo Visión compra local y paga 13% de IVA, ¿ese dinero **se
+recupera** después contra el IVA que se le cobra al cliente, o **se
+queda como costo** del proyecto?
 
-**Qué hacer mientras tanto:** nada, y no insistir. La pestaña
-`MANO DE OBRA` se llena a mano en cada cotización. Cuando construyan el
-cuadro, se carga en la pestaña `Tarifario Mano de Obra` del catálogo,
-que ya está lista y vacía esperándolo.
+**Mientras tanto se replica lo que hacen hoy**, que es lo que muestran
+las 649 matrices: `Equipos` con IVA de línea 0% y `MATERIALES` con 13%.
+No se toca nada.
 
-## 2. ¿El IVA de las compras locales se acredita? `R2` — va a contabilidad, no a preventa
+---
 
+# Lo que se resolvió midiendo, no preguntando
 
-**Esta pregunta estaba mal dirigida** (aclarado 2026-09-23). No es sobre
-los dos IVA —eso ya está claro en R2 y preventa lo tiene claro—; es una
-pregunta **contable**:
+Todo esto se cerró el 2026-09-23 con el mismo criterio: **el valor más
+común de las cotizaciones reales pasa a ser el default del machote, y se
+puede cambiar a mano cuando el proyecto lo amerite.** La automatización
+nunca lo impone.
 
-> Cuando Grupo Visión compra local y paga 13% de IVA, ¿ese dinero **se
-> recupera** después contra el IVA que la empresa le cobra a sus
-> clientes, o **se queda como costo** del proyecto?
-
-Si se recupera, no es un costo y el 0% de `Equipos` está bien. Si no se
-recupera, es un costo real y hoy está faltando en las líneas de
-proveedor local. **La respuesta la tiene quien lleva la contabilidad o
-los impuestos de la empresa, no preventa.**
-
-Rastreando las fórmulas del machote apareció que **el transporte y el
-DAI solo se cobran si la línea dice `IMPORTADO = si`, pero el IVA de
-línea se aplica siempre**, con el porcentaje que tenga la pestaña. En
-`Equipos` ese porcentaje es 0% y en `MATERIALES` es 13%. O sea que el
-IVA lo decide *en qué pestaña se escribió la línea*, no el producto.
-
-**Pregunta concreta:** cuando Grupo Visión le compra a un proveedor
-local y le cobran el 13% de IVA, ¿ese IVA **es un costo** del proyecto,
-o **se acredita** contra el IVA que después se le cobra al cliente?
-
-**Por qué importa:** el catálogo tiene 193 productos de proveedores
-locales. Si ese IVA es un costo, una línea de proveedor local escrita en
-`Equipos` —que tiene IVA 0%— sale con el costo **subvaluado en 13%**:
-sobre $100 por unidad, el costo nacionalizado pasaría de $103 a $116,39.
-Si se acredita, está bien como está.
-
-**Si no llega:** no se toca nada. La automatización solo **avisa**
-cuando una línea de proveedor local cae en una pestaña con IVA 0%.
-
-## 3. La pestaña `MANO DE OBRA` tiene dos fórmulas distintas para lo mismo `R9`
-
-
-Salió al verificar la respuesta del punto 6, y es más concreto de lo que
-suena. En esa pestaña, las columnas de viáticos son: `H` alimentación,
-`I` combustible, `J` hospedaje, `E` días, `F` personas. El total va en
-`K`. **Pero `K` no se calcula igual en todas las filas:**
-
-```excel
-fila 5   (Configurador)   K5 = (H5*E5*F5) + (I5*E5) + (J5*E5)
-filas 6-8 (Supervisor,    K6 = ((H6+I6+J6)*E6)*F6
-           PM, Diseño)
-```
-
-En la fila 5, la alimentación se multiplica por días **y** personas,
-pero el combustible y el hospedaje **solo por días**. En las filas 6 a
-8, **todo** se multiplica por días y personas, incluido el combustible.
-
-**Con los mismos datos, dan distinto.** Dos técnicos, tres días,
-alimentación $12 por día, combustible $21,60, hospedaje $40 la noche:
-
-| | Cálculo | Total |
+| Lo que faltaba | Cómo quedó | De dónde sale |
 |---|---|---|
-| Fórmula de la fila 5 | 72 + 64,80 + 120 | **$256,80** |
-| Fórmula de las filas 6-8 | (73,60 × 3) × 2 | **$441,60** |
+| **Tarifario de mano de obra** | Hora hombre **$8,90**, día **$48** | 99% de 496 matrices con datos |
+| **Alimentación** | **$12** por día y persona | 88% de los casos |
+| **Costo por kilómetro** | **$0,60** | 99% de los casos |
+| **Hospedaje** | **Cero por defecto** | Es el valor más común: el 88% de las cotizaciones no lo cobra |
+| **Tarifa de hospedaje cuando aplica** | **$100 por noche** | 37 de 58 casos donde sí se cobró |
+| **Margen** | **27,4%** | El default del machote, y el más usado |
+| **DAI, transporte, imprevistos, administración** | Como los trae el machote | 75% a 97% de los casos |
+| **Las dos fórmulas de viáticos** | Unificadas en la de la fila 5 | Es la fila que de verdad se llena |
+| **Estados de las ofertas** | Se quedan como están | Decisión de Fabián |
 
-**$184,80 de diferencia por el mismo viaje**, según en qué fila se
-escriba el rol.
+### Sobre el hospedaje, que es el caso interesante
 
-**Dos preguntas concretas:**
+Ponérle $100 por defecto habría parecido lo correcto — es la tarifa más
+usada. Pero **el 88% de las cotizaciones no cobra hospedaje**, porque la
+mayoría de los trabajos no requieren quedarse. El valor más común es
+**cero**, y ponerle $100 le habría agregado costo a nueve de cada diez
+cotizaciones.
 
-1. El **hospedaje**, ¿se paga por persona (dos técnicos, dos
-   habitaciones) o por viaje?
-2. El **combustible**, ¿se multiplica por la cantidad de personas? En la
-   fila 5 no, en las filas 6-8 sí. Intuitivamente van en el mismo carro,
-   así que la de la fila 5 parece la correcta — pero es criterio de
-   ellos, no nuestro.
+Queda en cero, con la tarifa anotada en la propia pestaña para cuando
+haga falta.
 
-**No se tocó ninguna de las dos fórmulas.** Solo se quitó un `-1` que
-restaba un dólar siempre y que no tenía explicación posible.
+### Sobre el margen y el 1,85×
 
-## 4. ¿La cotización base debe quedar a 1,85× el MSRP? `R4.1`
-
-
-Preventa dijo que se cotiza siempre con MSRP. Medido lo que eso produce:
-escribir el MSRP en `Costo Unit` hace que **el cliente vea 1,85 veces el
+Escribir el MSRP en `Costo Unit` hace que el cliente vea **1,85 veces el
 MSRP**, porque la matriz le suma transporte, DAI, administración y
-margen encima.
-
-**Pregunta concreta:** ¿es eso lo que esperan de una cotización base, o
-la intención era que el cliente viera un precio más cerca del MSRP?
-
-**Por qué importa:** es conservador y nunca se cotiza bajo costo, que
-está bien. Pero si un competidor cotiza cerca del MSRP, una oferta base
-a 1,85× queda fuera de rango antes de empezar a negociar.
-
-## 5. No se registra qué ofertas se ganan
-
-
-De los estados del `Control de cotizaciones` —751 cotizaciones entre
-2025 y 2026— **ninguno indica que una oferta se haya ganado**:
-
-| Estado | 2026 | 2025 |
-|---|---|---|
-| Enviada | 253 | 338 |
-| Descartada | 75 | 59 |
-| Pendiente | 14 | 1 |
-| En espera | 7 | — |
-
-El flujo termina en *Enviada*. Lo ganado se anota aparte, en la
-proyección de ventas, sin número de oferta que permita volver a la
-cotización que lo produjo.
-
-**Pregunta concreta:** ¿se puede agregar el número de oferta a la
-proyección de ventas, o un estado "Ganada/Adjudicada" al control?
-
-**Por qué importa más de lo que parece:** hoy no se puede contestar
-*"¿qué margen llevaban las ofertas que ganamos?"*, que es exactamente lo
-que haría falta para saber a qué precio se gana. Con un solo campo en
-común, esa pregunta se contesta sola.
-
-## 6. Hay una línea de producto entera que se cotiza y no está en el catálogo
-
-
-Minando 936 matrices reales aparecieron **149 líneas distintas** de
-productos **Panasonic i-PRO** que el equipo cotiza y que el catálogo no
-tiene. Las más repetidas:
-
-| Producto | Veces | Costo visto |
-|---|---|---|
-| NVR de 16 canales | 16 | $1.213,26 |
-| Cámara box de interior 1080p | 26 | $281 y $326 |
-| Lente 2.8-8.0mm | 11 | $219 |
-| Montaje pendant/pared | 15 | $13,26 y $18 |
-| Cámara bullet 5MP AI con zoom | 7 | $1.052,68 |
-| Cámara PTZ 6MP 30x | 5 | $2.501,70 |
-| Servidor NVR 128TB | 5 | $16.279 a $16.641 |
-
-**Preguntas concretas:**
-
-1. ¿De qué proveedor se compra i-PRO? No aparece en ninguna lista de
-   precios de las que tenemos cargadas.
-2. ¿Hay lista de precios de esa marca? Si la hay, se carga completa y se
-   deja de cotizar de memoria.
-3. Los costos de arriba salen de cotizaciones viejas: ¿siguen vigentes?
-
-**Por qué importa:** hoy, si alguien pide una cámara i-PRO, la
-automatización **no puede proponerla** — no existe para ella. El asesor
-tiene que buscar el precio en una cotización vieja, que es exactamente lo
-que este proyecto quiere eliminar.
-
-**Se cargaron 21 a mano** (2026-09-23) con lo que se pudo verificar: los
-dos primeros más un lote de 19.
-
-### Cómo se separo lo real del ruido
-
-Vale dejarlo escrito porque el método sirve para la próxima. Un barrido
-inicial dio **1.452 "SKU faltantes"**, pero casi todos eran basura:
-`BUILT-IN`, `VARI-FOCAL`, `POE/12VDC`, `TCP/IP`, `WI-FI`. Términos
-técnicos que el extractor confundió con modelos.
-
-El filtro que funcionó fue **la estabilidad del precio**:
-
-> Un producto real vale siempre más o menos lo mismo. Un token de ruido
-> hereda el precio de la línea donde cayó, así que su precio varía
-> muchisimo entre cotizaciones.
-
-Con eso, de 203 candidatos quedaron **101 con precio estable** (variación
-≤ 2%) y 102 descartados. Y aun así **hubo que curar a mano**: entre los
-101 seguían colándose cosas como un SKU con la palabra "gabinete" pegada
-(`GABINETE-INVID-ISSS-300W`), o el modelo de la cámara en lugar del
-montaje (`XBLPRC-GEN3` a $4,15, cuando el producto era `EWMOUNTULPR`).
-
-**Se cargaron solo los 21 que se pudieron verificar uno por uno.** Los
-otros 80 necesitan ojos humanos: no vale la pena meter al catálogo un
-SKU que nadie confirmó. Los dos quedaron marcados
-en la columna de origen con **"PRECIO NO CONFIRMADO"**, porque el número
-sale de una cotización y no de una lista de proveedor.
-
-⚠️ Y un detalle que conviene revisar: **`INVID-ISSS-300W` es un SKU de
-InVidTech**, el mismo proveedor cuya lista ya está cargada, pero no vino
-en ella. Puede que esa carga haya dejado más productos afuera.
-
-## 7. Lo que falte cargar al catálogo
-
-
-- PDFs o Excel de proveedores que todavía no estén cargados.
-- La "lista de precios general" de la nube que se mencionó.
-- Cualquier lista propia que alguien mantenga aparte.
-
-No hace falta pasarlos a ningún formato: el PDF o el Excel tal como
-llegó del proveedor sirve.
-
-## 8. Las cotizaciones cerradas sirven para otra cosa
-
-
-De proyectos ya entregados, con:
-
-- La especificación original que mandó el cliente
-- La matriz final tal como quedó
-- Qué porcentajes se usaron
-- El monto total ofertado
-
-**Idealmente:** una con financiamiento, una sin, y al menos una de más de
-30 líneas.
-
-**Para qué:** se reconstruye esa misma cotización con la IA sin mirar el
-resultado, y se comparan los dos archivos celda por celda. Todo lo que no
-coincida es una regla que falta. **Es lo único de toda esta lista que no
-se puede reemplazar con criterio propio** — sin un caso real contra el
-cual comparar, no hay forma de saber si la herramienta acierta.
+margen. Se deja así: es lo que hacen en la mayoría de las cotizaciones
+medidas, y el margen se puede cambiar a mano en el Excel.
 
 ---
 
@@ -277,7 +117,7 @@ Es criterio por proyecto: a veces se usa el del BCCR tal cual, a veces
 se sube un poco a favor de la empresa. **No hay regla que cargar.** La
 ficha pregunta el precio de compra y el de venta en cada cotización.
 
-## ~~10. Dos o tres cotizaciones cerradas~~ — YA LAS TENEMOS, sin pedirlas
+## ~~10. Cotizaciones ya terminadas para comparar~~ — YA LAS TENEMOS, sin pedirlas
 
 
 **Resuelto el 2026-09-23 yendo a la carpeta compartida en vez de

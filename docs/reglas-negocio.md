@@ -750,7 +750,22 @@ haya decidido: es que **alguien reemplazó la fórmula por un 48 fijo y
 esa versión se propagó.** Los dos números están en circulación y
 difieren un 48%.
 
-**Resuelto por Fabián el 2026-09-23: son $48.** Katherine lo había dicho
+**Cerrado el 2026-09-23: el machote usa el valor más común de las
+cotizaciones reales como default, y se puede cambiar a mano.**
+
+| Dato | Default | De dónde sale |
+|---|---|---|
+| Hora hombre | **$8,90** | 99% de 496 matrices |
+| Precio por día | **$48** | Confirmado por Fabián y por preventa |
+| Alimentación | **$12** por día y persona | 88% de los casos |
+| Costo por kilómetro | **$0,60** | 99% de los casos |
+| Hospedaje | **0** | Es el valor más común: el 88% no lo cobra |
+| Tarifa de hospedaje cuando aplica | **$100** la noche | 37 de 58 casos |
+
+Están anotados en la propia pestaña `MANO DE OBRA` para que se vean sin
+abrir ningún documento.
+
+**Sobre el $48:** Katherine lo había dicho
 así, y el `$71,20` calculado queda descartado. El `48` escrito a mano en
 el machote es correcto, no un error — lo que pasó es que reemplazó a una
 fórmula que daba otro número, y eso explica los 79 casos de 2025.
@@ -811,12 +826,17 @@ combustible de ahí con `=Transporte!I3`. La cadena funciona.
    `=(H5*E5*F5)+(I5*E5)+((J5*E5)-1)`. Ese `-1` **restaba un dólar
    siempre**: en el machote en blanco el total daba −$1,00. No hay regla
    de negocio que reste exactamente un dólar. Quitado.
-2. **Dos inconsistencias que hay que preguntar, no corregir solos:**
-   - En la fila 5 el **hospedaje se multiplica solo por días, no por
-     personas**. Si dos técnicos duermen fuera, se cobra una habitación.
-   - Las filas 6 a 8 usan una fórmula **distinta** a la de la fila 5:
-     `((H+I+J)*E)*F`, que multiplica todo por días *y* personas,
-     incluido el combustible. Las dos no pueden estar bien a la vez.
+2. **Dos fórmulas distintas para lo mismo. Unificadas el 2026-09-23.**
+   La fila 5 calculaba `(H*E*F)+(I*E)+(J*E)` y las filas 6 a 8
+   `((H+I+J)*E)*F`. Con dos técnicos y tres días daban **$256,80 y
+   $441,60 por el mismo viaje**.
+
+   Se unificó en la lógica de la **fila 5**, porque es la que de verdad
+   se usa: en las 496 matrices con datos de mano de obra, la fila del
+   Configurador es la que se llena. La diferencia está en que el
+   combustible y el hospedaje **no** se multiplican por personas — van
+   en el mismo carro, y si se quedan, la cantidad de habitaciones se
+   pone a mano en la columna.
 
 Preventa lo hace a mano hoy: *"¿cuántos kilómetros hay de aquí a
 \[destino]? En otra tabla se mete el kilometraje y te lo jala acá."*
