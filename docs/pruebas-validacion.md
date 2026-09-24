@@ -978,6 +978,7 @@ puntos.
 | 2026-09-24 | **Catalogo sin duplicados** | ✅ Sano | 2.569 → 2.524 filas. El verificador pasa los 6 chequeos |
 | 2026-09-24 | **Caso patron #3** | ❌ Falla grave | El costo base no es el MSRP sino el precio dealer. Ver abajo |
 | 2026-09-24 | **Medicion de la base de costo** | ✅ Concluyente | 1.119 matrices, 57.607 lineas. El MSRP no se usa como costo **ni una vez** |
+| 2026-09-24 | **Caso patron #4** | ❌ 0 de 10 lineas | Los porcentajes salen bien; el catalogo no tiene **ninguno** de los equipos |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -1366,3 +1367,86 @@ Un producto quedo con dealer de $2,50 contra un MSRP tres ordenes mayor: ese
 valor es el precio del producto de la fila anterior del PDF. Solo hay 2 filas
 con el dealer sospechosamente bajo, asi que la columna esta limpia en
 general, pero conviene revisarlas.
+
+
+## Caso patron #4: los porcentajes aciertan, el catalogo no tiene nada (2026-09-24)
+
+Se busco a proposito el hueco que quedaba en el plan: una cotizacion de **mas
+de 30 lineas**. Salio un proyecto de ciudad inteligente --paradas de autobus
+con pantallas, camaras, video wall, sensores y mobiliario-- de **68 lineas
+reales**, muy lejos de los casos chicos anteriores.
+
+### El resultado: cero cobertura
+
+De los 10 modelos de equipo que se pudieron cotejar, el catalogo tiene
+**ninguno**. No es que estuvieran mal clasificados: no estan.
+
+La razon se ve al contar el catalogo por proveedor: **2.329 de 2.524 filas
+son de solo dos proveedores** (el 92%). Todo lo demas son restos de entre 3 y
+46 filas. La marca de camaras de este proyecto --que el equipo claramente usa
+mucho, porque es casi todo el proyecto-- tiene **7 modelos** cargados, y los
+7 entraron minados de cotizaciones, sin proveedor reconocido.
+
+**El plugin no habria podido armar ni una linea de este proyecto.** Y no por
+un error de logica: por falta de datos.
+
+### Lo que si acerto, y es la primera vez
+
+Los porcentajes coinciden casi exactos con los defaults del machote:
+
+| Concepto | Nuestro default | Este caso |
+|---|---|---|
+| Transporte | 10% | **10%** ✓ |
+| Imprevistos | 3% | **3%** ✓ |
+| DAI | 15% | **15%** ✓ |
+| Impuesto | 13% | **13%** ✓ |
+| Administracion | 3% | **3%** ✓ |
+| Margen GV | 27,4% | **27%** |
+
+Despues de que el caso #2 y el #3 se salieran de los defaults, este los
+respeta enteros. Va uno de tres en imprevistos, asi que el 3% sigue siendo un
+default razonable pero no una regla.
+
+### Tres reglas nuevas que solo se ven en un proyecto grande
+
+**1. El euro se convierte a 1,15.** Dos proveedores europeos cotizaron en
+euros y la matriz entro los montos en dolares: 260 € → $299 y 280 € → $322,
+las dos veces exactamente a 1,15 (una tercera quedo redondeada hacia arriba).
+**No teniamos ninguna regla de euros**: toda la cadena asume USD → CRC.
+
+**2. La columna IMPORTADO manda sobre dos porcentajes a la vez.** En las 12
+lineas marcadas como nacionales, transporte y DAI quedan en **cero**, pero
+imprevistos e impuesto se siguen aplicando. Estaba escrito como regla; aca se
+confirma mecanicamente sobre lineas reales.
+
+**3. Los costos recurrentes se aplanan.** Las cuotas mensuales --nube,
+monitorizacion, mantenimiento por parada y por bus-- entran como una linea
+con cantidad 1 al valor del mes. La matriz no tiene ninguna nocion de costo
+recurrente, asi que el que cotiza lo resuelve a mano. Para un proyecto con
+servicio mensual eso deja el total incompleto por construccion.
+
+### Una rareza que conviene mirar
+
+El proveedor cotizo el **flete aereo** como un articulo mas. Esa linea entra a
+la matriz como cualquier equipo, y recibe encima el **10% de transporte**. O
+sea, se le cobra transporte al transporte. Puede ser deliberado, pero vale la
+pena preguntarlo.
+
+### Y algo que aparece en todas las matrices
+
+Al contar las lineas de siete cotizaciones distintas, **las siete traian
+exactamente 32 lineas de plantilla**: las pestanas de ejemplo del machote
+viejo (`Camara Antivandalica`, `BodyCam`, `Face Pro`, `LPR Patrullas`) con los
+datos de **otro proyecto real** todavia adentro. Cada copia que hace el equipo
+arrastra numeros que no son suyos.
+
+Es el mismo antipatron que se limpio del machote el 2026-09-22 borrando 10
+pestanas. Lo que se corrigio fue el machote nuevo; **las cotizaciones ya
+hechas siguen cargando esos datos**.
+
+### Lo que este caso cambia en las prioridades
+
+Con el caso #3 corregido, la cadena de precio ya calcula bien. Este caso dice
+que eso no alcanza: **el limite ahora es la cobertura del catalogo**, no la
+logica. Ampliar el catalogo mas alla de los dos proveedores pesa hoy mas que
+cualquier ajuste de formula.
