@@ -82,6 +82,22 @@ El MSRP es donde el precio al cliente **aterriza** después de transporte,
 DAI, administración y margen — no de donde arranca. Puesto en `Costo
 Unit`, la cotización sale cerca del **doble**.
 
+⚠️ **"Cotizar con el Dealer" no significa mostrarle ese precio al
+cliente.** El archivo de matriz son dos cosas a la vez:
+
+| Pestaña | Qué es | ¿La ve el cliente? |
+|---|---|---|
+| `Equipos` | la matriz de **costo**, cuentas internas | **nunca** |
+| `COTIZACIÓN ` | la oferta que se imprime y se manda | sí |
+
+El precio Dealer va en la primera. Lo que el cliente ve es el precio de
+venta, que en las cotizaciones reales sale alrededor de **1,85×** ese
+costo. En el caso patrón #3: costo $79 → el cliente vio $145,35.
+
+Si alguien pregunta *"¿entonces sí cotizamos con el Dealer?"*, la
+respuesta es: la cotización se **construye** con él, pero ese número
+**no se le muestra** al cliente.
+
 ⚠️ **Avisale de entrada que no todos los productos tienen precio
 Dealer.** El catálogo trae una columna `Tipo de precio cargado` que lo
 dice fila por fila:

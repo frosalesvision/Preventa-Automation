@@ -61,10 +61,10 @@ ubicarla dentro del grupo que le corresponda (ver grupos abajo).
 | 4 | Categoría | **Una de las 16 categorías canónicas** — ver R11 en `docs/reglas-negocio.md`. Tiene lista desplegable. No escribir aquí el texto crudo del proveedor: ese va en la columna 25 |
 | 5 | Subcategoría | El detalle dentro de la categoría (ej. Cámara → PTZ). Ver R11 |
 | 6 | Proveedor | |
-| 7 | Precio USD de lista / MSRP | Precio de lista al público. **No es el costo** — ver la columna 9. Dejar vacío si el documento no da precio en dólares. Ver "Tipo de cambio y precios" abajo |
+| 7 | Precio de lista al público (MSRP) | Referencia de mercado. **No es lo que pagamos** — ver la columna 9. Dejar vacío si el documento no da precio en dólares. Ver "Tipo de cambio y precios" abajo |
 | 8 | Precio CRC | **Fórmula**, no se escribe a mano (ver "Tipo de cambio y precios") |
-| 9 | Precio Dealer USD | Lo que Grupo Visión le paga al proveedor. **Este es el que va al `Costo Unit` de la matriz** (medido el 2026-09-24 sobre 1.119 matrices: 94 de 134 líneas comparables usan este, y cero el MSRP). Solo si el documento lo trae aparte del de lista |
-| 10 | Precio Dealer CRC | **Fórmula**, igual que Precio CRC |
+| 9 | COSTO USD (precio Dealer) | Lo que Grupo Visión le **paga** al proveedor. Va en el `Costo Unit` de la pestaña de costo — **el cliente nunca ve este número** (medido el 2026-09-24 sobre 1.119 matrices: 94 de 134 líneas comparables usan este, y cero el MSRP). Solo si el documento lo trae aparte del de lista |
+| 10 | COSTO CRC (precio Dealer) | **Fórmula**, igual que Precio CRC |
 | 11 | Unidad de venta | `Unidad` en la mayoría de los casos; usar `Metro`, `Rollo`, `Caja`, etc. cuando el producto se venda por medida (ej. cable) en vez de por unidad |
 | 12 | Tiempo de entrega (días) | Lead time del proveedor si lo indica. Útil para saber si un equipo se puede prometer a tiempo en una cotización |
 | 13 | País de origen | Relevante para licitaciones que piden certificación de origen del fabricante (ej. tipo NDAA). Dejar vacío si el documento no lo indica |
