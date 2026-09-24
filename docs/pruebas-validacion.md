@@ -976,6 +976,8 @@ puntos.
 | 2026-09-24 | **Auditoria de duplicados** | ✅ Corregido | 13 filas de mas borradas (1 mia, 12 ajenas). Ver la seccion de abajo |
 | 2026-09-24 | **Precio en colones corrido** | ✅ Corregido | 5.026 celdas mostraban el precio de otro producto. Lo destapo el borrado |
 | 2026-09-24 | **Catalogo sin duplicados** | ✅ Sano | 2.569 → 2.524 filas. El verificador pasa los 6 chequeos |
+| 2026-09-24 | **Caso patron #3** | ❌ Falla grave | El costo base no es el MSRP sino el precio dealer. Ver abajo |
+| 2026-09-24 | **Medicion de la base de costo** | ✅ Concluyente | 1.119 matrices, 57.607 lineas. El MSRP no se usa como costo **ni una vez** |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -1197,3 +1199,170 @@ PowerShell **cachea el tipo del setter de `.Value2` por sitio de llamada**, y
 si en la misma linea se le pasa primero un numero y despues un texto, falla.
 Se resuelve asignando cada tipo en una linea distinta. Vale la pena saberlo
 antes de escribir el proximo script que copie celdas.
+
+
+## Caso patron #3: un CCTV ganado, y el costo base estaba al reves (2026-09-24)
+
+Se eligio a proposito un caso distinto de los dos anteriores. El #1 y el #2
+midieron **seleccion de modelo**; este mide lo que ahi quedo sin probar: la
+**cobertura del catalogo y la cadena de precio**.
+
+Es una cotizacion de CCTV de enero 2026, de cuatro lineas de equipo mas una
+de instalacion. Se sabe que **se gano** porque la carpeta guarda la orden de
+compra del cliente.
+
+### Un detalle del metodo
+
+La carpeta **no tiene la especificacion original del cliente**. `Visita
+tecnica` esta vacia y lo unico en la carpeta de entrada es la cotizacion del
+proveedor hacia Grupo Vision. Asi que la entrada fueron las fichas tecnicas
+guardadas, que son los modelos que se terminaron cotizando. Eso hace que este
+caso **no mida seleccion**, y esta bien: mide la parte que nunca se habia
+medido.
+
+### El hallazgo: el costo base estaba al reves
+
+El "Costo Unit" de la matriz real **es el precio dealer del proveedor**, no el
+MSRP. Comparado contra el catalogo, coincide **al centavo** en dos de los tres
+modelos que se pudieron cotejar:
+
+| Modelo | En el catalogo | Lo que uso la matriz |
+|---|---|---|
+| NVR | dealer | **el dealer, exacto** |
+| Camara bullet | dealer | **el dealer, exacto** |
+| Switch | dealer | ninguno de los dos: un valor 1,6x el dealer |
+
+El problema es que el catalogo dice, literalmente, que la columna de MSRP es
+"**el que se cotiza**" y que la de dealer es "REFERENCIA - **NO** cotizar con
+este". Para llenar el "Costo Unit" de la matriz **es exactamente al reves**.
+
+El MSRP de estos productos es el **doble** del dealer. Si `armar-cotizacion`
+hubiera llenado el costo con MSRP, la linea de camaras habria salido **un 93%
+por encima** de la real, y la cotizacion completa cerca del doble.
+
+Esto no invalida el MSRP: sirve como precio de lista de referencia. Lo que no
+puede es entrar en la columna de **costo**, que es donde arranca toda la
+cadena de margen.
+
+### Los porcentajes
+
+| Concepto | Machote / default | Este caso |
+|---|---|---|
+| Transporte | 10% | **10%** ✓ |
+| Imprevistos | 3% | **0%** |
+| DAI | 15% | **14%** |
+| Administracion | 3% | **3%** ✓ |
+| Margen GV | 27,4% | **30%** |
+| Impuesto al cliente | 13% | **13%** ✓ |
+
+El margen resulto ser el menor de los problemas: con el 27,4% por defecto la
+linea de camaras quedaba a **3,3%** de la real. Los imprevistos en cero vuelven
+a aparecer, igual que en el caso #2 --van dos de tres casos patron donde el
+default de 3% no se uso--. Y el DAI de 14% confirma lo ya medido: cambio a 15%
+entre anos, y esta cotizacion es de enero.
+
+### Lo que si funciono
+
+- **Los cuatro modelos estan en el catalogo**, incluido el disco duro.
+- El **impuesto al cliente de 13%** coincide.
+- La **relacion costo-a-precio de venta** del caso real es 1,84x, la misma que
+  ya habia aparecido midiendo las 649 matrices.
+
+### Lo que hay que arreglar
+
+1. **El costo base.** Es el hallazgo de este caso y el mas caro de todos los
+   encontrados hasta ahora.
+2. **La busqueda por modelo es demasiado estricta.** Dos de los cuatro modelos
+   solo aparecieron por coincidencia parcial, porque el SKU real lleva un
+   sufijo que el nombre del archivo de la ficha no trae. `buscar-equipo`
+   necesita buscar por prefijo, no solo exacto.
+
+### Una hipotesis que se cayo por el camino
+
+Al ver que dos modelos no aparecian por busqueda exacta, la sospecha fue que
+el catalogo les habia pegado un digito al final, como un marcador de nota al
+pie. **Era falso.** La lista de precios del proveedor trae las dos versiones
+--una "Special Order" y otra "Available, No Audio in/out"--: el digito final
+es una **variante real del modelo**. Los 240 SKU que encajaban en ese patron
+estan bien. Verificar contra la lista original costo dos minutos y evito
+"arreglar" 240 filas que no tenian nada roto.
+
+
+## Con que precio se llena la columna de costo (2026-09-24)
+
+El caso patron #3 dejo la sospecha de que el costo de las matrices sale del
+precio dealer y no del MSRP, al reves de lo que decian los encabezados del
+catalogo. Pero era **un** caso. Esto lo cuenta sobre todo lo que hay.
+
+Lo mide `scripts/medir-base-de-costo.py`, que solo lee.
+
+### El resultado
+
+| | Lineas | |
+|---|---|---|
+| Matrices leidas | 1.119 | |
+| Lineas de equipo | 57.607 | |
+| Sin modelo reconocible en la descripcion | 56.456 | 98% |
+| Con modelo, pero el catalogo trae un solo precio | 1.017 | |
+| **Comparables** | **134** | |
+
+De esas 134:
+
+| El costo coincide con | Lineas | |
+|---|---|---|
+| **el precio dealer** | **94** | **70,1%** |
+| **el MSRP** | **0** | **0,0%** |
+| los dos (valen igual) | 5 | 3,7% |
+| ninguno de los dos | 35 | 26,1% |
+
+**Cero.** En 57.607 lineas de equipo no hay una sola donde el costo sea el
+MSRP. Y las 35 que no pegan con ninguno tampoco se acercan al MSRP: son
+**todas mas baratas**, con una mediana de 0,37x el MSRP y un maximo de 0,93x.
+Varias quedan incluso por debajo del dealer, o sea que a veces se negocia mas
+abajo del precio de programa.
+
+La conclusion es la mas firme que hemos sacado de los datos: **el MSRP no es
+el costo. Nunca lo fue.**
+
+### El limite honesto de esta medicion
+
+Las 134 lineas comparables son **todas del mismo proveedor**, y no por
+casualidad: es el unico con precio dealer cargado en el catalogo. De 2.524
+productos, solo **945** tienen los dos precios, y los 945 son de ese
+proveedor.
+
+Asi que lo demostrado es: para el proveedor del que tenemos las dos columnas,
+el costo es el dealer y jamas el MSRP. Para el resto no se puede medir todavia
+**porque no tenemos el dato**, no porque los datos digan otra cosa.
+
+### Lo que reconcilia la confusion de preventa
+
+La lista de ese proveedor no tiene dos precios sino **tres**, y asi se llaman
+sus columnas: *Dealer Program*, *DEAL* y *MSRP*. El de programa es la mitad
+del MSRP, y el intermedio tres cuartos.
+
+En el caso patron, el costo fue el de programa y el precio final al cliente
+aterrizo **cerca del MSRP**. Ahi esta el malentendido completo: el MSRP es
+donde el numero **termina**, no de donde **arranca**. Cuando preventa dice
+"usa el MSRP" estan describiendo bien el destino; se entendio como que va en
+la casilla de costo. Puesto ahi, y con la cadena encima, la cotizacion sale
+al doble del MSRP.
+
+### Lo que hay que arreglar, en orden
+
+1. **El costo sale del precio dealer cuando lo tenemos.** Los encabezados del
+   catalogo dicen hoy lo contrario y hay que corregirlos.
+2. **Registrar QUE precio es el que esta cargado.** Para 1.579 productos
+   tenemos un solo numero y ninguna forma de saber si es de lista o ya
+   negociado. Esto importa mas que la pregunta original: para la mayoria del
+   catalogo hoy no hay nada que elegir.
+3. **El 98% de las lineas no trae el modelo en la descripcion.** Limita
+   cualquier cotejo automatico contra el historico, y explica por que solo
+   134 de 57.607 lineas fueron comparables.
+
+### Un error de parseo encontrado de paso
+
+Un producto quedo con dealer de $2,50 contra un MSRP tres ordenes mayor: ese
+valor es el precio del producto de la fila anterior del PDF. Solo hay 2 filas
+con el dealer sospechosamente bajo, asi que la columna esta limpia en
+general, pero conviene revisarlas.
