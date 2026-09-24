@@ -1509,10 +1509,34 @@ subtotal en dolares y el impuesto en colones, o la lectura tomo una celda de
 otra parte--. Dan tasas absurdas, de 117% a 74.911%. Son pocas pero conviene
 mirarlas: si alguien las mando asi, el cliente recibio un total que no cierra.
 
-### Lo que hay que hacer
+### La tabla derivada (hecho el mismo dia)
 
-1. **Ampliar `Regimen Fiscal Clientes`.** Cuatro entradas no cubren 257
-   cotizaciones exentas. Lo puede llenar preventa, o se puede derivar
-   cruzando cliente contra tasa efectiva en las cotizaciones ya hechas.
-2. **La pregunta del impuesto se queda**, y con mas razon: es la que evita
-   equivocarse en un tercio de los casos.
+Se cruzo cliente contra tasa efectiva con
+`scripts/derivar-regimen-fiscal.py`. Sobre 200 clientes distintos, **43 no
+van al 13%**, y la hoja `Regimen Fiscal Clientes` paso de **4 a 46
+entradas**.
+
+Pero no todas las filas valen lo mismo, y la tabla lo dice fila por fila:
+
+| Calidad | Clientes | Que significa |
+|---|---|---|
+| Confirmado por preventa | 4 | son las que ya estaban |
+| `DERIVADO … la misma tasa en las N` | 16 | consistente en 2 o mas cotizaciones |
+| `VARIA SEGUN EL PROYECTO` | 14 | el cliente cambia de tasa entre proyectos |
+| `NO CONFIRMADO` | 12 | una sola cotizacion: no define nada |
+
+**El hallazgo que cambia como se usa la tabla:** 14 clientes aparecen con
+tasas distintas entre sus propios proyectos. Uno va exento en **50 de 57**
+cotizaciones y al 13% en las otras 7. O sea que **la exencion a veces es del
+proyecto, no del cliente**, y una tabla "cliente → tasa" a secas mentiria.
+
+Por eso cada fila guarda en cuantas de cuantas se vio la tasa, y
+`nueva-cotizacion` precarga la dominante **pero pregunta igual** cuando la
+nota dice que varia.
+
+### Lo que queda
+
+- Las 12 filas `NO CONFIRMADO` necesitan que alguien las verifique. Estan
+  marcadas para que no se usen a ciegas.
+- **La pregunta del impuesto se queda**, y con mas razon: es la que evita
+  equivocarse en un tercio de los casos.

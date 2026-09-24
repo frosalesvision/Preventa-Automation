@@ -43,7 +43,7 @@ preguntar; lo que no se sabe **siempre** se pregunta.
 | # | Campo | Default / de dónde sale |
 |---|---|---|
 | 1 | **Tipo de cotización** | Estudio de mercado · Oferta de licitación · Cliente privado. Define los porcentajes de abajo (regla R6) |
-| 2 | **Cliente** | Si está en la tabla de régimen fiscal, se precarga exención y porcentajes. Si no está, se pregunta ofreciendo **13% como primera opción recomendada** — ver abajo (R3) |
+| 2 | **Cliente** | Si está en la tabla de régimen fiscal, se precarga exención y porcentajes — **pero mirá la nota de la fila**, porque 14 de los 46 clientes cambian de tasa según el proyecto. Si no está, se pregunta ofreciendo **13% como primera opción recomendada** — ver abajo (R3) |
 | 3 | **Proyecto** | Descripción corta y número de licitación si aplica |
 | 4 | **Ubicación** | Para el kilometraje. La **distancia** sale de la columna `Destino / localidad` de la pestaña `Transporte` del machote; si el destino no está, se pregunta y se ofrece agregarlo (R9) |
 | 5 | **Asesor responsable** | Para los Excel de control y la firma de la cotización |
@@ -83,15 +83,32 @@ mano en el Excel** si ese proyecto lo amerita. Y si el asesor pregunta
 qué suele usarse en un tipo de cotización, ahí sí le das la tabla de
 arriba. **Responder si preguntan, no ofrecer.**
 
-### Cuando el cliente no está en la tabla de régimen fiscal
+### Cómo leer la tabla de régimen fiscal
+
+La tabla tiene **46 clientes** (2026-09-24). Cuatro los confirmó preventa;
+los otros 42 salieron de medir las cotizaciones ya hechas, y la columna de
+notas dice de cuál se trata. **No todas valen lo mismo:**
+
+| Lo que dice la nota | Qué hacer |
+|---|---|
+| sin marca `DERIVADO` | lo confirmó preventa: usalo |
+| `DERIVADO … la misma tasa en las N` | 16 clientes, consistente: usalo y decí de dónde salió |
+| `VARIA SEGUN EL PROYECTO` | **14 clientes.** Precargá la dominante pero **preguntá igual** |
+| `NO CONFIRMADO` | 12 clientes con una sola cotización. Tratalo como si no estuviera |
+
+Que 14 clientes cambien de tasa entre proyectos no es un error de la tabla:
+**la exención a veces es del proyecto, no del cliente.** Uno de ellos va
+exento en 50 de 57 cotizaciones y al 13% en las otras 7.
+
+### Cuando el cliente no está en la tabla, o la nota dice que varía
 
 No preguntes en abstracto. **Ofrecé el 13% como primera opción** — es lo
-que aplica a la mayoría — y listá al lado los otros casos que el equipo
-ya confirmó que existen:
+que aplica a dos de cada tres, medido sobre 873 cotizaciones — y listá al
+lado los otros casos que existen de verdad:
 
 > *"Ese cliente no está en la tabla de régimen fiscal. ¿Cuál le aplica?*
-> - ***13%** — lo normal, es lo que lleva la mayoría* ← recomendada
-> - *Exento — hay instituciones que no pagan*
+> - ***13%** — lo normal, dos de cada tres cotizaciones* ← recomendada
+> - *Exento — **casi un tercio de las cotizaciones van así**, no es raro*
 > - *2% — algunas universidades públicas*
 > - *Otro porcentaje*
 >
