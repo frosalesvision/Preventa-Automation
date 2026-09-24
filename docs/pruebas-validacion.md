@@ -975,6 +975,7 @@ puntos.
 | 2026-09-24 | Duplicados por SKU | ✅ Corregido | Dos filas repetidas que el cotejo exacto no vio. Ahora se normaliza el SKU |
 | 2026-09-24 | **Auditoria de duplicados** | ✅ Corregido | 13 filas de mas borradas (1 mia, 12 ajenas). Ver la seccion de abajo |
 | 2026-09-24 | **Precio en colones corrido** | ✅ Corregido | 5.026 celdas mostraban el precio de otro producto. Lo destapo el borrado |
+| 2026-09-24 | **Catalogo sin duplicados** | ✅ Sano | 2.569 → 2.524 filas. El verificador pasa los 6 chequeos |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -1128,3 +1129,71 @@ midiendo, asi que ahora se mide en cada corrida.
 correr el verificador. Ya sabiamos que `openpyxl` borra los desplegables sin
 avisar (por eso existe `reparar-desplegables.ps1`); ahora sabemos que tambien
 descuadra las formulas.
+
+
+## Un producto, una fila (2026-09-24)
+
+Cierre de lo que quedaba abierto de la auditoria de duplicados. Regla que
+pidio Fabian: **ninguno debe estar duplicado**.
+
+### Por que NO se dejo el monto mas alto
+
+Era la idea inicial, y medirla la desarmo: **en 25 de 30 pares el precio menor
+resulto ser el MAS RECIENTE**. No eran dos precios del mismo momento sino un
+precio viejo y uno nuevo, cargados de hojas de origen distintas. Dejar el
+mayor habria dejado el precio desactualizado en 25 de 30 casos.
+
+Quedo entonces: **gana la fila mas reciente**, y con la fecha empatada, la de
+mayor monto.
+
+### Lo que se habria perdido borrando a secas
+
+La fila que se borra no es una copia de la otra. Midiendo las 33 parejas:
+
+| Columna que difiere | En cuantas parejas |
+|---|---|
+| Descripcion | 30 de 33 |
+| Hoja de origen | 28 de 33 |
+| Fecha de actualizacion | 27 de 33 |
+| Pais de origen | 21 de 33 |
+| **Codigo HTS** | 19 de 33 |
+| **Codigo ECCN** | 19 de 33 |
+| **Tiempo de entrega** | 17 de 33 |
+
+El HTS es el que determina el DAI, asi que borrarlo sin mirar se habria
+sentido despues, al cotizar un importado. Por eso la fila que se queda
+**hereda todo campo que tenga vacio** y la otra tenga lleno: 90 campos
+rescatados en 31 parejas.
+
+### Los tres casos que no eran duplicados
+
+No se podian borrar a ciegas y se resolvieron aparte:
+
+- **Un codigo de tres letras que no era un modelo, sino la MARCA.** Estaba en
+  la columna "Modelo / SKU" de tres partes de torniquete sin relacion entre
+  si --un software, una placa y un motor-- y la columna Marca estaba vacia en
+  las tres. Quien buscara ese codigo se llevaba cualquiera de los tres. Se
+  movio a Marca y a cada fila se le puso el modelo que trae su propio nombre,
+  anotado como **pendiente de confirmar con el proveedor**, porque se dedujo
+  del nombre y no de una lista de modelos.
+- **Una pieza cargada dos veces con dos nombres distintos.** Las dos
+  descripciones decian lo mismo, con la misma marca, proveedor, archivo de
+  origen y fecha. Ademas la fila que sobrevivia tenia la categoria mal
+  (decia camara siendo un accesorio) y la que se borraba la tenia bien, asi
+  que se le paso antes de borrar.
+- **Dos productos que ofrecen dos proveedores distintos.** Esos se dejan: es
+  exactamente para lo que sirve un catalogo por proveedor.
+
+### Como quedo
+
+2.569 → **2.524 filas**. El verificador pasa los seis chequeos y dice que el
+catalogo esta sano: ninguna fila repetida, ningun precio en colones corrido,
+cero celdas en error y los desplegables conectados.
+
+### Una trampa de PowerShell que volvio a aparecer
+
+Al copiar campos de una fila a otra reventaba con `InvalidCastException`:
+PowerShell **cachea el tipo del setter de `.Value2` por sitio de llamada**, y
+si en la misma linea se le pasa primero un numero y despues un texto, falla.
+Se resuelve asignando cada tipo en una linea distinta. Vale la pena saberlo
+antes de escribir el proximo script que copie celdas.
