@@ -63,41 +63,56 @@ Esto se queda sin resolver hoy y genera trabajo manual repetido.
    Esto aplica en cualquier punto donde se muestre un precio del
    catálogo, incluyendo `armar-cotizacion` al tomar el "Costo Unit".
 
-**Sobre el "Costo Unit" que se usa (RESUELTO 2026-09-22 por preventa —
-ver R4 en [`docs/reglas-negocio.md`](../../../docs/reglas-negocio.md)):**
+**Sobre el "Costo Unit" que se usa (MEDIDO 2026-09-24 — ver R4 en
+[`docs/reglas-negocio.md`](../../../docs/reglas-negocio.md)):**
 
-**Preguntale al asesor, al principio, con cuál de los dos precios se
-arma esta cotización.** El default es el **MSRP** (columna `Precio USD`),
-que es lo que preventa usa normalmente — pero preguntalo, no lo asumas.
+**Preguntale al asesor, al principio, con cuál precio se arma esta
+cotización.** El default es el **precio Dealer**, que es lo que dicen
+las cotizaciones reales — pero preguntalo, no lo asumas.
 
-> *"¿Armo esta cotización con MSRP o con precio Dealer? Por defecto uso
-> MSRP, que es lo normal para una cotización base."*
+> *"¿Armo esta cotización con precio Dealer o con MSRP? Por defecto uso
+> Dealer, que es lo que usan las cotizaciones que revisamos."*
 
-⚠️ **Y avisale de entrada que no todos los productos tienen los dos
-precios** (medido sobre las 2.550 filas):
+**Por qué el Dealer y no el MSRP.** Se midieron 1.119 matrices y 57.607
+líneas de equipo. De las 134 líneas comparables contra las dos columnas:
+94 coinciden con el Dealer y **cero** con el MSRP. Las 35 que no pegan
+con ninguno son todas *más baratas* que el MSRP.
 
-| | Filas | |
+El MSRP es donde el precio al cliente **aterriza** después de transporte,
+DAI, administración y margen — no de donde arranca. Puesto en `Costo
+Unit`, la cotización sale cerca del **doble**.
+
+⚠️ **Avisale de entrada que no todos los productos tienen precio
+Dealer.** El catálogo trae una columna `Tipo de precio cargado` que lo
+dice fila por fila:
+
+| Valor | Filas | Qué hacer |
 |---|---|---|
-| Con MSRP | **2.550** | todas |
-| Con precio Dealer cargado | **945** | solo de un distribuidor |
-| Sin precio Dealer | **1.605** | ahí solo se puede usar MSRP |
+| `LISTA Y DEALER` | 743 | usar el Dealer |
+| `UN SOLO PRECIO EN LA LISTA` | 202 | el proveedor publica uno solo: da igual cuál se elija |
+| `TIPO SIN CONFIRMAR` | 1.579 | usar el único que hay **y decirlo** |
 
-Y dentro de las 945, **202 tienen el Dealer igual al MSRP** (software,
-licencias y accesorios de una línea): en esas, elegir Dealer no cambia
-nada.
+**`TIPO SIN CONFIRMAR` significa que no sabemos si ese número ya trae
+descuento.** Cuando una línea sale de ahí, decíselo al asesor
+explícitamente. No es un error usarla; es un dato que tiene que saber
+antes de mandar el precio, no después.
 
-**Entonces, si el asesor elige Dealer:** usá el Dealer donde exista y
-**decile explícitamente en cuáles líneas tuviste que caer al MSRP porque
-no hay Dealer cargado.** Una cotización mezclada no es un error — pero
-tiene que saberlo, no descubrirlo después.
+**Una cotización mezclada no es un error** — pero decí en cuáles líneas
+tuviste que caer a otro precio, y por qué.
 
-La respuesta de preventa, textual en lo esencial: el descuento *"varía
-dependiendo de la marca, tipo de equipo y qué nivel de partners somos"*,
-así que prefieren **usar el MSRP y aplicar ellos el descuento a mano**
-según el cliente y el proyecto. Y cuando el proyecto se registra, *"el
-proveedor nos manda directamente los precios ya con el descuento"*. Los
-precios de lista se usan para las cotizaciones **base**; el descuento
-entra después, si el proceso avanza.
+### Lo que había contestado preventa, que no coincide
+
+El 2026-09-22 preventa contestó que el descuento *"varía dependiendo de
+la marca, tipo de equipo y qué nivel de partners somos"* y que usan
+**siempre los MSRP**, aplicando el descuento a mano. Y que cuando el
+proyecto se registra *"el proveedor nos manda directamente los precios
+ya con el descuento"*.
+
+Lo medido no coincide. La explicación más probable es que estaban
+describiendo el **precio al cliente** —que sí aterriza cerca del MSRP—
+y se entendió como la casilla de costo. **Si el asesor insiste en MSRP,
+hacele caso**: es su cotización. Pero mostrale el número que sale, porque
+suele ser el doble del esperado.
 
 **Qué significa para vos, en concreto:**
 

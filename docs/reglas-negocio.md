@@ -278,35 +278,77 @@ respeta* — no que alguien lo sepa.
 
 ---
 
-## R4 — Se cotiza siempre con el MSRP; el descuento es manual
+## R4 — El costo sale del precio Dealer, no del MSRP
 
-**Estado: RESUELTA el 2026-09-22, y al revés de como la habíamos
-planteado.**
+**Estado: MEDIDA el 2026-09-24 sobre 1.119 matrices y 57.607 líneas de
+equipo. Reemplaza lo que esta regla decía desde el 2026-09-22.**
 
-> **Lo que contestó preventa:** el descuento *"varía dependiendo de la
-> marca, tipo de equipo y qué nivel de partners somos"*, y su propuesta
-> fue **usar siempre los MSRP** y que ellos apliquen el descuento a mano
-> según cliente y proyecto — *"aunque esto sea un proceso manual, es
-> rápido"*. Además, cuando el proyecto se registra *"el proveedor nos
-> manda directamente los precios ya con el descuento"*. Los precios de
-> lista se usan para cotizaciones **base**, y el descuento entra después
-> si el proceso avanza.
+De las 134 líneas que se pudieron comparar contra las dos columnas de
+precio del catálogo:
 
-**O sea: no hay tabla de reglas de descuento y no la va a haber.** La
-pestaña `Reglas de Descuento` del catálogo queda sin llenar a propósito.
-El orden de precedencia que esta regla describía abajo —regla de
-descuento, después precio especial, después lista— **ya no aplica**: se
-toma el `Precio USD` (MSRP) y punto, diciéndole al asesor que es MSRP.
+| El `Costo Unit` coincide con | Líneas | |
+|---|---|---|
+| **el precio Dealer** | **94** | **70,1%** |
+| **el MSRP** | **0** | **0,0%** |
+| los dos (valen igual) | 5 | 3,7% |
+| ninguno de los dos | 35 | 26,1% |
 
-⚠️ **Consecuencia directa:** la columna que traía el nivel *Dealer
-Program* pasó a llamarse `Precio Dealer del proveedor USD (REFERENCIA -
-NO cotizar con este)` y lleva un comentario de celda explicándolo.
-Cotizar con ella sería cotizar ~50% por debajo. Se conserva porque es
-dato real del proveedor y sirve para negociar, no para cotizar.
+**Cero.** Y las 35 que no pegan con ninguno tampoco se acercan al MSRP:
+son todas más baratas, mediana 0,37×, y varias quedan por debajo del
+propio Dealer.
+
+**El MSRP es donde el precio al cliente aterriza, no de donde arranca.**
+En la cotización ganada del caso patrón #3, el costo fue el nivel
+*Dealer Program* y el precio final al cliente quedó cerca del MSRP. Si
+el MSRP se escribe en `Costo Unit` y encima se le aplica la cadena, la
+cotización sale cerca del **doble**.
+
+### La tensión con lo que dijo preventa, que no se borra
+
+Preventa había contestado el 2026-09-22 que el descuento *"varía
+dependiendo de la marca, tipo de equipo y qué nivel de partners
+somos"*, y propuso **usar siempre los MSRP** aplicando el descuento a
+mano, porque *"aunque esto sea un proceso manual, es rápido"*. Y que
+cuando el proyecto se registra *"el proveedor nos manda directamente los
+precios ya con el descuento"*.
+
+Lo que se midió no coincide con eso. Las dos lecturas posibles:
+
+1. Describieron el **precio al cliente** (que sí aterriza cerca del
+   MSRP) y se entendió como la casilla de costo.
+2. La práctica real difiere de la práctica declarada.
+
+La primera explica los datos sin que nadie se haya equivocado, y encaja
+con que el precio final del caso patrón quedó al 92% del MSRP en la
+línea principal. **Igual se sigue preguntando al asesor al inicio**: la
+medición cambia el default, no la conversación.
+
+### Lo que de verdad limita hoy
+
+Más importante que "Dealer o MSRP": de 2.524 productos, solo **945**
+tienen las dos columnas, y los 945 son de **un mismo proveedor**. Para
+los otros **1.579** hay un solo número y no se sabía de qué tipo era.
+
+Por eso el catálogo tiene desde el 2026-09-24 una columna **`Tipo de
+precio cargado`** con tres valores:
+
+| Valor | Filas | Qué significa |
+|---|---|---|
+| `LISTA Y DEALER` | 743 | están los dos; el costo es el Dealer |
+| `UN SOLO PRECIO EN LA LISTA` | 202 | el proveedor publica uno solo |
+| `TIPO SIN CONFIRMAR` | 1.579 | hay un número y no sabemos si ya trae descuento |
+
+**Cuando una línea sale de una fila `TIPO SIN CONFIRMAR`, hay que
+decirlo en la cotización.** No es un error usarla: es un dato que el
+asesor tiene que saber antes de mandar el precio, no después.
+
+La pestaña `Reglas de Descuento` del catálogo sigue sin llenarse: no hay
+tabla de reglas de descuento y no la va a haber.
 
 ### R4.1 — Lo que el MSRP como costo le hace al precio final
 
-**Medido el 2026-09-23, y hay que confirmarlo con preventa.**
+**Medido el 2026-09-23. CONFIRMADO el 2026-09-24** por la medición sobre
+las 1.119 matrices: esto dejó de ser una hipótesis.
 
 Hay que separar dos cosas que suenan iguales:
 
@@ -368,7 +410,7 @@ marca puede tener varias filas. ✅ **Ya existe, creada vacía el
 se resuelve al momento de cotizar y va al "Costo Unit" de esa cotización
 puntual.
 
-### R4.1 — Qué hacer mientras no haya reglas
+### R4.4 — Qué hacer mientras no haya reglas
 
 > Decisión de Fabián (2026-09-18): *"Si un proveedor no le hace
 > descuentos a Grupo Visión por X razón, o no tenemos las reglas
@@ -399,12 +441,26 @@ mucho más vaga:
    software.
 3. Eso convirtió la pregunta de *"¿cuál de tres?"* en *"¿compramos al
    Dealer Program o al DEAL intermedio?"* — mucho más fácil de contestar.
-4. La respuesta fue: ninguno de los dos para cotizar. **Se cotiza con el
-   MSRP** y el descuento lo aplican ellos a mano (ver R4).
+4. La respuesta de preventa fue: ninguno de los dos para cotizar, **se
+   cotiza con el MSRP** y el descuento lo aplican ellos a mano.
 
-**Moraleja para futuras preguntas al equipo comercial:** medir primero y
-preguntar después. La versión medible de la pregunta se contestó en una
-línea; la versión vaga llevaba semanas abierta.
+**Y el punto 4 se cayó el 2026-09-24.** Al medir las 1.119 matrices
+resultó que el `Costo Unit` es el **Dealer Program** en el 70% de las
+líneas comparables y el MSRP en **ninguna**. Ver R4, que es la regla
+vigente. Lo que sigue en pie de esta sección es el punto 2: lo que el
+catálogo tiene cargado es el nivel Dealer Program, MSRP−50% en hardware
+y 0% en software.
+
+**Dos moralejas, y la segunda salió cara:**
+
+1. **Medir primero y preguntar después.** La versión medible de la
+   pregunta se contestó en una línea; la vaga llevaba semanas abierta.
+2. **Una respuesta clara no es una respuesta verificada.** *"Utilizamos
+   siempre los precios MSRP"* se dio por resuelta sin contrastarla
+   contra una sola cotización real, y estuvo dos días en las reglas
+   diciendo lo contrario de lo que hacen las 1.119 matrices. Lo que
+   contesta el equipo es una hipótesis con buena fuente, no un hecho:
+   se escribe como regla cuando los documentos la respaldan.
 
 ### R4.3 — Estado real del dato por marca (verificado 2026-09-18)
 

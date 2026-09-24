@@ -61,10 +61,10 @@ ubicarla dentro del grupo que le corresponda (ver grupos abajo).
 | 4 | Categoría | **Una de las 16 categorías canónicas** — ver R11 en `docs/reglas-negocio.md`. Tiene lista desplegable. No escribir aquí el texto crudo del proveedor: ese va en la columna 25 |
 | 5 | Subcategoría | El detalle dentro de la categoría (ej. Cámara → PTZ). Ver R11 |
 | 6 | Proveedor | |
-| 7 | Precio USD | Dejar vacío si el documento no da precio en dólares. Ver "Tipo de cambio y precios" abajo — puede ser el dato dado directamente o uno calculado a partir del CRC |
+| 7 | Precio USD de lista / MSRP | Precio de lista al público. **No es el costo** — ver la columna 9. Dejar vacío si el documento no da precio en dólares. Ver "Tipo de cambio y precios" abajo |
 | 8 | Precio CRC | **Fórmula**, no se escribe a mano (ver "Tipo de cambio y precios") |
-| 9 | Precio especial GV (USD) | Solo si el documento indica un precio negociado distinto al de lista |
-| 10 | Precio especial GV (CRC) | **Fórmula**, igual que Precio CRC |
+| 9 | Precio Dealer USD | Lo que Grupo Visión le paga al proveedor. **Este es el que va al `Costo Unit` de la matriz** (medido el 2026-09-24 sobre 1.119 matrices: 94 de 134 líneas comparables usan este, y cero el MSRP). Solo si el documento lo trae aparte del de lista |
+| 10 | Precio Dealer CRC | **Fórmula**, igual que Precio CRC |
 | 11 | Unidad de venta | `Unidad` en la mayoría de los casos; usar `Metro`, `Rollo`, `Caja`, etc. cuando el producto se venda por medida (ej. cable) en vez de por unidad |
 | 12 | Tiempo de entrega (días) | Lead time del proveedor si lo indica. Útil para saber si un equipo se puede prometer a tiempo en una cotización |
 | 13 | País de origen | Relevante para licitaciones que piden certificación de origen del fabricante (ej. tipo NDAA). Dejar vacío si el documento no lo indica |
@@ -80,6 +80,7 @@ ubicarla dentro del grupo que le corresponda (ver grupos abajo).
 | 23 | Archivo de origen | Nombre del documento dentro de `Catalogos Proveedor/<Proveedor>/` que sustenta esta fila. Si el dato vino pegado directo en el chat (sin documento), anotar algo como "Dato dado por <asesor> en chat, DD/MM/AAAA" en vez de dejarlo vacío — la trazabilidad importa igual |
 | 24 | Pestaña / Hoja de origen | Si la fuente es un Excel: nombre exacto de la pestaña de donde vino esta fila (ej. "HVA Pricelist"), para poder rastrear el dato si algo se pierde o se ve raro. Vacío si el origen fue un PDF o un dato pegado en el chat (no aplica) |
 | 25 | Categoría original del proveedor | El texto de categoría tal cual venía en el documento fuente, antes de normalizar (agregada 2026-09-18). Sirve para auditar una clasificación que se vea rara y para volver a normalizar si cambian las reglas |
+| 26 | Tipo de precio cargado | De qué tipo es el precio que trae la fila (agregada 2026-09-24). Tres valores: `LISTA Y DEALER`, `UN SOLO PRECIO EN LA LISTA` y `TIPO SIN CONFIRMAR`. Existe porque 1.579 de 2.524 productos tienen un solo número y no había forma de saber si ya venía con descuento. **Al cargar un proveedor nuevo hay que llenarla** |
 
 **Grupos de columnas (para saber dónde insertar una columna nueva)**:
 identidad y clasificación (1-6, lo primero que ve un asesor) → precios

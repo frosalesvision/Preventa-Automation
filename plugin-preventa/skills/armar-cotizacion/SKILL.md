@@ -187,9 +187,20 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
      especificación, no cuántas unidades hacen falta), así que
      preguntale al asesor si no la tenés ya de la especificación del
      cliente.
-   - **E (Costo Unit):** el "Precio USD" del catálogo (el costo real de
-     compra, no un precio especial/negociado) — es la base sobre la que
-     el machote calcula transporte, impuestos, margen y precio de venta.
+   - **E (Costo Unit):** el **precio Dealer** del catálogo (columna
+     `Precio Dealer USD`) — lo que Grupo Visión le paga al proveedor.
+     Es la base sobre la que el machote calcula transporte, impuestos,
+     margen y precio de venta.
+
+     ⚠️ **No el MSRP.** Medido sobre 1.119 matrices reales: de las 134
+     líneas comparables, 94 usan el Dealer y **cero** el MSRP. El MSRP
+     es donde el precio al cliente *aterriza*, no de donde arranca;
+     escrito acá, la cotización sale cerca del **doble** (ver R4).
+
+     Cuando la fila no tiene Dealer —la columna `Tipo de precio
+     cargado` dice `TIPO SIN CONFIRMAR`, y son 1.579 de 2.524— usá el
+     único precio que haya **y decí en la entrega cuáles líneas son
+     esas**, porque no se sabe si ya traen descuento.
 
    **Todo lo demás (columnas F en adelante) son fórmulas fijas del
    machote — nunca se escriben a mano ni se recalculan aparte.** Si el
