@@ -835,6 +835,99 @@ termina la automatización.
 
 ---
 
+## Caso patrón #2: una licitación con marca obligatoria (2026-09-24)
+
+Se eligió una categoría distinta a la del caso #1 para no medir siempre
+lo mismo. **Resultado: acierto en el comportamiento, fallo en los
+números.**
+
+### La entrada
+
+Un pliego de condiciones de 23 páginas. Lo técnico son **dos párrafos en
+la página 8**; el resto es legal. Pide:
+
+> **10 unidades** de botón de pánico inalámbrico, **marca y modelo
+> obligatorios**, *"se requiere esta marca debido a que debe ser
+> compatible con el sistema de alarma de seguridad con el que cuenta la
+> oficina"*. IVA 13%.
+
+### Lo que el plugin habría hecho
+
+| | |
+|---|---|
+| El modelo exacto | **No está en el catálogo** |
+| La marca | 1 solo producto, y no es este |
+| Botones de pánico de cualquier marca | 1 fila |
+
+**Y la respuesta correcta es no proponer nada.** El pliego **no admite
+equivalentes**: pide esa marca por compatibilidad con un sistema
+instalado. Ofrecer el único botón que hay en el catálogo, de otra marca,
+habría sido peor que decir "no lo tengo".
+
+Esto es lo que el plugin **sí** debe hacer bien: reconocer cuándo la
+marca está amarrada y **no sustituir**.
+
+### Lo que no habría acertado: los porcentajes
+
+| | Machote | Lo que usaron |
+|---|---|---|
+| Transporte | 10% | **3%** |
+| Imprevistos | 3% | **0%** |
+| IVA de línea | 0% | **13%** |
+| DAI | 15% | **1%** |
+| Administración | 3% | **0%** |
+| Margen | 27,4% | **22%** |
+
+El margen cae dentro del rango de licitación que ya habíamos medido
+(20,8–30%, mediana 23%). **El resto no lo habría acertado ninguna regla
+que tengamos.**
+
+### Una hipótesis que duró diez minutos
+
+Los dos casos patrón medidos —este y el de unas tarjetas— bajaron
+**imprevistos y administración a cero**. Parecía un patrón de licitación.
+Se midió contra el censo:
+
+| Tipo | n | Imprevistos en 0 | Administración en 0 |
+|---|---|---|---|
+| Licitación | 14 | **14%** | **14%** |
+| Otro / privado | 346 | 9% | 9% |
+
+**No se sostiene.** 14% contra 9% no es un patrón, y con n=14 menos. Los
+dos casos coinciden por ser **compras de commodity sin instalación**, no
+por ser licitaciones. Se descarta y no se escribe como regla.
+
+### Lo que esto suma al caso #1
+
+Dos casos, dos lecciones distintas:
+
+- El **catálogo es el techo**: si el producto no está, no hay
+  automatización que lo arregle.
+- Los **porcentajes del machote son un punto de partida**, no una
+  predicción. En trabajos chicos de reventa pura, el equipo los baja
+  casi todos, y no hay regla que diga cuándo.
+
+### Un error propio que este caso destapó
+
+Buscando botones de pánico aparecieron **dos filas del mismo producto**:
+una que ya existía y otra que yo había cargado el día anterior. La
+comparación de duplicados usaba el **SKU exacto**, y un guion bastó para
+colar la repetida.
+
+Pasó dos veces, y la segunda es peor: un producto que había cargado
+"porque no estaba en el catálogo" **sí estaba**, sin guiones, y a un
+precio bastante distinto. Sobre eso se había escrito además que la carga
+de ese proveedor podía haber dejado productos afuera — **también era
+falso**.
+
+Los dos duplicados se resolvieron dejándole la fila a la que viene de una
+**lista de precios del proveedor** (mejor origen y con proveedor), y
+pasándole la categoría correcta que sí tenía la mía. De aquí en adelante
+el cotejo de duplicados **normaliza el SKU** quitando guiones, espacios y
+puntos.
+
+---
+
 ## Bitácora de corridas
 
 | Fecha | Prueba | Resultado | Notas |
@@ -878,6 +971,9 @@ termina la automatización.
 | 2026-09-23 | **H-14 corregido** | ✅ Pasa | 49 filas reclasificadas, 42 salían de `Camara`. Cero falsos positivos sobre 2.550 |
 | 2026-09-23 | Desplegables tras el generador | ⚠️ Trampa | `openpyxl` los borra sin avisar. Nuevo `reparar-desplegables.ps1` |
 | 2026-09-23 | **Productos cargados** | ✅ 21 | De 1.452 tokens a 101 por estabilidad de precio, y de ahí 21 curados a mano. Catálogo: 2.550 → 2.571 |
+| 2026-09-24 | **Caso patrón #2** | ⚠️ Mixto | Comportamiento correcto (no sustituir marca amarrada), porcentajes muy lejos |
+| 2026-09-24 | Duplicados por SKU | ✅ Corregido | Dos filas repetidas que el cotejo exacto no vio. Ahora se normaliza el SKU |
+| 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
 | | Caso patrón | ⬜ Bloqueado | Espera las cotizaciones cerradas |
