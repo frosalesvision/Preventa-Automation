@@ -202,6 +202,18 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
      único precio que haya **y decí en la entrega cuáles líneas son
      esas**, porque no se sabe si ya traen descuento.
 
+   - **C (IMPORTADO):** `si` cuando Grupo Visión compra ese ítem fuera
+     del país, `no` cuando lo compra local (R1). Manda sobre dos
+     porcentajes a la vez: con `no`, transporte y DAI quedan en cero.
+
+     ⚠️ **Una línea de flete va siempre como `no`** (R1.1). Cuando el
+     proveedor cotiza el envío como un artículo más de su lista
+     —transporte, flete, envío, courier, carga aérea, logística,
+     nacionalización, desalmacenaje, aduana— y se marca `si`, recibe
+     encima el 10% de transporte: se le cobra transporte al transporte.
+     Medido sobre 728 líneas de flete reales, el 91,3% van como `no`.
+     Si el asesor la quiere importada, que sea a propósito.
+
    **Todo lo demás (columnas F en adelante) son fórmulas fijas del
    machote — nunca se escriben a mano ni se recalculan aparte.** Si el
    equipo incluye accesorios de instalación que el asesor confirmó

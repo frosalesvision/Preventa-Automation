@@ -41,6 +41,31 @@ cero y los otros tres porcentajes se aplicaron igual. Hasta entonces la
 regla estaba leída de las fórmulas del machote; ahora está confirmada
 sobre líneas que alguien cotizó de verdad.
 
+### R1.1 — Una línea de flete va como nacional
+
+**Medida el 2026-09-24 sobre 728 líneas de flete en las 1.119 matrices.**
+
+Cuando el proveedor cotiza el **flete como un artículo más** de su lista
+—pasa seguido—, esa línea entra a la matriz como cualquier otra. Si se
+marca `IMPORTADO = si`, recibe encima el 10% de transporte: se le cobra
+transporte al transporte.
+
+| | Líneas | |
+|---|---|---|
+| con el 10% aplicado encima | 63 | **8,7%** |
+| sin transporte encima | 665 | **91,3%** |
+
+**No es una política, es un descuido.** Nueve de cada diez veces la línea
+va marcada como nacional, que es lo correcto: el flete es un servicio
+contratado, no una mercancía que se importa y se nacionaliza.
+
+**Regla:** una línea cuya descripción empieza por transporte, flete,
+envío, courier, carga aérea, logística, nacionalización, desalmacenaje o
+aduana se marca `IMPORTADO = no`. Si el asesor la quiere importada, que
+sea a propósito.
+
+Lo aplica `armar-cotizacion` al escribir las líneas.
+
 **Cómo derivarlo:** del **proveedor** de la línea. Si el proveedor está
 en Costa Rica → `"no"`. Si está fuera → `"si"`. Cuando el catálogo trae
 una columna tipo "Precio Nacional" (`SI`/`NO`), esa mapea directo:

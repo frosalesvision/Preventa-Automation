@@ -1432,12 +1432,19 @@ con cantidad 1 al valor del mes. La matriz no tiene ninguna nocion de costo
 recurrente, asi que el que cotiza lo resuelve a mano. Para un proyecto con
 servicio mensual eso deja el total incompleto por construccion.
 
-### Una rareza que conviene mirar
+### Una rareza que se midio y resulto ser un descuido
 
 El proveedor cotizo el **flete aereo** como un articulo mas. Esa linea entra a
-la matriz como cualquier equipo, y recibe encima el **10% de transporte**. O
-sea, se le cobra transporte al transporte. Puede ser deliberado, pero vale la
-pena preguntarlo.
+la matriz como cualquier equipo y recibe encima el **10% de transporte**: se
+le cobra transporte al transporte.
+
+Se conto sobre **728 lineas de flete** en las 1.119 matrices: solo **63
+(8,7%)** lo llevan, y **665 (91,3%)** no. Asi que no es una politica --nueve
+de cada diez veces la linea va marcada como nacional, que es lo correcto-- y
+este caso cayo en el 8,7%.
+
+La causa es mecanica: el transporte solo se aplica si la linea esta marcada
+`IMPORTADO = si`. Quedo como regla **R1.1** y como chequeo antes de entregar.
 
 ### Y algo que aparece en todas las matrices
 
