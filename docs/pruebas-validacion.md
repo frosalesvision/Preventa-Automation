@@ -1409,10 +1409,16 @@ default razonable pero no una regla.
 
 ### Tres reglas nuevas que solo se ven en un proyecto grande
 
-**1. El euro se convierte a 1,15.** Dos proveedores europeos cotizaron en
-euros y la matriz entro los montos en dolares: 260 € → $299 y 280 € → $322,
-las dos veces exactamente a 1,15 (una tercera quedo redondeada hacia arriba).
-**No teniamos ninguna regla de euros**: toda la cadena asume USD → CRC.
+**1. Aparecieron cotizaciones en euros.** Dos proveedores europeos cotizaron
+en euros y la matriz entro los montos ya en dolares: 260 € → $299 y 280 € →
+$322, las dos veces a 1,15.
+
+⚠️ **Esto NO se convirtio en regla**, por decision de Fabian el mismo dia:
+el plugin trabaja **solo en dolares** y quien cotiza convierte antes de
+cargar (R16). El motivo es bueno: una tasa de cambio metida en el plugin
+envejece sola y nadie se entera. El dia que el euro se mueva, las
+cotizaciones saldrian mal sin que nada falle, que es la misma clase de error
+silencioso que el precio en colones corrido.
 
 **2. La columna IMPORTADO manda sobre dos porcentajes a la vez.** En las 12
 lineas marcadas como nacionales, transporte y DAI quedan en **cero**, pero

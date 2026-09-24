@@ -35,6 +35,12 @@ Consecuencias en el machote (verificadas en las fórmulas):
 - `DAI` solo se aplica si es `"si"` → `=IF(C6="si", (...)*$J$4, 0)`
 - `Imprevistos`, `IVA` y `Administración` se aplican siempre.
 
+**Verificado sobre una cotización real el 2026-09-24** (caso patrón #4):
+en sus 12 líneas marcadas como nacionales, transporte y DAI quedaron en
+cero y los otros tres porcentajes se aplicaron igual. Hasta entonces la
+regla estaba leída de las fórmulas del machote; ahora está confirmada
+sobre líneas que alguien cotizó de verdad.
+
 **Cómo derivarlo:** del **proveedor** de la línea. Si el proveedor está
 en Costa Rica → `"no"`. Si está fuera → `"si"`. Cuando el catálogo trae
 una columna tipo "Precio Nacional" (`SI`/`NO`), esa mapea directo:
@@ -1348,6 +1354,129 @@ esperar dos árboles duplicados. Para ellos, `verificar-entorno` solo
 tiene que confirmar que la cuenta de la empresa está conectada a
 OneDrive y que la carpeta se lee. Lo que sí aplica en toda máquina es
 **resolver la ruta por el registro en vez de asumirla**.
+
+---
+
+## R15 — Modelo de precios: un costo obligatorio, todo lo demás es referencia
+
+**Estado: definida el 2026-09-24, después de medir.**
+
+Cada proveedor publica sus precios como se le antoja. Uno trae tres
+niveles (`Dealer Program`, `DEAL`, `MSRP`), otro trae dos, la mayoría
+trae uno solo. El descuento que nos aplican *"varía dependiendo de la
+marca, tipo de equipo y qué nivel de partners somos"*, y averiguarlo es
+manual. Cargar eso tal cual, cada proveedor con su estructura, vuelve el
+catálogo inservible para automatizar.
+
+**La cotización necesita exactamente un número por producto: el costo.**
+Todo lo demás es referencia. Así que el catálogo se organiza alrededor de
+eso, no alrededor de cómo publica cada proveedor.
+
+### Las tres columnas y qué va en cada una
+
+| Columna | Qué es | ¿Obligatoria? |
+|---|---|---|
+| `COSTO USD` | **lo que Grupo Visión paga**, el mejor precio al que podemos comprar de verdad | **sí, siempre que se sepa** |
+| `Precio de lista al público (MSRP)` | referencia de mercado, lo que el fabricante sugiere que valga | no |
+| `Tipo de precio cargado` | de dónde salió el costo y cuánto se le puede creer | **sí** |
+
+**La regla al cargar un proveedor nuevo, sin importar cuántos niveles
+publique:**
+
+1. El **precio más bajo al que GV puede comprar de verdad** va a
+   `COSTO USD`. Si publica tres niveles, es el de dealer/programa. Si
+   publica uno solo y sabemos que es el nuestro, ese.
+2. El **precio público**, si lo hay, va a `Precio de lista`.
+3. Los niveles intermedios **no se cargan**: no se usan para cotizar y
+   solo agregan ruido.
+4. `Tipo de precio cargado` dice qué caso fue.
+
+### Qué hace la cotización con esto
+
+```
+Costo Unit  =  COSTO USD               si existe        → confianza alta
+               Precio de lista         si no hay costo  → SE AVISA al asesor
+```
+
+Cuando cae en el segundo caso, **hay que decirlo en la entrega**, línea
+por línea. No es un error cotizar así; es que el margen real va a ser
+mayor que el que muestra la matriz, y el asesor tiene que saberlo antes
+de mandar el precio.
+
+### Para qué sirve entonces el precio de lista
+
+Para **revisar el resultado**. El precio al cliente sale de la cadena
+(costo + transporte + DAI + administración + margen), no del MSRP. Pero
+si el número que sale queda muy por encima del precio público, el cliente
+lo puede googlear. Ese contraste es el uso real de la columna de lista:
+**un chequeo de cordura al final, no una entrada al principio.**
+
+Medido en el caso patrón #3, el precio final quedó entre el 92% y el 157%
+del MSRP según la línea. Así que no es un techo, pero sí un aviso.
+
+### Estado del dato hoy
+
+| `Tipo de precio cargado` | Filas |
+|---|---|
+| `LISTA Y DEALER` | 743 |
+| `UN SOLO PRECIO EN LA LISTA` | 202 |
+| `TIPO SIN CONFIRMAR` | 1.579 |
+
+Y el catálogo es **92% dos proveedores** (2.329 de 2.524 filas). El caso
+patrón #4 mostró lo que eso cuesta: de 10 equipos de un proyecto real,
+**cero** estaban cargados. Ampliar la cobertura pesa hoy más que
+cualquier ajuste de fórmula.
+
+---
+
+## R16 — Solo dólares. Las otras monedas las convierte quien cotiza
+
+**Estado: decidida por Fabián el 2026-09-24.**
+
+Toda la cadena trabaja en **dólares**, y de ahí a colones con el tipo de
+cambio de venta. **No se manejan otras monedas.**
+
+Esto salió del caso patrón #4, donde dos proveedores europeos cotizaron
+en euros y la matriz entró los montos ya convertidos. Se podría haber
+deducido una regla de conversión, pero la decisión fue **no hacerlo**:
+
+> *"las reglas de euros ignóralas por completo, solo trabajamos en
+> dólares, si ellos quieren euros que lo transformen ellos."*
+
+Es la decisión correcta y conviene entender por qué: una tasa de cambio
+metida en el plugin envejece sola y nadie se entera. El día que el euro
+se mueva, las cotizaciones saldrían mal sin que nada falle — la misma
+clase de error silencioso que el precio en colones corrido.
+
+**Si una lista de proveedor viene en otra moneda**, el asesor la convierte
+y carga dólares. Si le pide al plugin cotizar en euros, la respuesta es
+que no, y por qué.
+
+---
+
+## R17 — La primera corrida apunta a quedar bien; el Excel siempre se puede corregir
+
+**Estado: principio de diseño, fijado por Fabián el 2026-09-24.**
+
+> *"lo ideal de esta automatización es que quede lo mejor posible desde
+> la primera corrida pero como es un Excel siempre se va a poder
+> modificar a mano en caso de ser necesario."*
+
+Esto ordena las decisiones cuando no hay certeza, y vale para todo el
+plugin:
+
+- **Ningún valor se deja en blanco esperando que alguien lo llene.** Se
+  pone el default medido sobre las cotizaciones reales, y se dice que es
+  un default.
+- **Ningún default se escribe como fórmula fija.** Todos viven en celdas
+  que el equipo puede cambiar sin tocar nada más.
+- **Cuando el plugin no está seguro, cotiza igual y lo dice.** Entregar
+  una cotización con tres avisos es más útil que no entregar nada.
+- **Lo que el plugin no sabe hacer, lo deja señalado en el Excel**, no en
+  un mensaje de chat que se pierde.
+
+La medida de éxito no es que el plugin acierte solo: es **cuántas celdas
+tiene que tocar el asesor después**, y que sepa exactamente cuáles.
 
 ---
 

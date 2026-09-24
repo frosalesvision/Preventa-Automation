@@ -82,6 +82,34 @@ ubicarla dentro del grupo que le corresponda (ver grupos abajo).
 | 25 | Categoría original del proveedor | El texto de categoría tal cual venía en el documento fuente, antes de normalizar (agregada 2026-09-18). Sirve para auditar una clasificación que se vea rara y para volver a normalizar si cambian las reglas |
 | 26 | Tipo de precio cargado | De qué tipo es el precio que trae la fila (agregada 2026-09-24). Tres valores: `LISTA Y DEALER`, `UN SOLO PRECIO EN LA LISTA` y `TIPO SIN CONFIRMAR`. Existe porque 1.579 de 2.524 productos tienen un solo número y no había forma de saber si ya venía con descuento. **Al cargar un proveedor nuevo hay que llenarla** |
 
+### Dónde va el precio de un proveedor nuevo (R15)
+
+Cada proveedor publica sus precios como quiere: uno trae tres niveles,
+otro dos, **la mayoría trae uno solo**. La cotización necesita **un**
+número: el costo. Así que el catálogo se ordena alrededor de eso, no
+alrededor de cómo publica cada proveedor.
+
+| Si el proveedor publica… | Qué se carga |
+|---|---|
+| tres niveles (dealer / intermedio / lista) | el de **dealer** a `COSTO USD`, el de lista a `Precio de lista`. **El intermedio no se carga**: no se usa para cotizar y solo agrega ruido |
+| dos niveles | el más bajo al que podemos comprar de verdad a `COSTO USD`, el otro a `Precio de lista` |
+| un solo precio, y sabemos que es el nuestro | a `COSTO USD`. `Precio de lista` queda vacío |
+| un solo precio, y no sabemos cuál es | a `Precio de lista`, y `Tipo de precio cargado` = `TIPO SIN CONFIRMAR` |
+
+**La regla en una línea:** en `COSTO USD` va el **precio más bajo al que
+Grupo Visión puede comprar de verdad**. Todo lo demás es referencia.
+
+⚠️ **Nunca inventes en cuál de los dos va.** Si el documento no dice si
+ese precio es de lista o ya negociado, se carga como
+`TIPO SIN CONFIRMAR` y se sigue. Adivinar mal hacia el lado del costo
+infla la cotización al doble; adivinar mal hacia el otro lado la deja
+sin margen.
+
+**Otras monedas:** el catálogo es en **dólares** y punto (R16). Si la
+lista del proveedor viene en euros o en cualquier otra moneda, el asesor
+la convierte antes y se cargan dólares. No se guarda una tasa de cambio
+de otra moneda en ningún lado: envejece sola y nadie se entera.
+
 **Grupos de columnas (para saber dónde insertar una columna nueva)**:
 identidad y clasificación (1-6, lo primero que ve un asesor) → precios
 (7-10) → condiciones de venta (11-13) → texto descriptivo (14-15) →
