@@ -981,6 +981,9 @@ puntos.
 | 2026-09-24 | **Caso patron #4** | ❌ 0 de 10 lineas | Los porcentajes salen bien; el catalogo no tiene **ninguno** de los equipos |
 | 2026-09-24 | **Impuesto al cliente** | ✅ Medido | 873 cotizaciones. El 13% es solo 2 de cada 3; **el 29% van exentas** |
 | 2026-09-25 | **Caso patron #5** | ⚠️ Corregido | Se cotizo Edwards como pidio el cliente, y ademas una alternativa Kidde. La primera lectura estaba mal |
+| 2026-09-25 | **Marcas que faltan** | ✅ Medido | 94 marcas o familias con 5+ cotizaciones y casi nada en el catalogo. La primera es i-PRO |
+| 2026-09-25 | **Accesorios requeridos** | ✅ Medido | Ninguno llega al 70%: se sugieren, no se agregan. Nueva pestana |
+| 2026-09-25 | **Chequeo 3 del verificador** | ✅ Corregido | Leia "la ultima columna"; al agregar la 26 paso de 2 a 564 falsos avisos |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -1638,3 +1641,78 @@ Edwards, 27,4% en Kidde.
    estan en estas matrices.
 4. **Preguntar al asesor si se puede ofrecer equivalente.** Es informacion
    del cliente final, no algo que el plugin pueda decidir.
+
+
+## Que marcas se cotizan y no estan en el catalogo (2026-09-25)
+
+Salio de una pregunta de Fabian: *"porque tenemos 0? no habiamos hecho un
+analisis de que cosas nos hacian falta?"*
+
+Si se habia hecho, el 2026-09-23, pero **por producto** y con un filtro que
+exigia que el modelo apareciera en varias cotizaciones con precio estable.
+Ese filtro separo 101 modelos reales de 1.452 tokens de ruido, pero tiene un
+costo: una marca usada en un solo proyecto, o cuyos modelos cambian de
+proyecto a proyecto, se cae por diseno. Nunca se habia medido **por marca**.
+
+Lo mide `scripts/medir-marcas-faltantes.py`, sobre 15.067 lineas de equipo de
+1.119 matrices, sin contar dos veces las versiones de un mismo proyecto.
+Reconoce la marca por el nombre escrito o por el prefijo del modelo, porque
+la mayoria de las lineas no dicen la marca ("KI-HFD - Sensor de temperatura"
+es Kidde y no lo dice en ningun lado).
+
+### Lo que falta, arriba de todo
+
+| Marca | Cotizaciones | Filas en el catalogo |
+|---|---|---|
+| **i-PRO / Panasonic** | **79**, mas 32 por el prefijo `WV-` | 11 |
+| Western Digital | 49 | 2 |
+| Genetec | 47 | 0 |
+| Axis | 43 | 0 |
+| HID | 32 | 0 |
+| Dell | 29 | 0 |
+| Kidde | 9 | 1 |
+
+**La intuicion de Fabian era exacta: lo que mas falta es video, no
+incendio.** i-PRO es la marca que aparece en mas cotizaciones de todas, por
+encima de Hanwha, y es la que el catalogo tiene casi vacia. Eso explica el
+cero de diez del caso patron #4.
+
+En total, **94 marcas o familias de modelo** aparecen en 5 o mas cotizaciones
+y tienen 12 filas o menos en el catalogo. Estan en la pestana nueva **`Marcas
+por cargar`**, ordenadas por uso, con tres columnas para que preventa diga a
+quien se le compra cada una y donde esta su lista de precios.
+
+### Por que la lista y no cargar de las cotizaciones
+
+Para la mayoria de estas marcas los precios **cambian de cotizacion a
+cotizacion** --por eso no pasaron el filtro de estabilidad del 2026-09-23--,
+asi que minarlos da un numero por proyecto, no un precio. La fuente buena es
+la lista del proveedor. Las cotizaciones sirven para saber **que** falta y **a
+quien** se le compra; la lista, para saber cuanto cuesta.
+
+Excepcion: los productos del caso patron #5 si se cargaron desde la
+cotizacion --17 de Edwards, Kidde y Macurco--, porque eran pocos, estaban
+identificados con ficha tecnica y el caso los necesitaba.
+
+## Un error del verificador que tardo un dia en verse (2026-09-25)
+
+El chequeo 3 le pasaba al clasificador **"la ultima columna"** de cada fila,
+asumiendo que era la categoria original del proveedor. El 2026-09-24 se
+agrego la columna 26 (`Tipo de precio cargado`), y desde ahi el clasificador
+recibia "TIPO SIN CONFIRMAR" como pista de categoria. Las diferencias pasaron
+de 2 a **564** sin que ninguna fila cambiara.
+
+No se vio el mismo dia porque el chequeo 3 es informativo --no cuenta como
+problema-- y se miro solo el final del reporte. Quedo con la columna nombrada
+por su posicion fija.
+
+**Leccion: nunca "la ultima columna".** Un indice relativo al final se rompe
+en silencio la primera vez que alguien agrega una columna, que es justo lo
+que se hace seguido en este catalogo.
+
+De paso, al revisar las diferencias que quedaban, aparecio un bug real del
+clasificador: "Modulo de **monitoreo**" iba a *Monitor y visualizacion* por
+la palabra "monitor". Un modulo de incendio archivado como pantalla desaparece
+de las busquedas de incendio. Arreglado con una regla prioritaria, y medido
+antes y despues sobre las 2.541 filas: **cambian 6, las 6 quedan bien, cero
+efectos colaterales**.

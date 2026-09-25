@@ -80,7 +80,7 @@ ubicarla dentro del grupo que le corresponda (ver grupos abajo).
 | 23 | Archivo de origen | Nombre del documento dentro de `Catalogos Proveedor/<Proveedor>/` que sustenta esta fila. Si el dato vino pegado directo en el chat (sin documento), anotar algo como "Dato dado por <asesor> en chat, DD/MM/AAAA" en vez de dejarlo vacío — la trazabilidad importa igual |
 | 24 | Pestaña / Hoja de origen | Si la fuente es un Excel: nombre exacto de la pestaña de donde vino esta fila (ej. "HVA Pricelist"), para poder rastrear el dato si algo se pierde o se ve raro. Vacío si el origen fue un PDF o un dato pegado en el chat (no aplica) |
 | 25 | Categoría original del proveedor | El texto de categoría tal cual venía en el documento fuente, antes de normalizar (agregada 2026-09-18). Sirve para auditar una clasificación que se vea rara y para volver a normalizar si cambian las reglas |
-| 26 | Tipo de precio cargado | De qué tipo es el precio que trae la fila (agregada 2026-09-24). Tres valores: `LISTA Y DEALER`, `UN SOLO PRECIO EN LA LISTA` y `TIPO SIN CONFIRMAR`. Existe porque 1.579 de 2.524 productos tienen un solo número y no había forma de saber si ya venía con descuento. **Al cargar un proveedor nuevo hay que llenarla** |
+| 26 | Tipo de precio cargado | De qué tipo es el precio que trae la fila (agregada 2026-09-24). Cuatro valores: `LISTA Y DEALER`, `UN SOLO PRECIO EN LA LISTA`, `TIPO SIN CONFIRMAR` y `COSTO DE UNA COTIZACION REAL` (el costo que se uso en una cotizacion real; va con la fecha de esa cotizacion). Existe porque 1.579 de 2.524 productos tienen un solo número y no había forma de saber si ya venía con descuento. **Al cargar un proveedor nuevo hay que llenarla** |
 
 ### Dónde va el precio de un proveedor nuevo (R15)
 

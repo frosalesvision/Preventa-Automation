@@ -106,7 +106,8 @@ dice fila por fila:
 |---|---|---|
 | `LISTA Y DEALER` | 743 | usar el Dealer |
 | `UN SOLO PRECIO EN LA LISTA` | 202 | el proveedor publica uno solo: da igual cuál se elija |
-| `TIPO SIN CONFIRMAR` | 1.579 | usar el único que hay **y decirlo** |
+| `TIPO SIN CONFIRMAR` | 1.561 | usar el único que hay **y decirlo** |
+| `COSTO DE UNA COTIZACION REAL` | 35 | es un costo de verdad, pero viejo: mirá la fecha |
 
 **`TIPO SIN CONFIRMAR` significa que no sabemos si ese número ya trae
 descuento.** Cuando una línea sale de ahí, decíselo al asesor
@@ -213,6 +214,31 @@ la misma corrida:
 Leé el nombre completo antes de proponer una fila. El filtro acota; la
 decisión de si sirve es tuya.
 
+### Cuando el cliente da el modelo: buscalo tolerante, no exacto
+
+Los clientes y los proveedores escriben el mismo modelo de formas
+distintas, y una búsqueda exacta los pierde. Pasó en dos casos patrón:
+
+| Caso | El cliente escribió | El catálogo tiene | Por qué no apareció |
+|---|---|---|---|
+| #5 | `ED-SIGA-278` | `SIGA-278` | **prefijo de marca** (`ED-` es Edwards) |
+| #3 | `PN3A-16X16FNH` | `PN3A-16X16FNH2` | **sufijo de variante** (el `2` es parte del modelo real) |
+
+En el #5 el catálogo tenía el costo **exacto** que se usó ($80,69) y la
+búsqueda no lo encontró. Así que, en este orden:
+
+1. **Exacto, normalizado** — sin guiones, puntos ni espacios, en
+   mayúsculas.
+2. **Sin el prefijo de marca** — si empieza por `ED-`, probá sin él.
+3. **Por prefijo** — el SKU del catálogo empieza con lo que escribió el
+   cliente (`PN3A16X16FNH` → `PN3A16X16FNH2`).
+
+⚠️ **Lo que encuentres en el paso 2 o 3 no es el mismo producto hasta que
+se confirme.** Un sufijo puede ser una variante real y distinta
+(`QNO-6012R` y `QNO-6012R1` son dos modelos, uno sin audio). Mostralo
+como "probablemente es este", con las dos descripciones lado a lado, y
+que el asesor decida.
+
 ### Formatos de entrada que debés soportar
 
 - Especificación técnica en texto libre o copiada de un pliego de
@@ -234,7 +260,33 @@ ninguna de las dos** ni las incluyas sin confirmar. Muchos casos
 legítimamente solo necesitan el equipo principal (ej. reposición de una
 cámara sobre un mount que el cliente ya tiene instalado).
 
-Si el asesor confirma que sí necesita accesorios:
+**Hay dos clases de accesorio, y viven en dos pestañas distintas:**
+
+| Pestaña | Pregunta que responde | Ejemplo |
+|---|---|---|
+| `Compatibilidad de Accesorios` | ¿qué montaje **sirve** para este modelo? | el mount de poste de una cámara |
+| `Accesorios Requeridos` | ¿qué **hace falta** para que el sistema funcione? | la fuente de poder de un panel de incendio |
+
+Los segundos son los que nadie pide porque se dan por sabidos. En el caso
+patrón #5 el cliente pidió detectores y paneles, y la cotización traía
+además **9 fuentes de poder** en las dos versiones.
+
+**Con `Accesorios Requeridos` se sugiere, nunca se agrega solo.** Medido
+sobre 666 cotizaciones, ninguno llega al 70%: el más alto es la batería
+de respaldo con un panel de incendio (61%). Así que se muestra con su
+número y se pregunta:
+
+> *"Las cotizaciones con panel de incendio traen batería de respaldo en
+> el 61% de los casos, base de detector en el 61% y módulo aislador en
+> el 54%. ¿Agrego alguno?"*
+
+Un accesorio inventado es peor que uno que falta y se pregunta.
+
+⚠️ **Gabinetes y racks no están en el catálogo.** Son el acompañante más
+común de las cámaras (41%) y de las controladoras (52%), y no hay ninguna
+subcategoría donde buscarlos. Si hacen falta, decilo.
+
+Si el asesor confirma que sí necesita accesorios de montaje:
 
 1. **Buscá el modelo elegido** en la pestaña **`Compatibilidad de
    Accesorios`** del mismo `Catalogo de productos por proveedor.xlsx`

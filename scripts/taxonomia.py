@@ -273,7 +273,7 @@ ANTES = [
     (("Deteccion de incendio", "Notificacion"),
      ["annunciator", "anunciador", "pull station", "sirena", "horn strobe",
       "estacion manual", "estroboscopica", "estrodoscopica", "chimestrobe",
-      "compact wall"]),
+      "compact wall", "estrobo"]),
     (("Deteccion de incendio", "Accesorio"), ["incendio", " fire "]),
 
     # --- 3. Energia antes que accesorios (un "PoE Converter" es energia)
@@ -398,6 +398,14 @@ def _sub_camara(n, base):
 #     siendo una terminal de reconocimiento facial
 #   - los kits listan sus keyfobs, y se iban a Credencial en vez de Controladora
 PRIORITARIAS = [
+    # Modulos de un lazo de deteccion de incendio (2026-09-25). "Modulo de
+    # monitoreo de una entrada" se iba a Monitor por la palabra "monitor", y
+    # un modulo de incendio archivado como pantalla desaparece de las
+    # busquedas de incendio. Se piden frases enteras de modulo para no
+    # arrastrar nada que solo diga "monitoreo".
+    (("Accesorio de instalacion", "Otros accesorios"),
+     ["modulo de monitoreo", "modulo de control de senal", "modulo aislador",
+      "monitor module", "signal module", "isolator module"]),
     (("Control de acceso", "Lector / terminal"),
      ["facial recognition terminal", "reconocimiento facial",
       "identificacion biometrica"]),

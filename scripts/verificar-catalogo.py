@@ -47,6 +47,28 @@ COL_NOMBRE, COL_MARCA, COL_SKU = 0, 1, 2
 COL_CATEGORIA, COL_SUBCATEGORIA, COL_PROVEEDOR = 3, 4, 5
 COL_PRECIO = 6
 COL_CRC, COL_DEALER_USD, COL_DEALER_CRC = 7, 8, 9
+# Por NOMBRE de posicion, nunca "la ultima columna": el 2026-09-24 se agrego
+# la 26 (Tipo de precio cargado) y el chequeo 3, que usaba r[-1], empezo a
+# pasarle "TIPO SIN CONFIRMAR" al clasificador como si fuera la categoria del
+# proveedor. Paso de 2 a 564 diferencias sin que ninguna fila cambiara.
+COL_CAT_ORIGINAL = 24
+
+
+def es_numero(v):
+    return isinstance(v, (int, float))
+
+
+def precio_efectivo(r):
+    """El precio con el que se cotizaria esta fila (R15).
+
+    El COSTO si existe; si no, el de lista. Es el mismo orden que usa
+    armar-cotizacion, y es el que tiene sentido comparar al buscar filas
+    repetidas: dos filas sin precio de lista pero con costos distintos no
+    son la misma fila.
+    """
+    if len(r) > COL_DEALER_USD and es_numero(r[COL_DEALER_USD]):
+        return r[COL_DEALER_USD]
+    return r[COL_PRECIO] if es_numero(r[COL_PRECIO]) else None
 
 
 def cargar(ruta):
@@ -127,7 +149,8 @@ def main():
     difiere = []
     for i, r in enumerate(filas, 2):
         try:
-            cat, sub, _ = taxonomia.clasificar(r[COL_NOMBRE], r[-1])
+            orig = r[COL_CAT_ORIGINAL] if len(r) > COL_CAT_ORIGINAL else None
+            cat, sub, _ = taxonomia.clasificar(r[COL_NOMBRE], orig)
         except Exception:
             continue
         if (cat, sub) != (r[COL_CATEGORIA], r[COL_SUBCATEGORIA]):
@@ -153,14 +176,21 @@ def main():
                      if not r[COL_SKU] and r[COL_CATEGORIA] in SIN_SKU_OK)
     sin_sku = sum(1 for r in filas
                   if not r[COL_SKU] and r[COL_CATEGORIA] not in SIN_SKU_OK)
-    sin_precio = sum(1 for r in filas if not isinstance(r[COL_PRECIO], (int, float)))
+    # Desde R15 (2026-09-24) una fila puede traer solo el COSTO, sin precio
+    # de lista: es la mejor fila posible, no una incompleta. Lo grave es no
+    # tener NINGUNO de los dos, porque ahi no hay con que cotizar.
+    sin_precio = sum(1 for r in filas if precio_efectivo(r) is None)
+    solo_lista = sum(1 for r in filas
+                     if es_numero(r[COL_PRECIO]) and not (len(r) > COL_DEALER_USD
+                                                          and es_numero(r[COL_DEALER_USD])))
     sin_marca = sum(1 for r in filas if not r[COL_MARCA])
     sin_prov = sum(1 for r in filas if not r[COL_PROVEEDOR])
     print("--- 4. Campos vacios que impiden cotizar esa fila ---")
     for etiqueta, n, grave in (("sin Modelo / SKU (equipo)", sin_sku, True),
-                               ("sin Precio USD", sin_precio, True),
+                               ("sin ningun precio (ni costo ni lista)", sin_precio, True),
                                ("sin Proveedor", sin_prov, True),
                                ("sin Marca", sin_marca, False),
+                               ("solo precio de lista, sin costo", solo_lista, False),
                                ("sin SKU, material o servicio", sin_sku_ok, False)):
         marca = "FALTA" if (n and grave) else ("aviso" if n else "OK   ")
         print("    %-6s %-30s %d" % (marca, etiqueta, n))
@@ -218,11 +248,12 @@ def main():
             base = filas[mismos[0] - 2]
             for n in mismos[1:]:
                 r = filas[n - 2]
-                if precio(r[COL_PRECIO]) == precio(base[COL_PRECIO]):
-                    repetidas.append((k, mismos[0], n, precio(base[COL_PRECIO])))
+                if precio(precio_efectivo(r)) == precio(precio_efectivo(base)):
+                    repetidas.append((k, mismos[0], n, precio(precio_efectivo(base))))
                 else:
                     precio_raro.append((k, mismos[0], n,
-                                        precio(base[COL_PRECIO]), precio(r[COL_PRECIO])))
+                                        precio(precio_efectivo(base)),
+                                        precio(precio_efectivo(r))))
 
     print("--- 5. Mismo producto cargado dos veces ---")
     if repetidas:

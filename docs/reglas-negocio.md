@@ -367,7 +367,8 @@ precio cargado`** con tres valores:
 |---|---|---|
 | `LISTA Y DEALER` | 743 | están los dos; el costo es el Dealer |
 | `UN SOLO PRECIO EN LA LISTA` | 202 | el proveedor publica uno solo |
-| `TIPO SIN CONFIRMAR` | 1.579 | hay un número y no sabemos si ya trae descuento |
+| `TIPO SIN CONFIRMAR` | 1.561 | hay un número y no sabemos si ya trae descuento |
+| `COSTO DE UNA COTIZACION REAL` | 35 | sacado del `Costo Unit` de una cotización real; es costo, pero con la fecha de esa cotización |
 
 **Cuando una línea sale de una fila `TIPO SIN CONFIRMAR`, hay que
 decirlo en la cotización.** No es un error usarla: es un dato que el
@@ -1445,7 +1446,8 @@ del MSRP según la línea. Así que no es un techo, pero sí un aviso.
 |---|---|
 | `LISTA Y DEALER` | 743 |
 | `UN SOLO PRECIO EN LA LISTA` | 202 |
-| `TIPO SIN CONFIRMAR` | 1.579 |
+| `TIPO SIN CONFIRMAR` | 1.561 |
+| `COSTO DE UNA COTIZACION REAL` | 35 |
 
 Y el catálogo es **92% dos proveedores** (2.329 de 2.524 filas). El caso
 patrón #4 mostró lo que eso cuesta: de 10 equipos de un proyecto real,
@@ -1528,6 +1530,50 @@ Lo que decide no está en el documento del cliente. Por eso:
    como acierto, porque el equipo mismo cotiza alternativas. Se compara
    contra **todas** las versiones guardadas de la cotización, no contra
    la última.
+
+---
+
+## R19 — Los accesorios que nadie pide se sugieren, nunca se agregan solos
+
+**Estado: medida el 2026-09-25 sobre 666 cotizaciones.**
+
+> Fabián: *"un sistema de detección no funciona sin alimentación [...]
+> es parte de accesorios de montaje en todo caso."*
+
+Hay accesorios que el cliente no pide porque se dan por sabidos: la
+fuente de poder de un panel, la batería de respaldo, la base del
+detector, el disco del NVR. En el caso patrón #5 aparecieron **9 fuentes
+de poder** que no estaban en la solicitud, en las dos versiones.
+
+Se midió qué acompaña a cada equipo principal
+(`scripts/medir-accesorios-requeridos.py`):
+
+| Cuando trae… | Acompañante | % |
+|---|---|---|
+| Panel de incendio | batería de respaldo | 61% |
+| Panel de incendio | base de detector | 61% |
+| Panel de incendio | módulo aislador | 54% |
+| Panel de incendio | fuente de poder | 41% |
+| NVR | disco duro | 55% |
+| NVR | switch | 48% |
+| Cerradura magnética | fuente de poder | 44% |
+| Cerradura magnética | botón de salida | 42% |
+| Controladora de acceso | gabinete / rack | 52% |
+| Cámara | gabinete / rack | 41% |
+
+**Ninguno llega al 70%.** O el accesorio viene incluido en otra línea, o
+el cliente ya lo tiene, o a veces se olvida: desde afuera no se
+distingue. Por eso:
+
+1. **Se sugiere con su número y se pregunta.** Nunca se agrega solo: un
+   accesorio inventado es peor que uno que falta y se pregunta.
+2. **Vive en la pestaña `Accesorios Requeridos` del catálogo**, separada
+   de `Compatibilidad de Accesorios`. Son preguntas distintas —qué
+   *sirve* contra qué *hace falta*— y la de compatibilidad la regenera un
+   script que borraría cualquier cosa agregada a mano.
+3. **Tiene que estar en el catálogo para poder sugerirse.** Gabinetes y
+   racks no están: no existe la subcategoría, y son el acompañante más
+   común de las cámaras.
 
 ---
 
