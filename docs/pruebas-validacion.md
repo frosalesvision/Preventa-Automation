@@ -980,7 +980,7 @@ puntos.
 | 2026-09-24 | **Medicion de la base de costo** | ✅ Concluyente | 1.119 matrices, 57.607 lineas. El MSRP no se usa como costo **ni una vez** |
 | 2026-09-24 | **Caso patron #4** | ❌ 0 de 10 lineas | Los porcentajes salen bien; el catalogo no tiene **ninguno** de los equipos |
 | 2026-09-24 | **Impuesto al cliente** | ✅ Medido | 873 cotizaciones. El 13% es solo 2 de cada 3; **el 29% van exentas** |
-| 2026-09-25 | **Caso patron #5** | ❌ Falla de fondo | Sustituyeron la marca pedida por equivalentes a mitad de precio |
+| 2026-09-25 | **Caso patron #5** | ⚠️ Corregido | Se cotizo Edwards como pidio el cliente, y ademas una alternativa Kidde. La primera lectura estaba mal |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -1550,97 +1550,91 @@ nota dice que varia.
   equivocarse en un tercio de los casos.
 
 
-## Caso patron #5: el cliente pidio una marca y se cotizo otra, a mitad de precio (2026-09-25)
+## Caso patron #5: una solicitud, dos cotizaciones validas (2026-09-25)
 
 El primero armado **desde la solicitud real del cliente**. Los casos #3 y #4
-fueron autopsias de matrices ajenas; este parte de lo que mando el cliente,
-que es lo que de verdad hay que probar.
+fueron autopsias de matrices ajenas; este parte de lo que mando el cliente.
 
 Salio de corregir un error mio: habia concluido que la peticion del cliente
 no se guarda, porque tres carpetas seguidas tenian `Visita tecnica` vacia.
-**Falso a escala**: de las cotizaciones con matriz, **143 tienen tambien
-documentos del cliente**. Tres casos no son una muestra, otra vez.
+**Falso a escala**: 143 cotizaciones tienen matriz **y** documentos del
+cliente.
+
+### ⚠️ Este caso se reporto mal la primera vez
+
+La primera version de esta seccion decia que *"el cliente pidio Edwards y se
+cotizo otra marca entera, a mitad de precio"*. **Era falso**, y quedo en git
+un dia. Paso por analizar la matriz **V3** dando por hecho que la version
+mas alta era la final, sin comparar contra la oferta que se envio.
+
+La oferta enviada se llama `...Equipos Edwards.pdf` y cotiza los modelos
+`ED-SIGA-...` que pidio el cliente. **Leccion: antes de comparar contra "la
+matriz real", verificar cual version produjo la oferta enviada.**
 
 ### La entrada
 
-Un proyecto de deteccion de incendio para **seis escuelas**. La carpeta
-`Visita tecnica` trae 12 archivos: planos electricos, planos de deteccion por
-escuela, y una hoja de calculo del cliente con **equipo, modelo y cantidad**
-para cada escuela. El levantamiento de la visita, tal cual.
+Deteccion de incendio para **seis escuelas**. `Visita tecnica` trae planos
+electricos, planos de deteccion por escuela, y una hoja del cliente con
+**equipo, modelo y cantidad** por escuela. El cliente pidio **Edwards**.
 
-El cliente pidio modelos **Edwards**, con su prefijo de marca (`ED-SIGA-...`).
+### Lo que se cotizo: dos versiones
 
-### Lo que habria hecho el plugin
-
-| Modelo pedido | En el catalogo |
-|---|---|
-| 12 modelos distintos | **2**, y uno solo aparece quitandole el prefijo `ED-` |
-
-### Lo que se cotizo de verdad
-
-**Otra marca entera.** Se sustituyo toda la especificacion Edwards por
-equivalentes de GSA, Kidde y Syscom. El `KIDDE.zip` guardado en
-`Fichas tecnicas` confirma cual eligieron.
-
-| Cliente pidio | Se cotizo |
-|---|---|
-| `ED-SIGA-CC1` | `GSA-CC1` |
-| `ED-SIGA-HDR` | `KI-HFD` |
-| `ED-SIGA-278` | `GSA-M278` |
-| `ED-SIGA-OSHD` | `KI-OSD` |
-| `ED-RLCD-C` | `K-RLCD-R-2` |
-
-### El hallazgo: la sustitucion vale la mitad
-
-El catalogo **si tiene Edwards** --17 modelos de esa marca-- y de lo que se
-cotizo **no tiene nada**: cero de diez. Comparando los equivalentes:
-
-| | Edwards en catalogo | Lo que se cotizo | |
+| Version | Marca | Estacion manual | Detector de humo |
 |---|---|---|---|
-| Estacion manual | $80,69 | **$40** | 50% |
-| Detector de humo | $66,37 | **$30** | 45% |
-| Detector termico | $46 | **$24** | 52% |
+| **V1 y V2** | **Edwards**, lo pedido | costo $80,69 | costo $128 |
+| V3 | Kidde, alternativa | costo $40 | costo $30 |
 
-**El plugin, incluso con un catalogo Edwards perfecto, habria cotizado el
-doble.** No por un error de calculo: por no saber que existe la sustitucion.
+La oferta enviada es la de Edwards. La V3 es una **segunda opcion mas
+barata**, que es lo que Fabian describio: *"en ocasiones depende del
+presupuesto o si al cliente no le importa se cambian las marcas"*.
 
-Y no contradice al caso #2, lo completa. Ahi la marca estaba **amarrada por
-el pliego** --compatibilidad con un sistema instalado-- y lo correcto era no
-sustituir. Aca la lista del cliente era una **referencia de lo que hace
-falta**, no una exigencia. La diferencia esta en el documento de entrada, y
-el plugin tiene que saber distinguirla.
+**El equipo genero dos resultados validos para la misma solicitud.** Eso
+cambia como hay que validar el plugin: no se puede exigir que elija el mismo
+modelo que se cotizo, porque el propio equipo cotizo dos.
+
+### Lo que habria hecho el plugin con la version Edwards
+
+La estacion manual costo **$80,69 en la matriz, identico al catalogo** para
+`SIGA-278`. El catalogo tenia el costo correcto. **Lo que fallo fue la
+busqueda**: el cliente escribe `ED-SIGA-278` --con el prefijo de marca-- y el
+catalogo guarda `SIGA-278`. La busqueda exacta no lo encuentra.
+
+De los 12 modelos pedidos, el catalogo tiene 2 con busqueda estricta. Faltan
+modelos Edwards (`SIGA-CC1`, `SIGA-OSHD`, `SIGA-HDR`, `G1AVF-SP`, el panel,
+el anunciador, el aislador) y el sensor de gas.
+
+### Marcas y proveedores, bien identificados
+
+Las fichas guardadas en la carpeta lo dejan claro:
+
+| Prefijo | Es |
+|---|---|
+| `ED-SIGA-`, `SIGA-` | Edwards |
+| `GSA-`, `KI-`, `K-RLCD`, `VS4`, `EG1` | **Kidde** (la ficha de `GSA-M278` dice Kidde) |
+| `MA-GD2A` | **Macurco**, detector de gas, en las dos versiones |
+| Syscom | un **proveedor**, no una marca |
 
 ### Lo que el cliente no pidio y se cotizo igual
 
-Tres lineas que no estan en la solicitud:
+En **las dos versiones** aparecen lineas que no estan en la solicitud:
+**9 fuentes de poder**, un modulo aislador y un modulo de monitoreo. Nadie
+las pide porque se dan por sabidas: un sistema de deteccion no funciona sin
+alimentacion. Es conocimiento tacito, igual que los accesorios de montaje, y
+tiene que vivir mapeado en el catalogo.
 
-- **9 fuentes de poder** a $339 cada una, la tercera linea mas cara de la
-  oferta
-- un modulo aislador de lazo
-- un modulo de monitoreo
+### Los porcentajes
 
-Nadie las pide porque se dan por sabidas: un sistema de deteccion no funciona
-sin alimentacion. Es el mismo conocimiento tacito de los accesorios de
-montaje, y vale casi $3.100 en esta sola cotizacion.
-
-### Los porcentajes, otra vez distintos
-
-| Concepto | Default | Este caso |
-|---|---|---|
-| Transporte | 10% | 10%, pero **sin usar**: todas las lineas son nacionales |
-| Imprevistos | 3% | **2%** |
-| IVA de linea | 13% | **0** |
-| DAI | 15% | 15%, **sin usar** |
-| Administracion | 3% | **1%** |
-| Margen GV | 27,4% | **27%** |
-
-Van cuatro de cinco casos donde imprevistos no es 3%. Y la administracion al
-1% es nueva. El margen del 27% se sostiene.
+Iguales en las tres versiones: imprevistos **2%**, administracion **1%**,
+IVA de linea **0**, todo nacional (transporte y DAI sin usar). Margen 26% en
+Edwards, 27,4% en Kidde.
 
 ### Que cambia esto
 
-El caso #4 decia que el limite era la cobertura del catalogo. Este dice algo
-peor: **aunque el catalogo tuviera lo que el cliente pide, el precio seguiria
-saliendo al doble**, porque lo que se cotiza no es lo que se pide. Falta
-cargar las marcas economicas --GSA, Kidde, Syscom-- y falta que el plugin
-sepa cuando puede sustituir y cuando no.
+1. **La busqueda tiene que ignorar el prefijo de marca** (`ED-`), igual que
+   en el caso #3 tuvo que tolerar sufijos. Mismo problema, otra punta.
+2. **Validar contra todas las versiones guardadas**, no contra la ultima, y
+   aceptar un equivalente funcional como acierto.
+3. **Cargar Kidde y Macurco, y los modelos Edwards que faltan.** Sus costos
+   estan en estas matrices.
+4. **Preguntar al asesor si se puede ofrecer equivalente.** Es informacion
+   del cliente final, no algo que el plugin pueda decidir.
