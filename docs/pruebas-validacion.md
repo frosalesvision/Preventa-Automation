@@ -984,6 +984,7 @@ puntos.
 | 2026-09-25 | **Marcas que faltan** | ✅ Medido | 94 marcas o familias con 5+ cotizaciones y casi nada en el catalogo. La primera es i-PRO |
 | 2026-09-25 | **Accesorios requeridos** | ✅ Medido | Ninguno llega al 70%: se sugieren, no se agregan. Nueva pestana |
 | 2026-09-25 | **Chequeo 3 del verificador** | ✅ Corregido | Leia "la ultima columna"; al agregar la 26 paso de 2 a 564 falsos avisos |
+| 2026-09-25 | **Linea base, 10 casos** | 📏 Medida | 256 lineas: el plugin encuentra el 7,8%. El 46% espera marcas ya listadas; cuando encuentra, el costo coincide |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -1716,3 +1717,119 @@ la palabra "monitor". Un modulo de incendio archivado como pantalla desaparece
 de las busquedas de incendio. Arreglado con una regla prioritaria, y medido
 antes y despues sobre las 2.541 filas: **cambian 6, las 6 quedan bien, cero
 efectos colaterales**.
+
+
+## Linea base de 10 casos patron (2026-09-25)
+
+Fabian pidio al menos 10 casos, la mayoria de camaras, y que no se tomara
+como error lo que ya sabemos que falta: *"iPRO se va a agregar a la lista de
+catalogo, ya lo sabemos, entonces si no da exactamente igual no debemos
+preocuparnos ni tomar eso como un error"*.
+
+Los cinco primeros casos se hicieron a mano y sirvieron para encontrar
+problemas, pero no se pueden repetir igual. Esta linea base si:
+`scripts/casos-patron-linea-base.py` elige los 10 con una regla fija, guarda
+cuales eligio, y `--rehacer` mide los mismos. **La diferencia entre dos
+corridas es cuanto mejoro el plugin.**
+
+### Como se eligieron
+
+Cotizaciones de 2026 con matriz **y** documentos del cliente, con al menos 5
+lineas de equipo, sin repetir las de los casos #3 a #5. Por tipo, las mas
+grandes: 7 de video, 1 de acceso, 1 de intrusion, 1 de incendio.
+
+**No hubo ninguna de intrusion**: en 2026 no hay cotizaciones de alarma con
+documentos del cliente guardados. Ese lugar lo tomo un segundo caso de
+incendio.
+
+### Que mide
+
+Cada linea de equipo cae en una de estas cajas:
+
+| Caja | Que significa |
+|---|---|
+| Encontrada | el plugin la habria hallado, exacta o con la busqueda tolerante |
+| Falta, marca ya listada | la marca esta en `Marcas por cargar`. **Hueco conocido, no es error** |
+| Falta, marca fuera de la lista | marca que se usa en menos de 5 cotizaciones |
+| Falta, linea generica | sin marca ni modelo: "gabinete exterior", "breaker 15 A", "patch cord" |
+
+Se compara contra todas las versiones guardadas y cuenta la mejor (R18).
+
+### El resultado
+
+| Caso | Tipo | Lineas | Encontradas | Falta listada | Falta fuera | Falta generica | % iguales al default |
+|---|---|---|---|---|---|---|---|
+| L1 | video | 90 | 2 | 42 | 8 | 38 | 4/6 |
+| L2 | video | 33 | 1 | 19 | 11 | 2 | 4/6 |
+| L3 | video | 20 | 2 | 3 | 4 | 11 | 5/6 |
+| L4 | video | 18 | 2 | 8 | 3 | 5 | 2/6 |
+| L5 | video | 7 | 0 | 7 | 0 | 0 | 3/6 |
+| L6 | video | 6 | 0 | 0 | 6 | 0 | 3/6 |
+| L7 | video | 5 | 0 | 4 | 0 | 1 | 3/6 |
+| L8 | acceso | 39 | 0 | 29 | 1 | 9 | 3/6 |
+| L9 | incendio | 20 | 3 | 1 | 12 | 4 | 2/6 |
+| L10 | incendio | 18 | 10 | 4 | 1 | 3 | 2/6 |
+| **Total** | | **256** | **20 (7,8%)** | **117 (45,7%)** | **46 (18,0%)** | **73 (28,5%)** | **31/60** |
+
+Y ademas:
+
+- **Cuando el producto esta, el costo coincide.** En los 12 encontrados con un
+  solo precio en el catalogo, la mediana es **1,00x** y 7 de 12 estan a
+  +-12%. Edwards `SIGA-278` a 1,00x, `IO64R` a 1,00x, `SIGA-CT1` a 0,99x.
+  Es un indicio de que esos precios de un solo valor --marcados `TIPO SIN
+  CONFIRMAR`-- se comportan como **costo**, al menos los de incendio. Son pocos
+  para afirmarlo: queda para confirmar.
+- **De lo que falta, el 71% (167 de 236) tiene un equivalente** en la misma
+  subcategoria. Si el asesor acepta alternativa (R18), el plugin igual puede
+  proponer algo.
+- **Impuesto al cliente: 7 de 8 acertados.** El octavo es un cliente exento que
+  no esta en la tabla: el plugin pregunta, con 13% recomendado, y el asesor
+  corrige. Un noveno caso tiene el subtotal y el impuesto en monedas
+  distintas y no se puede evaluar.
+- **Porcentajes: 31 de 60** iguales al default. Unas 3 celdas por cotizacion
+  para ajustar a mano, que es lo esperado segun R17.
+
+### Lo que dice
+
+**La logica funciona y el cuello de botella es el catalogo.** Cuando el
+producto esta cargado, el costo sale bien; el impuesto sale bien; los
+porcentajes son editables. Lo que falla es no tener el producto:
+
+1. **El 46% espera marcas ya identificadas** en `Marcas por cargar`, con i-PRO
+   a la cabeza. Es el trabajo pendiente de preventa, y el que mas va a mover
+   este numero.
+2. **El 29% son lineas genericas** --gabinetes, protectores, breakers, patch
+   cords--. Ninguna lista de marcas las resuelve: hace falta una seccion de
+   materiales y accesorios electricos genericos, con proveedor local.
+3. **El 18% son marcas de poco uso** (MikroTik, por ejemplo). Menos urgentes.
+
+### Tres correcciones a la medicion antes de confiar en ella
+
+La primera corrida daba 31 encontradas; **la mitad eran falsas**:
+
+- Hay filas del catalogo cuyo "modelo" es una **palabra comun**: `LICENCIA`,
+  `COMPACT`. Cualquier linea que dijera "licencia" o "compacto" emparejaba.
+  12 de 31.
+- Un **accesorio** que nombra la camara para la que sirve ("cable ... for
+  WV-S2536LNA") emparejaba con la camara. Es el mismo error que H-14 tenia en
+  el catalogo. Ahora se busca solo el primer modelo de la linea.
+- Al arreglar lo anterior el filtro quedo **demasiado estricto**: dejo de ver
+  numeros de parte solo con digitos (`4098-9714`, Simplex) y modelos sin
+  digitos (`WRR-P-HDDCRDL`, Hanwha). El caso de incendio L9 paso de 0 a 3 al
+  corregirlo.
+
+Y un numero que no cerraba, y por eso se reviso todo: la primera corrida
+decia que la cotizacion usaba **1,29x** el precio de lista del catalogo,
+contra todo lo medido antes. Era arrastre de los falsos positivos: la mediana
+real es 1,00x. **Un promedio raro es una senal para mirar las lineas, no un
+hallazgo.**
+
+### Para repetirla
+
+```
+python scripts/casos-patron-linea-base.py --rehacer
+```
+
+Mide los mismos 10 casos contra el catalogo de ese momento. La seleccion vive
+en `medicion-casos-patron.json`, que no va a git porque lleva rutas con
+nombres de clientes.
