@@ -980,6 +980,7 @@ puntos.
 | 2026-09-24 | **Medicion de la base de costo** | ✅ Concluyente | 1.119 matrices, 57.607 lineas. El MSRP no se usa como costo **ni una vez** |
 | 2026-09-24 | **Caso patron #4** | ❌ 0 de 10 lineas | Los porcentajes salen bien; el catalogo no tiene **ninguno** de los equipos |
 | 2026-09-24 | **Impuesto al cliente** | ✅ Medido | 873 cotizaciones. El 13% es solo 2 de cada 3; **el 29% van exentas** |
+| 2026-09-25 | **Caso patron #5** | ❌ Falla de fondo | Sustituyeron la marca pedida por equivalentes a mitad de precio |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -1547,3 +1548,99 @@ nota dice que varia.
   marcadas para que no se usen a ciegas.
 - **La pregunta del impuesto se queda**, y con mas razon: es la que evita
   equivocarse en un tercio de los casos.
+
+
+## Caso patron #5: el cliente pidio una marca y se cotizo otra, a mitad de precio (2026-09-25)
+
+El primero armado **desde la solicitud real del cliente**. Los casos #3 y #4
+fueron autopsias de matrices ajenas; este parte de lo que mando el cliente,
+que es lo que de verdad hay que probar.
+
+Salio de corregir un error mio: habia concluido que la peticion del cliente
+no se guarda, porque tres carpetas seguidas tenian `Visita tecnica` vacia.
+**Falso a escala**: de las cotizaciones con matriz, **143 tienen tambien
+documentos del cliente**. Tres casos no son una muestra, otra vez.
+
+### La entrada
+
+Un proyecto de deteccion de incendio para **seis escuelas**. La carpeta
+`Visita tecnica` trae 12 archivos: planos electricos, planos de deteccion por
+escuela, y una hoja de calculo del cliente con **equipo, modelo y cantidad**
+para cada escuela. El levantamiento de la visita, tal cual.
+
+El cliente pidio modelos **Edwards**, con su prefijo de marca (`ED-SIGA-...`).
+
+### Lo que habria hecho el plugin
+
+| Modelo pedido | En el catalogo |
+|---|---|
+| 12 modelos distintos | **2**, y uno solo aparece quitandole el prefijo `ED-` |
+
+### Lo que se cotizo de verdad
+
+**Otra marca entera.** Se sustituyo toda la especificacion Edwards por
+equivalentes de GSA, Kidde y Syscom. El `KIDDE.zip` guardado en
+`Fichas tecnicas` confirma cual eligieron.
+
+| Cliente pidio | Se cotizo |
+|---|---|
+| `ED-SIGA-CC1` | `GSA-CC1` |
+| `ED-SIGA-HDR` | `KI-HFD` |
+| `ED-SIGA-278` | `GSA-M278` |
+| `ED-SIGA-OSHD` | `KI-OSD` |
+| `ED-RLCD-C` | `K-RLCD-R-2` |
+
+### El hallazgo: la sustitucion vale la mitad
+
+El catalogo **si tiene Edwards** --17 modelos de esa marca-- y de lo que se
+cotizo **no tiene nada**: cero de diez. Comparando los equivalentes:
+
+| | Edwards en catalogo | Lo que se cotizo | |
+|---|---|---|---|
+| Estacion manual | $80,69 | **$40** | 50% |
+| Detector de humo | $66,37 | **$30** | 45% |
+| Detector termico | $46 | **$24** | 52% |
+
+**El plugin, incluso con un catalogo Edwards perfecto, habria cotizado el
+doble.** No por un error de calculo: por no saber que existe la sustitucion.
+
+Y no contradice al caso #2, lo completa. Ahi la marca estaba **amarrada por
+el pliego** --compatibilidad con un sistema instalado-- y lo correcto era no
+sustituir. Aca la lista del cliente era una **referencia de lo que hace
+falta**, no una exigencia. La diferencia esta en el documento de entrada, y
+el plugin tiene que saber distinguirla.
+
+### Lo que el cliente no pidio y se cotizo igual
+
+Tres lineas que no estan en la solicitud:
+
+- **9 fuentes de poder** a $339 cada una, la tercera linea mas cara de la
+  oferta
+- un modulo aislador de lazo
+- un modulo de monitoreo
+
+Nadie las pide porque se dan por sabidas: un sistema de deteccion no funciona
+sin alimentacion. Es el mismo conocimiento tacito de los accesorios de
+montaje, y vale casi $3.100 en esta sola cotizacion.
+
+### Los porcentajes, otra vez distintos
+
+| Concepto | Default | Este caso |
+|---|---|---|
+| Transporte | 10% | 10%, pero **sin usar**: todas las lineas son nacionales |
+| Imprevistos | 3% | **2%** |
+| IVA de linea | 13% | **0** |
+| DAI | 15% | 15%, **sin usar** |
+| Administracion | 3% | **1%** |
+| Margen GV | 27,4% | **27%** |
+
+Van cuatro de cinco casos donde imprevistos no es 3%. Y la administracion al
+1% es nueva. El margen del 27% se sostiene.
+
+### Que cambia esto
+
+El caso #4 decia que el limite era la cobertura del catalogo. Este dice algo
+peor: **aunque el catalogo tuviera lo que el cliente pide, el precio seguiria
+saliendo al doble**, porque lo que se cotiza no es lo que se pide. Falta
+cargar las marcas economicas --GSA, Kidde, Syscom-- y falta que el plugin
+sepa cuando puede sustituir y cuando no.
