@@ -86,7 +86,7 @@ donde se ha visto) existían **dos árboles locales con las mismas 287
 carpetas de cliente y el mismo nombre**, y solo uno sincronizaba. Todo
 el trabajo de varias semanas se había hecho en el que **no** sincroniza,
 así que nunca llegó al equipo (se detectó y se corrigió el 2026-09-18 —
-ver la regla R15 en
+ver la regla R20 en
 [`docs/reglas-negocio.md`](../../../docs/reglas-negocio.md)). La lección
 que sí aplica siempre: **resolvé la ruta por el registro, nunca la
 asumas ni la copies de una sesión anterior.**

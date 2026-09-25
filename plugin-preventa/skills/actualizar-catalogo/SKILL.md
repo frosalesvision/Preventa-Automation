@@ -131,8 +131,9 @@ editables a mano por el equipo (`B3` = tipo de cambio de compra, `B4`
 definidos a nivel de libro que las referencian: `TipoCambioCompra` y
 `TipoCambioVenta`.
 
-- **Precio CRC** (columna 8, `H`) y **Precio especial GV (CRC)**
-  (columna 10, `J`) son fórmulas, no valores escritos a mano:
+- **Precio CRC** (columna 8, `H`) y **COSTO CRC** (columna 10, `J`;
+  antes se llamaba "Precio especial GV (CRC)") son fórmulas, no valores
+  escritos a mano:
   `=IF(G2="","",IF(TipoCambioVenta="","Actualizar TC",ROUND(G2*TipoCambioVenta,2)))`
   para la columna `H`, y la misma apuntando a `I` para la `J`. Usan el
   tipo de cambio de **venta** para convertir el precio en dólares a
@@ -185,9 +186,9 @@ Reglas de formato a mantener:
   columna, no hace falta que la fila crezca.
 - Encabezado (fila 1) congelado (`FreezePanes`) para que se mantenga
   visible al hacer scroll.
-- Precio USD y Precio especial GV (USD) con formato de moneda en
-  dólares; Precio CRC y Precio especial GV (CRC) con formato de moneda
-  en colones (símbolo ₡).
+- Precio de lista (columna 7) y COSTO USD (columna 9) con formato de
+  moneda en dólares; Precio CRC y COSTO CRC con formato de moneda en
+  colones (símbolo ₡).
 - Anchos de columna pensados para lectura rápida: Nombre y Descripción
   anchas, Archivo de origen ancha (los nombres de archivo reales son
   largos), campos de código (HTS/ECCN/EAN) angostos.
@@ -307,6 +308,10 @@ simplemente no va a poder sugerir accesorios para los productos más
 nuevos hasta que se corra.
 
 ## Estado real de la columna "Precio especial GV" (corregido 2026-09-18)
+
+> **Hoy esa columna se llama `COSTO USD (precio Dealer)`** (renombrada el
+> 2026-09-24, R4 y R15). Esta sección es la historia de cómo se descubrió
+> qué había cargado en ella; los nombres de abajo son los de entonces.
 
 ⚠️ **Corrección a lo que decía antes este archivo.** Esta sección
 afirmaba que la columna 8 estaba vacía "porque ningún documento cargado
@@ -503,7 +508,7 @@ Ya están convertidos. **Al cargar un proveedor nuevo, escribí números
 como números y fechas como fecha real** (`datetime.date` con formato de
 celda `yyyy-mm-dd`), nunca como cadena.
 
-No confundir con `Precio CRC` y `Precio especial GV (CRC)`: esas **sí**
+No confundir con `Precio CRC` y `COSTO CRC`: esas **sí**
 son texto a veces, y está bien — son fórmulas que devuelven
 `"Actualizar TC"` mientras la pestaña `Tipo de Cambio` esté vacía.
 

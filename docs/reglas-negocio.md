@@ -17,6 +17,43 @@
 
 ---
 
+## Índice: todas las reglas de un vistazo
+
+Actualizado el 2026-09-25. **De dónde sale** dice si la regla la dijo
+preventa, si sale de medir las cotizaciones reales, o si la decidió
+Fabián. Las que salen de medir están pendientes de que preventa las
+apruebe.
+
+| | Regla, en una línea | De dónde sale | Estado |
+|---|---|---|---|
+| R1 | `IMPORTADO` = a quién se le compra, no dónde se fabrica. Con `no`, transporte y DAI quedan en cero | preventa; verificado en cotizaciones | vigente |
+| R1.1 | Una línea de flete va como `no` importada | medido: 728 líneas, el 91% así | vigente |
+| R2 | Hay dos IVA: el de línea (un costo nuestro) y el impuesto al cliente | preventa | vigente |
+| R3 | El impuesto al cliente depende del cliente: se pregunta, con 13% recomendado | preventa; medido: 873 cotizaciones, 29% exentas | vigente, tabla de 46 clientes |
+| R4 | El costo es el precio **dealer**, no el MSRP | medido: 94 de 134 líneas, ninguna con MSRP | vigente; contradice lo que dijo preventa |
+| R5 | Sin registro de proyecto no aplica el descuento mayor | preventa | concepto vigente, falta el mecanismo |
+| R6 | No hay tabla de porcentajes; los del machote son los más usados, y el margen se mueve según el tipo | preventa; medido: 499 matrices | vigente |
+| R7 | Tipo de cambio: se preguntan compra y venta en cada cotización | preventa y Fabián | vigente |
+| R8 | Mano de obra: tarifas por defecto medidas; el tarifario lo está armando preventa | medido: 184 matrices | defaults vigentes, tarifario pendiente |
+| R9 | Transporte: km × viajes × carros × costo por km, ya en el machote | preventa; verificado | vigente |
+| R10 | Materiales de instalación: en el catálogo; la cantidad se pregunta, no se estima | decidido y confirmado | vigente |
+| R11 | Un solo catálogo, con categorías normalizadas | decidido | vigente |
+| R12 | Se avisa si el precio tiene más de 2 meses | Fabián | vigente |
+| R13 | Financiamiento: siempre preguntar | preventa | vigente |
+| R14 | Hasta 50 líneas por cotización | medido | vigente |
+| R15 | Modelo de precios: un costo obligatorio (`COSTO USD`), lo demás es referencia | medido y decidido | vigente |
+| R16 | Solo dólares; otra moneda la convierte quien cotiza | Fabián | vigente |
+| R17 | La primera corrida apunta a quedar bien; el Excel siempre se corrige a mano | Fabián | principio de diseño |
+| R18 | Marca exacta o equivalente: lo decide el asesor | Fabián; caso patrón #5 | vigente |
+| R19 | Los accesorios que nadie pide se sugieren con su %, nunca se agregan solos | medido: 666 cotizaciones | vigente |
+| R20 | La ruta de la carpeta compartida se resuelve por el registro, nunca se asume | incidente del 2026-09-18 | vigente |
+
+Lo que se le está pidiendo a preventa y a contabilidad está en
+[`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
+cada regla está en [`pruebas-validacion.md`](pruebas-validacion.md).
+
+---
+
 ## R1 — "IMPORTADO" significa quién nos vende, no dónde se fabrica
 
 **Estado: confirmada.**
@@ -1296,7 +1333,11 @@ todavía no hizo falta.
 
 ---
 
-## ⚠️ R15 — La ruta de la carpeta compartida (corregido 2026-09-18, crítico)
+## ⚠️ R20 — La ruta de la carpeta compartida (corregido 2026-09-18, crítico)
+
+> Hasta el 2026-09-25 esta regla se numeraba **R15**. Se renumeró porque
+> el 2026-09-24 se le asignó ese número, por error, al modelo de precios,
+> que ya está citado en skills y scripts.
 
 **Hay dos carpetas locales con el mismo contenido y el mismo nombre, y
 solo UNA sincroniza con SharePoint.** Trabajar en la equivocada
@@ -1595,24 +1636,8 @@ distingue. Por eso:
 
 ## Estado de las reglas de un vistazo
 
-| | Regla | Estado | Bloquea |
-|---|---|---|---|
-| R1 | Importado = quién nos vende | Confirmada, corregir skill | — |
-| R2 | Dos IVA distintos | Confirmada | — |
-| R3 | Régimen fiscal por cliente | Pestaña creada, falta llenarla | Cotizar a gobierno sin error |
-| R4 | Costo real de GV | Pestaña creada, **faltan las reglas** | **Todo el cálculo** |
-| R5 | Registro de proyecto | Falta el mecanismo | R4 |
-| R6 | Porcentajes por etapa | Faltan los rangos | — |
-| R7 | Tipo de cambio | Falta confirmar la fuente | — |
-| R8 | Mano de obra | Pestaña creada, falta llenarla | Cotizar instalación |
-| R9 | Transporte terrestre | Faltan los destinos | — |
-| R10 | Materiales de instalación | Catálogo listo; la cantidad se pregunta, sin tabla | — |
-| R11 | Un solo catálogo, categorías normalizadas | **Vigente en producción desde 2026-09-21** | — |
-| R12 | Antigüedad del precio | Cerrada: 2 meses | — |
-| R13 | Financiamiento | **Completo: cuadros + cotización financiada** | — |
-| R14 | Capacidad de líneas | **Resuelta: 50 líneas** | — |
-| R15 | Ruta real de la carpeta compartida | **Corregida, falta migrar el catálogo** | Que el equipo vea el trabajo |
-
-Lo que hace falta pedirle al equipo comercial está en
-[`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
-cada regla está en [`pruebas-validacion.md`](pruebas-validacion.md).
+Está en el [índice al principio de este documento](#índice-todas-las-reglas-de-un-vistazo).
+Hasta el 2026-09-25 había acá una tabla del 2026-09-18 que nadie
+actualizó: decía que a R4 le faltaban las reglas y que R6 no tenía
+rangos, lo contrario de lo que dicen hoy las propias reglas. Se sacó
+para que no la lea nadie como vigente.

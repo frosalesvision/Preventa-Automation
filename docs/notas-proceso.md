@@ -521,8 +521,11 @@ en un lugar compartido de la empresa. Se decidió con el usuario:
     - Columnas: equipo, categoría/tipo, marca, modelo/SKU, descripción,
       especificaciones técnicas, **unidad de venta** (unidad vs. metro/
       rollo para productos como cable que se venden por medida),
-      proveedor, precio USD, precio CRC, precio especial GV (USD y
-      CRC), fecha de última actualización, archivo de origen, vigencia.
+      proveedor, precio de lista (MSRP) en USD y CRC, **COSTO** en USD
+      y CRC (el precio dealer, lo que paga Grupo Visión: es el que va a
+      la matriz), tipo de precio cargado, fecha de última
+      actualización, archivo de origen, vigencia. La lista completa y
+      al día está en la pestaña `Guia de columnas` del catálogo.
     - Nadie está encargado de mantenerlo activamente (preventa son solo
       2 personas) — la responsabilidad de notar algo desactualizado
       recae en quien usa `buscar-equipo`, mirando la fecha de última

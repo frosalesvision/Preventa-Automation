@@ -1,36 +1,57 @@
 # Lo que falta, y de dónde sale
 
-> **Casi nada falta ya del equipo comercial.** Este documento empezó
-> siendo una lista de nueve preguntas para ellos y hoy tiene **una sola**,
-> que además no es para preventa sino para contabilidad.
+> **Actualizado el 2026-09-25.** Casi todo lo que antes eran preguntas se
+> resolvió **midiendo las cotizaciones reales** (1.119 matrices) en vez de
+> preguntando. Lo que queda abierto son cosas que **solo el equipo puede
+> dar**: aprobar lo que se midió, y decir de dónde salen los precios que
+> nos faltan.
 >
-> El resto se resolvió **midiendo 649 cotizaciones reales** en vez de
-> preguntando. Abajo está lo que quedó abierto, lo que se resolvió
-> midiendo, y lo que ellos contestaron en su momento.
+> El mensaje que se le mandó a preventa por Teams el 2026-09-25 cubre los
+> puntos 1 y 2. El detalle de cada regla está en
+> [`reglas-negocio.md`](reglas-negocio.md), con un índice al principio.
 >
-> Contexto: comprometido en la reunión del 2026-09-14 — una primera pasada
-> para el 16/17 de setiembre y el resto la semana siguiente. Meta conjunta:
+> Contexto: comprometido en la reunión del 2026-09-14. Meta conjunta:
 > **empezar a usar el plugin en octubre.**
->
-> El detalle de cada regla está en [`reglas-negocio.md`](reglas-negocio.md).
 
 ---
 
-# Lo que sigue pendiente
+# Lo que está abierto hoy
 
-> **Cambio de estrategia, 2026-09-23.** Fabián lo dijo así:
->
-> > *"ellos ahorita están muy ocupados, no pueden responder. Nuestro
-> > filtro de verdad son las cotizaciones a las que podemos acceder y
-> > estudiar, tal cual lo hemos hecho."*
->
-> **Dejamos de preguntar y empezamos a medir.** Ya se leyeron 649
-> matrices reales de 2025 y 2026; ahí está lo que el equipo hace de
-> verdad, y sale más rápido y más confiable que una entrevista. Lo que
-> antes era una lista de nueve preguntas quedó en **una sola**, y ni
-> siquiera es para preventa.
+## Para preventa
 
-## La única que sigue abierta
+### 1. Aprobar las reglas de cálculo que salieron de medir
+
+Son reglas que el equipo aplica pero no tiene escritas; salieron de leer
+sus cotizaciones. Están en el índice de
+[`reglas-negocio.md`](reglas-negocio.md), columna *De dónde sale* =
+*medido*. La más importante es **R4**: el costo es el precio dealer y no
+el MSRP, que es lo contrario de lo que se había contestado el
+2026-09-22.
+
+### 2. Completar la pestaña `Marcas por cargar` del catálogo
+
+94 marcas o familias de modelo que se cotizan y casi no están en el
+catálogo, ordenadas por uso. Por cada una: **a qué proveedor se le
+compra, si hay lista de precios y dónde está**. Las columnas en
+amarillo son para eso. Es lo que más mueve la línea base: el 46% de las
+líneas que el plugin no encuentra espera estas marcas.
+
+### 3. Cuatro confirmaciones cortas
+
+- **¿El precio de Hanwha en el catálogo es de lista, o es lo que le
+  cobran a Grupo Visión?** Es la pregunta que más pesa: son **1.381 de
+  las 1.561 filas** sin tipo confirmado. En la línea base, una cámara
+  Hanwha se cotizó a **0,68x** del catálogo, lo que sugiere que es de
+  lista. Pero es un solo caso.
+- **¿Los de ISTC y Seguritronic son costo?** Son 84 filas. En la línea
+  base se cotizaron a **1,00x** (Edwards) y **0,89x** (DSC) del catálogo,
+  lo que sugiere que sí.
+- **¿A quién se le compran gabinetes, breakers, protectores y cables?** Son
+  el 29% de lo que falta y ninguna lista de marcas los resuelve.
+- **12 clientes del régimen fiscal** marcados `NO CONFIRMADO` (una sola
+  cotización cada uno). No urge: el plugin los pregunta igual.
+
+## Para contabilidad
 
 ### ¿El IVA de las compras locales se acredita? `R2`
 

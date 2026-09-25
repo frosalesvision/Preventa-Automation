@@ -198,7 +198,7 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
      escrito acá, la cotización sale cerca del **doble** (ver R4).
 
      Cuando la fila no tiene Dealer —la columna `Tipo de precio
-     cargado` dice `TIPO SIN CONFIRMAR`, y son 1.579 de 2.524— usá el
+     cargado` dice `TIPO SIN CONFIRMAR`, y son 1.561 de 2.541— usá el
      único precio que haya **y decí en la entrega cuáles líneas son
      esas**, porque no se sabe si ya traen descuento.
 

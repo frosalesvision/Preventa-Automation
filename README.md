@@ -10,8 +10,8 @@ copiar archivos a mano.
 El equipo de preventa arma cotizaciones de sistemas de seguridad/cámaras
 de forma manual, en Excel. Este repo contiene un plugin de Claude Code
 (`plugin-preventa/`) que automatiza partes de ese flujo: verificar qué
-accesos hay listos, armar cotizaciones, redactar seguimientos por correo
-y (más adelante) sincronizar con Bitrix24.
+accesos hay listos, armar cotizaciones, redactar seguimientos por correo,
+generar el PDF para el cliente y (más adelante) sincronizar con Bitrix24.
 
 Ver [`docs/notas-proceso.md`](docs/notas-proceso.md) para el detalle
 completo del proceso de negocio, y [`plugin-preventa/README.md`](plugin-preventa/README.md)
@@ -34,9 +34,17 @@ deja disponible en esa computadora.
 
 ```
 .claude-plugin/marketplace.json   → define este repo como marketplace
-plugin-preventa/                  → el plugin en sí (skills, .mcp.json)
+plugin-preventa/                  → el plugin en sí (skills, machote, .mcp.json)
+docs/reglas-negocio.md            → las reglas de negocio, con un índice al principio
+docs/pendientes-comercial.md      → lo que falta que conteste preventa o contabilidad
+docs/pruebas-validacion.md        → pruebas, casos patrón, mediciones y bitácora
 docs/notas-proceso.md             → contexto del proceso de negocio
+scripts/                          → verificador del catálogo, mediciones y línea base
 ```
+
+Si es la primera vez que ves esto, empezá por
+[`plugin-preventa/README.md`](plugin-preventa/README.md): qué hace cada
+skill, cómo se instala y cómo se arma la primera cotización.
 
 ## Importante
 

@@ -5,16 +5,16 @@ preventa de Grupo Visión (cotizaciones de sistemas de seguridad/cámaras).
 
 ## Qué hace
 
-| Skill | Qué hace | Estado |
+| Skill | Qué hace | Estado (2026-09-25) |
 |---|---|---|
-| `nueva-cotizacion` | Punto de entrada recomendado: recibe el pedido de un cliente en lenguaje natural (ej. "necesito 15 cámaras para X, presupuesto ₡5M"), detecta qué datos faltan y pregunta solo eso, y orquesta `buscar-equipo` + `armar-cotizacion` en el orden correcto sin que el asesor tenga que llamar cada skill a mano. | Diseñado (2026-09-08); todavía sin probar en una conversación real |
-| `verificar-entorno` | Revisa qué accesos están listos (carpeta compartida `CLIENTES`, Excels de referencia, los dos Excels de control de cotizaciones, config de Bitrix24) y da un checklist de qué falta; también explica paso a paso la instalación inicial completa para alguien que recién empieza. | Funcional — checklist ampliado 2026-09-07 con los dos Excels de control y la guía de instalación inicial |
-| `armar-cotizacion` | Organiza archivos/carpetas de una cotización (numeración de carpeta, número de oferta, versionado), copia el machote oficial, llena la pestaña "Equipos" con el equipo/accesorios encontrados (vía `buscar-equipo`) — modelo, descripción, cantidad y costo unitario, las fórmulas de margen/precio de venta calculan el resto solas — y registra la cotización en los dos Excels de control compartidos. | Organización de carpetas funcional y probada en `sandbox-pruebas/`; el llenado de "Equipos" y el registro en los dos Excels de control se probaron de punta a punta el 2026-09-07/08 con una cotización de prueba real (spec de una licitación real, cliente inventado) — funcionando correctamente, incluida verificación de que las fórmulas del machote quedan intactas |
-| `seguimiento-correo` | Redacta (nunca envía) un borrador de correo de seguimiento a clientes, en tono formal, sin mencionar número de oferta ni monto (esos van solo en el PDF adjunto). | Primer borrador funcional (2026-09-09): estados reales confirmados y un ejemplo listo para el caso "cotización enviada"; faltan ejemplos reales de los otros estados |
-| `generar-pdf-cotizacion` | Genera el PDF final de una cotización desde la matriz, confirmando antes con el asesor que todo está correcto. | Pendiente — placeholder, propuesto 2026-09-09, faltan definir varios detalles del proceso real de generación del PDF |
-| `sync-bitrix` | Actualiza la tarjeta en el Kanban de Bitrix24 al cerrar una cotización. | Pendiente — falta que Operaciones genere el webhook de Bitrix24 (ya documentado el paso a paso de dónde sacarlo) |
-| `actualizar-catalogo` | Mantiene el catálogo unificado de proveedores en `CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/` a partir de los PDFs que el equipo agrega. | Catálogo real cargado con **2.550 productos** de 19 proveedores, 25 columnas, categorías y subcategorías normalizadas (16 / 64, ninguna sin clasificar) y pestañas de onboarding `LEEME`, `Guia de columnas` y `Glosario de categorias`. Falta probar actualización de filas existentes y datos pegados en chat |
-| `buscar-equipo` | Busca marca/modelo de equipo que cumpla una especificación técnica dada, consultando el catálogo de `actualizar-catalogo`; también identifica accesorios de instalación (bases/soportes/lentes) compatibles y pregunta si incluirlos. | Diseñado (2026-09-01); pestaña "Compatibilidad de Accesorios" generada sobre el catálogo real (793 pares, 264 modelos de cámara, 3 fuentes: catálogo, categoría genérica, cotizaciones reales); probado 2026-09-07 con la especificación técnica real de una licitación municipal real contra el catálogo real, con buenos resultados — todavía falta probarlo en vivo con el equipo de preventa |
+| `nueva-cotizacion` | **El punto de entrada.** Recibe el pedido tal como te llegó, pregunta solo lo que falta —tipo de cotización, impuesto del cliente, si va la marca exacta o se acepta un equivalente, financiamiento, tipo de cambio— y encadena los demás skills en orden. | Funcional. Probado en corridas de prueba; **falta que lo use el equipo** |
+| `buscar-equipo` | Busca en el catálogo el equipo que cumple la especificación. Toma como costo el **precio dealer**, avisa qué líneas no tienen costo confirmado, tolera variantes del modelo (prefijo de marca, sufijos) y **sugiere** los accesorios que suelen hacer falta, con su frecuencia. | Funcional. Limitado por lo que hay en el catálogo (ver línea base) |
+| `armar-cotizacion` | Crea la carpeta de la cotización, copia el machote, llena `Equipos` (descripción, IMPORTADO, cantidad, costo) y registra la oferta en los dos Excels de control. | Funcional, probado de punta a punta |
+| `generar-pdf-cotizacion` | Exporta a PDF **solo** la pestaña de cotización que ve el cliente, después de revisar errores, impuesto y total, y de confirmar nombre y ruta. | Funcional desde 2026-09-25; falta usarlo con una cotización real |
+| `seguimiento-correo` | Redacta (nunca envía) el borrador del correo de seguimiento al cliente. | Funcional; faltan ejemplos reales de algunos estados |
+| `actualizar-catalogo` | Carga las listas de precios de los proveedores al catálogo, cada precio en su columna: lo que paga Grupo Visión en `COSTO USD`, el público en `Precio de lista`. | Funcional. Catálogo: 2.541 productos, 26 columnas, 6 chequeos automáticos |
+| `verificar-entorno` | Revisa qué accesos están listos y explica la instalación a quien empieza. | Funcional |
+| `sync-bitrix` | Actualiza la tarjeta del Kanban de Bitrix24 al cerrar una cotización. | En espera: falta que Operaciones genere el webhook |
 
 Ver [`docs/notas-proceso.md`](../docs/notas-proceso.md) (en la raíz del
 repo) para el contexto completo del proceso de negocio, y el `SKILL.md`
@@ -123,15 +123,28 @@ No sigas al siguiente paso hasta que ese checklist salga en ✅ completo.
    > match de extras como extensiones y demás.
 
    Esto activa [`nueva-cotizacion`](skills/nueva-cotizacion/SKILL.md).
-3. **Respondé las preguntas que te haga.** Va a preguntar solo lo que
-   falte para poder trabajar (nunca inventa cantidades, características
-   ni presupuesto) — cosas como si las cámaras son todas iguales, si hace
-   falta grabador/NVR, si el presupuesto incluye instalación, etc. Si ya
-   contestaste algo en tu pedido inicial, no te lo vuelve a preguntar.
+3. **Respondé las preguntas que te haga.** Pregunta solo lo que falte
+   para trabajar —nunca inventa cantidades, características ni
+   presupuesto—, y si ya lo dijiste en el pedido no te lo vuelve a
+   preguntar. Hay cuatro cosas que **pregunta siempre**, porque cambian
+   la plata:
+   - **El impuesto del cliente.** Te propone 13%, pero casi un tercio de
+     las cotizaciones van exentas y algunas universidades pagan 2%.
+   - **Si va la marca exacta o se acepta un equivalente.** Depende del
+     presupuesto y del cliente: no lo decide solo.
+   - **Si la oferta lleva financiamiento.**
+   - **El tipo de cambio**, de compra y de venta.
 4. **Revisá la lista de equipo antes de que se escriba en ningún
-   archivo.** Te va a mostrar marca/modelo/precio/cantidad de cada línea
-   (equipo principal y accesorios) y va a esperar tu confirmación — es el
-   momento de corregir algo si no es lo que buscabas.
+   archivo.** Te va a mostrar marca, modelo, costo y cantidad de cada
+   línea y va a esperar tu confirmación. Dos cosas para mirar:
+   - El costo es el **precio dealer**, lo que paga Grupo Visión. Si en
+     alguna línea no hay costo cargado y tuvo que usar el de lista, **te
+     lo dice**: ahí el margen real va a ser mayor que el que muestra la
+     matriz.
+   - Te va a **sugerir accesorios** que suelen hacer falta y nadie pide
+     —fuente de poder, batería, base del detector, disco del NVR—,
+     diciendo en qué porcentaje de las cotizaciones aparecen. Vos
+     decidís: nunca los agrega solo.
 5. **Confirmá los datos administrativos que falten** (nombre legal del
    cliente, descripción corta para la carpeta, quién es el asesor
    responsable) si te los pregunta.
@@ -141,8 +154,15 @@ No sigas al siguiente paso hasta que ese checklist salga en ✅ completo.
    de confirmar marcada explícitamente (nunca te va a decir que algo
    quedó listo si en realidad quedó a medias).
 7. **Abrí la matriz** (`Matriz-Oferta/` dentro de la carpeta que se creó)
-   para ajustar a mano lo que el plugin no cubre todavía (mano de obra,
-   transporte, cualquier ítem fuera de catálogo) antes de enviarla.
+   para ajustar a mano lo que haga falta: mano de obra, transporte,
+   cualquier ítem fuera de catálogo. Los porcentajes —transporte,
+   imprevistos, administración, margen— vienen con los valores que más
+   usa el equipo, y **se cambian a mano cuando el proyecto lo pide**: es
+   lo esperado, no un error.
+8. **Generá el PDF** cuando esté lista: *"la cotización ya quedó
+   lista, generame el PDF"*. Exporta solo la pestaña que ve el cliente
+   —la matriz nunca sale de la empresa— y te pregunta el nombre y la
+   ruta antes de guardarlo.
 
 Si en algún punto preferís hacerlo paso a paso vos mismo en vez de
 describir el pedido completo de una — por ejemplo, solo buscar un equipo
@@ -150,6 +170,47 @@ puntual, o ya tenés el equipo decidido y solo querés armar la carpeta —
 podés llamar directo a [`buscar-equipo`](skills/buscar-equipo/SKILL.md) o
 [`armar-cotizacion`](skills/armar-cotizacion/SKILL.md), sin pasar por
 `nueva-cotizacion`.
+
+## Las reglas que sigue el plugin, en corto
+
+Salen de lo que dijo preventa y de medir 1.119 cotizaciones reales. El
+detalle y la evidencia de cada una están en
+[`docs/reglas-negocio.md`](../docs/reglas-negocio.md), con un índice al
+principio.
+
+- **El costo es el precio dealer**, lo que paga Grupo Visión. El MSRP es
+  referencia: es donde suele *terminar* el precio al cliente, no de donde
+  arranca el cálculo (R4, R15).
+- **`IMPORTADO` dice a quién se le compra**, no dónde se fabrica. Con
+  `no`, transporte y DAI quedan en cero. Una línea de flete va siempre
+  como `no` (R1, R1.1).
+- **El impuesto al cliente se pregunta siempre**, con 13% recomendado;
+  hay una tabla de 46 clientes con régimen especial (R3).
+- **Marca exacta o equivalente la decide el asesor.** En una licitación
+  con marca obligatoria nunca se ofrece otra (R18).
+- **Los accesorios que nadie pide se sugieren, nunca se agregan solos**
+  (R19).
+- **Solo dólares.** Si un proveedor cotiza en otra moneda, la convierte
+  quien cotiza (R16).
+- **Los porcentajes vienen con los valores más usados y se editan en el
+  Excel.** La primera corrida apunta a quedar bien; siempre se puede
+  corregir a mano (R17).
+- **Nunca se escribe una fórmula del machote, nunca se manda la matriz al
+  cliente y nunca se envía un correo**: se redacta y lo manda una
+  persona.
+
+## Dónde está cada cosa
+
+| Qué | Dónde |
+|---|---|
+| El catálogo | `CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/Catalogo de productos por proveedor.xlsx`. Empezá por su pestaña `LEEME` |
+| Qué significa cada columna del catálogo | Pestaña `Guia de columnas` del mismo archivo |
+| Las marcas que faltan cargar | Pestaña `Marcas por cargar`: la completa preventa |
+| Los accesorios que se sugieren | Pestaña `Accesorios Requeridos` |
+| El impuesto por cliente | Pestaña `Regimen Fiscal Clientes` |
+| El machote de la matriz | `plugin-preventa/skills/armar-cotizacion/references/`. Trae su `LEEME` y tres guías al final: pestañas, fórmulas y skills |
+| Las reglas de negocio | [`docs/reglas-negocio.md`](../docs/reglas-negocio.md) |
+| Lo que falta que conteste preventa | [`docs/pendientes-comercial.md`](../docs/pendientes-comercial.md) |
 
 ## Flujo de trabajo de una cotización (referencia técnica)
 
@@ -198,10 +259,12 @@ Con eso ya listo, **una cotización puntual sigue este orden**:
    cualquier ítem que no salió de `buscar-equipo`) y la cierra para
    enviar — el costo/margen de cada línea de equipo ya lo calculó el
    machote automáticamente a partir del paso anterior.
-6. *(Pendiente)* **[`seguimiento-correo`](skills/seguimiento-correo/SKILL.md)**
-   — redacta un borrador de seguimiento mientras se espera respuesta del
-   cliente.
-7. *(Pendiente)* **[`sync-bitrix`](skills/sync-bitrix/SKILL.md)** —
+6. **[`generar-pdf-cotizacion`](skills/generar-pdf-cotizacion/SKILL.md)**
+   — exporta a PDF la pestaña de cotización que ve el cliente.
+7. **[`seguimiento-correo`](skills/seguimiento-correo/SKILL.md)** —
+   redacta un borrador de seguimiento mientras se espera respuesta del
+   cliente. El PDF se adjunta a mano.
+8. *(En espera)* **[`sync-bitrix`](skills/sync-bitrix/SKILL.md)** —
    actualiza la tarjeta del Kanban cuando la cotización se cierra.
 
 Los pasos 3 y 4 siguen funcionando igual de forma independiente (por
@@ -225,3 +288,13 @@ una capa de conveniencia encima, no un reemplazo.
   corresponda.
 - Ningún archivo con datos reales de clientes se commitea (ver
   `.gitignore` en la raíz del repo).
+- **Después de cada carga o edición del catálogo**, correr
+  `python scripts/verificar-catalogo.py`. Revisa seis cosas que Excel no
+  avisa, entre ellas filas repetidas y precios en colones que apuntan a
+  otra fila.
+- **Nunca borrar filas del catálogo con `openpyxl`**: no reajusta las
+  fórmulas. Y nunca guardar con `openpyxl` el machote ni los Excels de
+  control: borra los dibujos y los desplegables sin avisar. Se escribe
+  con Excel (COM).
+- **Para medir si el plugin mejoró**, repetir la línea base sobre los
+  mismos 10 casos: `python scripts/casos-patron-linea-base.py --rehacer`.
