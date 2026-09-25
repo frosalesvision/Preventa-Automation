@@ -49,6 +49,7 @@ preguntar; lo que no se sabe **siempre** se pregunta.
 | 5 | **Asesor responsable** | Para los Excel de control y la firma de la cotización |
 | 6 | **Registro de proyecto** | ¿Registrado? ¿Con qué distribuidor y marca? ¿Desde cuándo? Si no lo está, avisar que el descuento mayor no aplica (R5) |
 | 7 | **Alcance** | Solo equipo · con accesorios de montaje · con materiales de instalación · con mano de obra. Determina qué pestañas se llenan |
+| 7c | **¿Marca exacta o equivalente?** | **Preguntar siempre.** Es información del cliente final y el plugin **no la puede decidir solo** (R18). Tres opciones: *el mismo modelo que pidió* · *equivalente de otra marca* · *las dos, como opción principal y alternativa*. Si es una **licitación con marca amarrada** en el pliego, no se pregunta: va la marca pedida y punto |
 | 7b | **Materiales de instalación** *(opcional)* | Si el alcance los incluye: qué materiales y **qué cantidades**. **Preguntar siempre, pero no insistir**: si el proyecto no los lleva o todavía no se sabe, se deja en blanco y se sigue. **Nunca estimar la cantidad por cuenta propia** (regla R10) |
 | 8 | **Transporte %** | Valor del machote; preguntar si compras ya dio el del proyecto |
 | 9 | **Imprevistos %** | Valor del machote |
@@ -82,6 +83,30 @@ Lo que sí: al mostrar los porcentajes, aclará que **se pueden cambiar a
 mano en el Excel** si ese proyecto lo amerita. Y si el asesor pregunta
 qué suele usarse en un tipo de cotización, ahí sí le das la tabla de
 arriba. **Responder si preguntan, no ofrecer.**
+
+### Por qué se pregunta si va la marca exacta o un equivalente
+
+Una misma solicitud puede tener **varias cotizaciones válidas**, porque
+distintas marcas cumplen lo mismo. En el caso patrón #5 el cliente pidió
+Edwards y el equipo armó **dos versiones**: la Edwards que se envió y una
+alternativa Kidde con el equipo a menos de la mitad del costo. Ninguna
+estaba mal.
+
+Lo que decide cuál va no está en ningún documento del proyecto: depende
+del **presupuesto del cliente y de si le importa la marca**. A veces sí,
+a veces no. Por eso es una pregunta al asesor y no una decisión del
+plugin.
+
+| Si el asesor dice… | Qué hace el plugin |
+|---|---|
+| el mismo modelo | busca ese modelo exacto; si no está en el catálogo, **lo dice** en vez de ofrecer otro |
+| equivalente | busca por **función** (qué hace el equipo), no por modelo, y muestra las opciones con su costo |
+| las dos | arma la principal con la marca pedida y deja la alternativa lista para comparar |
+
+⚠️ **Licitación con marca amarrada** (caso patrón #2): el pliego pide esa
+marca por compatibilidad con algo instalado. Ahí **no se ofrece
+equivalente nunca**, aunque el asesor no lo aclare. Ofrecer otra marca es
+peor que decir "no lo tengo".
 
 ### Cómo leer la tabla de régimen fiscal
 

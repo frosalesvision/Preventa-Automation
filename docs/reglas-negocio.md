@@ -1505,6 +1505,32 @@ tiene que tocar el asesor después**, y que sepa exactamente cuáles.
 
 ---
 
+## R18 — Marca exacta o equivalente: lo decide el asesor, no el plugin
+
+**Estado: fijada por Fabián el 2026-09-25, a partir del caso patrón #5.**
+
+Una solicitud puede tener **varias cotizaciones válidas**. En el caso #5
+el cliente pidió Edwards y el propio equipo armó dos: la Edwards que se
+envió y una alternativa Kidde con el equipo a menos de la mitad del
+costo. Ninguna de las dos estaba mal.
+
+> *"en ocasiones depende del presupuesto o si el cliente no le importa se
+> cambian las marcas de lo solicitado, en otras ocasiones no."*
+
+Lo que decide no está en el documento del cliente. Por eso:
+
+1. **Se pregunta al inicio**, en `nueva-cotizacion`: el mismo modelo,
+   un equivalente, o las dos.
+2. **Nunca se sustituye en silencio.** Si el asesor pidió el modelo
+   exacto y no está en el catálogo, se dice; no se ofrece otro.
+3. **Licitación con marca amarrada: nunca equivalente** (caso #2).
+4. **Validar el plugin exige lo mismo:** un equivalente funcional cuenta
+   como acierto, porque el equipo mismo cotiza alternativas. Se compara
+   contra **todas** las versiones guardadas de la cotización, no contra
+   la última.
+
+---
+
 ## Reglas de higiene que aplican a todo
 
 - **Nunca escribir un número que no confirmó una persona.** Ante un dato
