@@ -43,7 +43,9 @@ CATALOGO = os.path.join(CLIENTES, "00_IA_PREVENTAS", "Preventas", "Catalogo",
                         "Catalogo de productos por proveedor.xlsx")
 
 COL_NOMBRE, COL_SKU, COL_PROVEEDOR = 0, 2, 5
-COL_MSRP, COL_DEALER = 6, 8
+# Desde el 2026-09-28 el precio dealer vive en la columna 11 (indice 10); la 9
+# (Precio de compra GV) es una formula que lo usa, y no sirve para medir.
+COL_MSRP, COL_DEALER = 6, 10
 
 # Un modelo mas corto que esto se confunde con cualquier cosa.
 MIN_SKU = 5

@@ -216,7 +216,8 @@ def leer_catalogo():
     textos = []
     pref = collections.Counter()
     for r in filas:
-        textos.append(" ".join(str(x) for x in (r[0], r[1], r[13] if len(r) > 13 else "")
+        # Descripcion: columna 16 (indice 15) desde el 2026-09-28
+        textos.append(" ".join(str(x) for x in (r[0], r[1], r[15] if len(r) > 15 else "")
                                if x))
         sku = str(r[2] or "").upper()
         for tok in RX_TOKEN.findall(sku):

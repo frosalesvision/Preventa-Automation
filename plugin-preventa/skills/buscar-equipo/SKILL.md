@@ -41,7 +41,8 @@ Esto se queda sin resolver hoy y genera trabajo manual repetido.
    certificaciones tipo NDAA, rango de lente, etc.), no solo en
    palabras sueltas.
 3. Si hay varios candidatos que cumplen razonablemente, mostrá todos
-   con su Marca/Modelo/Precio/Categoría y explicá en una línea por qué
+   con su Marca/Modelo/Costo/Categoría (el costo sale como dice "El
+   precio con que se arma la cotización", abajo) y explicá en una línea por qué
    cada uno cumple o no cumple del todo — dejá que el asesor elija, no
    elijas vos en su lugar.
 4. Si **ninguno** cumple al 100%, decilo explícitamente y mostrá el más
@@ -63,26 +64,56 @@ Esto se queda sin resolver hoy y genera trabajo manual repetido.
    Esto aplica en cualquier punto donde se muestre un precio del
    catálogo, incluyendo `armar-cotizacion` al tomar el "Costo Unit".
 
-**Sobre el "Costo Unit" que se usa (MEDIDO 2026-09-24 — ver R4 en
-[`docs/reglas-negocio.md`](../../../docs/reglas-negocio.md)):**
+### El precio con que se arma la cotización (R4 y R15)
 
-**Preguntale al asesor, al principio, con cuál precio se arma esta
-cotización.** El default es el **precio Dealer**, que es lo que dicen
-las cotizaciones reales — pero preguntalo, no lo asumas.
+El catálogo trae dos precios por producto, y **se pregunta una sola vez
+por cotización con cuál se arma** (decisión de Fabián, 2026-09-28):
 
-> *"¿Armo esta cotización con precio Dealer o con MSRP? Por defecto uso
-> Dealer, que es lo que usan las cotizaciones que revisamos."*
+| Precio | Columna | Qué es |
+|---|---|---|
+| **Precio de compra GV** | 9 | lo que Grupo Visión paga: el precio dealer si la lista lo trae; si no, el de lista menos el descuento del proveedor. **Es el recomendado** |
+| Precio de lista | 7 | el precio de la lista del proveedor, tal cual (en Hanwha e InVid, el MSRP) |
 
-**Por qué el Dealer y no el MSRP.** Se midieron 1.119 matrices y 57.607
-líneas de equipo. De las 134 líneas comparables contra las dos columnas:
-94 coinciden con el Dealer y **cero** con el MSRP. Las 35 que no pegan
-con ninguno son todas *más baratas* que el MSRP.
+La columna 9 es una fórmula del catálogo; vos no calculás nada:
+
+```
+Precio de compra GV  =  Precio dealer (col. 11)                     si la fila lo tiene
+                        Precio de lista (col. 7) × (1 − descuento)   si no
+```
+
+El descuento (col. 12) sale de la pestaña `Descuentos por proveedor`.
+
+**Cuándo y cómo se pregunta.** Cuando ya está elegido el equipo, al
+mostrar la tabla para confirmar: **una sola pregunta para toda la
+cotización**, no una por línea, con los descuentos de esos productos a
+la vista. Agrupalos por marca y tipo de equipo, con su estado:
+
+> *"Para estos productos, los descuentos que tenemos son: Hanwha
+> cámaras X% y grabadores Y% (medidos en cotizaciones, falta que
+> preventa los confirme); ISTC 0%, su precio ya es el de compra; EPA sin
+> descuento registrado. ¿Armamos con el precio con descuento de GV
+> (recomendado) o con el precio de lista (MSRP)? Con el de lista, el
+> precio al cliente sale alrededor de 1,85 veces el MSRP."*
+
+- **Si no contesta o dice "lo normal":** precio con descuento de GV.
+- **Si pide una mezcla** (por ejemplo "Hanwha con descuento, lo demás
+  lista"): se hace así, y en la tabla se marca qué precio lleva cada
+  línea.
+- **Si pide precio de lista:** columna 7 en todas las líneas, y se dice
+  que el margen real va a ser bastante mayor que el que muestra la
+  matriz.
+
+**Por qué el de compra y no el MSRP.** Se midieron 1.119 matrices y
+57.607 líneas de equipo. De las 134 líneas comparables contra las dos
+columnas: 94 coinciden con el dealer y **cero** con el MSRP. Las 35 que
+no pegan con ninguno son todas *más baratas* que el MSRP.
 
 El MSRP es donde el precio al cliente **aterriza** después de transporte,
-DAI, administración y margen — no de donde arranca. Puesto en `Costo
-Unit`, la cotización sale cerca del **doble**.
+DAI, administración y margen, no de donde arranca. Puesto en `Costo
+Unit`, la cotización sale cerca del **doble**: el cliente ve alrededor
+de 1,85 veces el MSRP.
 
-⚠️ **"Cotizar con el Dealer" no significa mostrarle ese precio al
+⚠️ **Cotizar con el precio de compra no significa mostrárselo al
 cliente.** El archivo de matriz son dos cosas a la vez:
 
 | Pestaña | Qué es | ¿La ve el cliente? |
@@ -90,32 +121,40 @@ cliente.** El archivo de matriz son dos cosas a la vez:
 | `Equipos` | la matriz de **costo**, cuentas internas | **nunca** |
 | `COTIZACIÓN ` | la oferta que se imprime y se manda | sí |
 
-El precio Dealer va en la primera. Lo que el cliente ve es el precio de
-venta, que en las cotizaciones reales sale alrededor de **1,85×** ese
+El precio de compra va en la primera. Lo que el cliente ve es el precio
+de venta, que en las cotizaciones reales sale alrededor de **1,85×** ese
 costo. En el caso patrón #3: costo $79 → el cliente vio $145,35.
 
-Si alguien pregunta *"¿entonces sí cotizamos con el Dealer?"*, la
-respuesta es: la cotización se **construye** con él, pero ese número
-**no se le muestra** al cliente.
+### Cuánto creerle al precio de cada fila
 
-⚠️ **Avisale de entrada que no todos los productos tienen precio
-Dealer.** El catálogo trae una columna `Tipo de precio cargado` que lo
-dice fila por fila:
+Lo dicen las columnas 11 y 12 de la fila, y el estado del descuento en la
+pestaña `Descuentos por proveedor`. Es lo que se muestra en la pregunta de
+arriba:
 
-| Valor | Filas | Qué hacer |
+| Si la fila tiene… | El precio de compra es… | Qué decirle al asesor |
 |---|---|---|
-| `LISTA Y DEALER` | 743 | usar el Dealer |
-| `UN SOLO PRECIO EN LA LISTA` | 202 | el proveedor publica uno solo: da igual cuál se elija |
-| `TIPO SIN CONFIRMAR` | 1.561 | usar el único que hay **y decirlo** |
-| `COSTO DE UNA COTIZACION REAL` | 35 | es un costo de verdad, pero viejo: mirá la fecha |
+| `Precio dealer` (col. 11) | el dealer | nada especial. Si el tipo (col. 28) dice `COSTO DE UNA COTIZACION REAL`, que es el costo de esa cotización: mostrá los días |
+| un porcentaje, estado `CONFIRMADO POR PREVENTA` | lista menos ese descuento | nada especial |
+| un porcentaje, estado `MEDIDO: FALTA CONFIRMAR` | lista menos ese descuento | que el descuento sale de medir las cotizaciones reales y **falta que preventa lo confirme**. Es el caso de Hanwha desde el 2026-09-28 |
+| `0%` | el precio de lista, que ya es el de compra | nada especial (ISTC, Seguritronic, Security Doctors) |
+| `PENDIENTE` | **el precio de lista tal cual** | que el proveedor está anotado pero su descuento todavía no tiene número: el costo real es menor |
+| vacío | el precio de lista tal cual | que ese proveedor no está en `Descuentos por proveedor`: no se sabe si su precio ya trae descuento |
 
-**`TIPO SIN CONFIRMAR` significa que no sabemos si ese número ya trae
-descuento.** Cuando una línea sale de ahí, decíselo al asesor
-explícitamente. No es un error usarla; es un dato que tiene que saber
-antes de mandar el precio, no después.
+**El descuento de Hanwha cambia según el proyecto**: con registro en el
+portal de Wisenet es mayor que el anotado. Si el asesor dice que el
+proyecto está registrado, preguntale si tiene el precio del proyecto.
 
-**Una cotización mezclada no es un error** — pero decí en cuáles líneas
-tuviste que caer a otro precio, y por qué.
+**Nunca inventes ni ajustes un descuento por tu cuenta.** Solo vale lo
+que está en la pestaña `Descuentos por proveedor`; el catálogo lo aplica
+solo, y no se deduce al cotizar.
+
+**Si el asesor te da un precio para una línea** —por ejemplo, porque el
+proyecto está registrado y el proveedor mandó precios con descuento—,
+**usá el suyo** y decí en cuáles líneas.
+
+**Una cotización mezclada no es un error**, pero al mostrar la lista
+marcá las líneas cuyo descuento no está confirmado (medido, `PENDIENTE`
+o vacío), y por qué.
 
 ### Lo que había contestado preventa, que no coincide
 
@@ -125,29 +164,11 @@ la marca, tipo de equipo y qué nivel de partners somos"* y que usan
 proyecto se registra *"el proveedor nos manda directamente los precios
 ya con el descuento"*.
 
-Lo medido no coincide. La explicación más probable es que estaban
-describiendo el **precio al cliente** —que sí aterriza cerca del MSRP—
-y se entendió como la casilla de costo. **Si el asesor insiste en MSRP,
-hacele caso**: es su cotización. Pero mostrale el número que sale, porque
-suele ser el doble del esperado.
-
-**Qué significa para vos, en concreto:**
-
-1. Tomá el `Precio USD` (MSRP) y usalo tal cual.
-2. **Decí que es MSRP**, para que el asesor sepa que ahí todavía no hay
-   descuento aplicado. No es un aviso de error: es el flujo normal.
-3. **No busques reglas de descuento** ni propongas un porcentaje. Esa
-   decisión no es tuya ni del catálogo; la toma preventa por proyecto.
-4. Si el asesor te dice que ese proyecto ya está registrado y tiene
-   precios del proveedor con descuento, usá **los que él te dé**, no los
-   del catálogo.
-
-⚠️ **Nunca elijas el precio Dealer por tu cuenta.** Es el nivel *Dealer
-Program* de la lista de un distribuidor, aproximadamente **la mitad del
-MSRP**. Usarlo sin que el asesor lo haya pedido significa cotizar
-alrededor del 50% por debajo de lo que la empresa quiere cobrar. Solo se
-usa si te lo piden explícitamente, y siempre diciendo en qué líneas
-aplicó y en cuáles no.
+Lo medido no coincide. La explicación más probable es que describían el
+**precio al cliente** —que sí aterriza cerca del MSRP— y se entendió como
+la casilla de costo. Por eso se recomienda el precio con descuento, pero
+se pregunta: si para una cotización quieren el precio de lista, es
+decisión de ellos.
 
 ### Cómo filtrar el catálogo (agregado 2026-09-22 — H-5, H-6, H-7)
 
@@ -182,7 +203,7 @@ categoría es **`Camara`**, no "Camaras".
 | `Equipo de computo` | 1 | Computadora / workstation |
 
 **2. Buscá el texto en `Nombre de equipo/producto` (col. 1) y
-`Descripcion` (col. 14).** Nada más.
+`Descripcion` (col. 16).** Nada más.
 
 ⚠️ **No busques en `Especificaciones tecnicas clave`.** Una versión
 anterior de este skill mandaba comparar contra esa columna: **está
@@ -349,11 +370,15 @@ InVid/Milesight para las mismas 400 cámaras):
 
 ## Formato de salida
 
-Tabla resumen simple: por cada línea, Marca | Modelo | Nombre | Precio
-| Cantidad, con una sección separada para "Equipo principal" y
-"Accesorios de instalación" (si el asesor los pidió). Aclarar siempre
-qué quedó pendiente de confirmar (accesorio sin match, cantidad no
-1:1, candidato que no cumple al 100%).
+Tabla resumen simple: por cada línea, Marca | Modelo | Nombre | Costo
+USD | Días del precio | Cantidad, con una sección separada para "Equipo
+principal" y "Accesorios de instalación" (si el asesor los pidió).
+Mostrá el precio de lista y el precio con descuento de GV de cada línea,
+para que la pregunta de "El precio con que se arma la cotización" se
+conteste mirando los dos. Marcá las líneas cuyo descuento no está
+confirmado (ver "Cuánto creerle al precio de cada fila"). Aclarar
+siempre qué quedó pendiente de confirmar (accesorio sin match, cantidad
+no 1:1, candidato que no cumple al 100%, descuento sin confirmar).
 
 ## Cómo se construye la pestaña "Compatibilidad de Accesorios" (nota técnica)
 

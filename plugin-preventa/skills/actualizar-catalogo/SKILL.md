@@ -45,7 +45,7 @@ Los compañeros solo tocan `Catalogos Proveedor/<Proveedor>/` (agregan o
 reemplazan un documento). Nadie edita el Excel a mano línea por línea —
 este skill lo hace por ellos, con confirmación.
 
-## Columnas del catálogo (25, orden fijo por prioridad — actualizado 2026-09-21)
+## Columnas del catálogo (26, orden fijo por prioridad — actualizado 2026-09-28)
 
 El orden de columnas **no es alfabético ni de conveniencia técnica**:
 está pensado para que un asesor de preventa vea lo más importante
@@ -58,29 +58,31 @@ ubicarla dentro del grupo que le corresponda (ver grupos abajo).
 | 1 | Nombre de equipo/producto | |
 | 2 | Marca | |
 | 3 | Modelo / SKU | El identificador exacto del proveedor. Junto con "Proveedor" es la clave para no duplicar filas — ver abajo |
-| 4 | Categoría | **Una de las 16 categorías canónicas** — ver R11 en `docs/reglas-negocio.md`. Tiene lista desplegable. No escribir aquí el texto crudo del proveedor: ese va en la columna 25 |
+| 4 | Categoría | **Una de las 16 categorías canónicas** — ver R11 en `docs/reglas-negocio.md`. Tiene lista desplegable. No escribir aquí el texto crudo del proveedor: ese va en la columna 27 |
 | 5 | Subcategoría | El detalle dentro de la categoría (ej. Cámara → PTZ). Ver R11 |
-| 6 | Proveedor | |
-| 7 | Precio de lista al público (MSRP) | Referencia de mercado. **No es lo que pagamos** — ver la columna 9. Dejar vacío si el documento no da precio en dólares. Ver "Tipo de cambio y precios" abajo |
-| 8 | Precio CRC | **Fórmula**, no se escribe a mano (ver "Tipo de cambio y precios") |
-| 9 | Precio de compra GV (USD) | Lo que Grupo Visión le **paga** al proveedor. Va en el `Costo Unit` de la pestaña de costo — **el cliente nunca ve este número** (medido el 2026-09-24 sobre 1.119 matrices: 94 de 134 líneas comparables usan este, y cero el MSRP). Solo si el documento lo trae aparte del de lista |
-| 10 | Precio de compra GV (CRC) | **Fórmula**, igual que Precio CRC |
-| 11 | Unidad de venta | `Unidad` en la mayoría de los casos; usar `Metro`, `Rollo`, `Caja`, etc. cuando el producto se venda por medida (ej. cable) en vez de por unidad |
-| 12 | Tiempo de entrega (días) | Lead time del proveedor si lo indica. Útil para saber si un equipo se puede prometer a tiempo en una cotización |
-| 13 | País de origen | Relevante para licitaciones que piden certificación de origen del fabricante (ej. tipo NDAA). Dejar vacío si el documento no lo indica |
-| 14 | Descripción | Texto libre, tal como lo da el documento fuente. Si el documento trae una nota aparte (cambio de precio, aviso de reemplazo, "solo bajo pedido", etc.), agregarla al final de este mismo campo como `-- Nota del proveedor: <texto>` en vez de crear una columna nueva o perder el dato |
-| 15 | Especificaciones técnicas clave | Lo necesario para comparar contra un pliego de condiciones (resolución, protección IP, certificaciones, etc.), si se puede extraer como algo distinto de la Descripción general |
-| 16 | Fecha de última actualización | Fecha en la que se cargó/actualizó esta fila (no la fecha del documento si son distintas — aclarar cuál es cuál si hay duda). Guardar como texto `AAAA-MM-DD`, no como fecha de Excel |
-| 17 | Vigencia del precio | Si el documento indica una validez (ej. "15 días") |
-| 18 | Peso | Dejar vacío si el documento no lo indica |
-| 19 | Dimensiones (H×W×D) | Dejar vacío si el documento no lo indica |
-| 20 | Código HTS | Código arancelario, si el documento lo trae. Uso de logística/aduanas, no de preventa — dejar vacío si no aplica |
-| 21 | Código ECCN | Clasificación de control de exportación, si el documento lo trae. Dejar vacío si no aplica |
-| 22 | Código EAN | Código de barras, si el documento lo trae. Dejar vacío si no aplica |
-| 23 | Archivo de origen | Nombre del documento dentro de `Catalogos Proveedor/<Proveedor>/` que sustenta esta fila. Si el dato vino pegado directo en el chat (sin documento), anotar algo como "Dato dado por <asesor> en chat, DD/MM/AAAA" en vez de dejarlo vacío — la trazabilidad importa igual |
-| 24 | Pestaña / Hoja de origen | Si la fuente es un Excel: nombre exacto de la pestaña de donde vino esta fila (ej. "HVA Pricelist"), para poder rastrear el dato si algo se pierde o se ve raro. Vacío si el origen fue un PDF o un dato pegado en el chat (no aplica) |
-| 25 | Categoría original del proveedor | El texto de categoría tal cual venía en el documento fuente, antes de normalizar (agregada 2026-09-18). Sirve para auditar una clasificación que se vea rara y para volver a normalizar si cambian las reglas |
-| 26 | Tipo de precio cargado | De qué tipo es el precio que trae la fila (agregada 2026-09-24). Cuatro valores: `LISTA Y DEALER`, `UN SOLO PRECIO EN LA LISTA`, `TIPO SIN CONFIRMAR` y `COSTO DE UNA COTIZACION REAL` (el costo que se uso en una cotizacion real; va con la fecha de esa cotizacion). Existe porque 1.579 de 2.524 productos tienen un solo número y no había forma de saber si ya venía con descuento. **Al cargar un proveedor nuevo hay que llenarla** |
+| 6 | Proveedor | Tal como aparece en la pestaña `Proveedores`: es la llave con la que se busca su descuento |
+| 7 | Precio de lista del proveedor (USD) | **Dato.** El precio que trae la lista del proveedor, tal cual (en Hanwha e InVid es el MSRP). **Nunca se reemplaza por el precio con descuento.** Dejar vacío si el documento no da precio en dólares |
+| 8 | Precio de lista del proveedor (CRC) | **Fórmula**, no se escribe a mano (ver "Tipo de cambio y precios") |
+| 9 | Precio de compra GV (USD) | **Fórmula: no se escribe.** Lo que Grupo Visión le **paga** al proveedor, y lo que va al `Costo Unit` de la matriz; el cliente nunca lo ve. Es el Precio dealer (col. 11) si la fila lo tiene; si no, el precio de lista menos el Descuento del proveedor (col. 12). Medido el 2026-09-24 sobre 1.119 matrices: 94 de 134 líneas comparables usan el dealer y cero el MSRP |
+| 10 | Precio de compra GV (CRC) | **Fórmula**, igual que la columna 8 |
+| 11 | Precio dealer (USD) | **Dato.** El precio para distribuidores, cuando la lista del proveedor lo trae aparte (InVid), o el costo de una cotización real. Si está, manda sobre el descuento. Agregada el 2026-09-28: estos precios estaban antes en la columna 9 |
+| 12 | Descuento del proveedor | **Fórmula**: lo busca en la pestaña `Descuentos por proveedor`. Muestra el porcentaje (`0%`, `30%`), `PENDIENTE` si el proveedor está anotado pero falta confirmarlo, o vacío si el proveedor no está en esa pestaña. Agregada el 2026-09-28 |
+| 13 | Unidad de venta | `Unidad` en la mayoría de los casos; usar `Metro`, `Rollo`, `Caja`, etc. cuando el producto se venda por medida (ej. cable) en vez de por unidad |
+| 14 | Tiempo de entrega (días) | Lead time del proveedor si lo indica. Útil para saber si un equipo se puede prometer a tiempo en una cotización |
+| 15 | País de origen | Relevante para licitaciones que piden certificación de origen del fabricante (ej. tipo NDAA). Dejar vacío si el documento no lo indica |
+| 16 | Descripción | Texto libre, tal como lo da el documento fuente. Si el documento trae una nota aparte (cambio de precio, aviso de reemplazo, "solo bajo pedido", etc.), agregarla al final de este mismo campo como `-- Nota del proveedor: <texto>` en vez de crear una columna nueva o perder el dato |
+| 17 | Especificaciones técnicas clave | Lo necesario para comparar contra un pliego de condiciones (resolución, protección IP, certificaciones, etc.), si se puede extraer como algo distinto de la Descripción general |
+| 18 | Fecha de última actualización | Fecha en la que se cargó/actualizó esta fila (no la fecha del documento si son distintas — aclarar cuál es cuál si hay duda). Se guarda como **fecha real de Excel** con formato `yyyy-mm-dd`, nunca como texto: así se puede ordenar y filtrar (ver "Los tipos de dato importan" abajo) |
+| 19 | Vigencia del precio | Si el documento indica una validez (ej. "15 días") |
+| 20 | Peso | Dejar vacío si el documento no lo indica |
+| 21 | Dimensiones (H×W×D) | Dejar vacío si el documento no lo indica |
+| 22 | Código HTS | Código arancelario, si el documento lo trae. Uso de logística/aduanas, no de preventa — dejar vacío si no aplica |
+| 23 | Código ECCN | Clasificación de control de exportación, si el documento lo trae. Dejar vacío si no aplica |
+| 24 | Código EAN | Código de barras, si el documento lo trae. Dejar vacío si no aplica |
+| 25 | Archivo de origen | Nombre del documento dentro de `Catalogos Proveedor/<Proveedor>/` que sustenta esta fila. Si el dato vino pegado directo en el chat (sin documento), anotar algo como "Dato dado por <asesor> en chat, DD/MM/AAAA" en vez de dejarlo vacío — la trazabilidad importa igual |
+| 26 | Pestaña / Hoja de origen | Si la fuente es un Excel: nombre exacto de la pestaña de donde vino esta fila (ej. "HVA Pricelist"), para poder rastrear el dato si algo se pierde o se ve raro. Vacío si el origen fue un PDF o un dato pegado en el chat (no aplica) |
+| 27 | Categoría original del proveedor | El texto de categoría tal cual venía en el documento fuente, antes de normalizar (agregada 2026-09-18). Sirve para auditar una clasificación que se vea rara y para volver a normalizar si cambian las reglas |
+| 28 | Tipo de precio cargado | Qué trae la fuente de esta fila (agregada 2026-09-24, simplificada 2026-09-28). Cuatro valores: `LISTA Y DEALER` (los dos precios; el dealer va en la col. 11), `UN SOLO PRECIO EN LA LISTA`, `SOLO PRECIO PUBLICO (MSRP)` (la lista trae solo el precio público: Hanwha) y `COSTO DE UNA COTIZACION REAL` (el costo que se usó en una cotización real, en la col. 11, con la fecha de esa cotización). Si un precio único ya es el de compra o le falta un descuento **no se dice acá**: lo dice la pestaña `Descuentos por proveedor`. **Al cargar un proveedor nuevo hay que llenarla** |
 
 ### Dónde va el precio de un proveedor nuevo (R15)
 
@@ -89,20 +91,59 @@ otro dos, **la mayoría trae uno solo**. La cotización necesita **un**
 número: el costo. Así que el catálogo se ordena alrededor de eso, no
 alrededor de cómo publica cada proveedor.
 
-| Si el proveedor publica… | Qué se carga |
-|---|---|
-| tres niveles (dealer / intermedio / lista) | el de **dealer** a `Precio de compra GV`, el de lista a `Precio de lista`. **El intermedio no se carga**: no se usa para cotizar y solo agrega ruido |
-| dos niveles | el más bajo al que podemos comprar de verdad a `Precio de compra GV`, el otro a `Precio de lista` |
-| un solo precio, y sabemos que es el nuestro | a `Precio de compra GV`. `Precio de lista` queda vacío |
-| un solo precio, y no sabemos cuál es | a `Precio de lista`, y `Tipo de precio cargado` = `TIPO SIN CONFIRMAR` |
+**El `Precio de compra GV` (col. 9) no se carga: se calcula solo.** Al
+cargar solo se escriben datos, cada uno en su columna, y **nunca se
+reemplaza un precio por el precio con descuento**:
 
-**La regla en una línea:** en `Precio de compra GV` va el **precio más bajo al que
-Grupo Visión puede comprar de verdad**. Todo lo demás es referencia.
+| Si el proveedor publica… | Qué se carga | Tipo (col. 28) |
+|---|---|---|
+| tres niveles (dealer / intermedio / lista) | el de **dealer** a `Precio dealer` (col. 11), el de lista a `Precio de lista` (col. 7). **El intermedio no se carga**: no se usa para cotizar y solo agrega ruido | `LISTA Y DEALER` |
+| dos niveles | el más bajo al que podemos comprar de verdad a `Precio dealer`, el otro a `Precio de lista` | `LISTA Y DEALER` |
+| un solo precio | a `Precio de lista` | `UN SOLO PRECIO EN LA LISTA` |
+| solo el precio público (MSRP), y el proveedor nos hace un descuento sobre él | el MSRP a `Precio de lista` | `SOLO PRECIO PUBLICO (MSRP)` |
 
-⚠️ **Nunca inventes en cuál de los dos va.** Si el documento no dice si
-ese precio es de lista o ya negociado, se carga como
-`TIPO SIN CONFIRMAR` y se sigue. Adivinar mal hacia el lado del costo
-infla la cotización al doble; adivinar mal hacia el otro lado la deja
+Cuando la lista no trae dealer, **el descuento va en la pestaña
+`Descuentos por proveedor`**, no en el catálogo. Una fila por
+descuento: proveedor, y si hace falta marca y categoría (gana la fila más
+específica). Al escribir el porcentaje ahí, todo el catálogo de ese
+proveedor se recalcula. Ejemplos de hoy:
+
+- **Hanwha:** su lista trae el MSRP y una casilla para que cada
+  distribuidor reste su descuento. Desde el 2026-09-28 lleva los
+  descuentos medidos en las cotizaciones reales, uno general y uno por
+  tipo de equipo, con estado `MEDIDO: FALTA CONFIRMAR` hasta que preventa
+  los confirme (decisión de Fabián: aplicarlos tal cual lo medido).
+- **ISTC, Seguritronic y Security Doctors:** `0%`, porque su precio de lista ya es
+  el de compra (medido en las cotizaciones reales, mediana 1,00).
+- **Axis por Anixter:** medido en una cotización de 2024. Todavía no hay
+  productos Axis cargados; la fila se aplica cuando se cargue su lista, y
+  hay que revisar que el proveedor de la fila sea el mismo que el de esas
+  filas del catálogo.
+
+⚠️ **Descuento es lo que se RESTA, no lo que se paga.** Si el proveedor
+nos cobra el 40% de la lista, el descuento es **60%**. Ya pasó una vez
+(2026-09-28: se cargaron los "se paga" de Hanwha como descuento, y el
+precio de compra quedó más alto que el real). Por eso la pestaña tiene
+al lado una columna calculada, `Se paga (% de la lista)`: si ahí sale un
+número grande donde se esperaba un descuento grande, está al revés.
+
+**Un proveedor nuevo con un solo precio y sin fila en esa pestaña** queda
+con el descuento vacío: se cotiza con su precio tal cual y la cotización
+avisa que no se sabe si ya trae descuento. Para resolverlo **se mide**,
+sin preguntarle a nadie: `python scripts/medir-descuento-por-proveedor.py`
+compara el precio cargado con el costo que se usó en las cotizaciones
+reales. Cerca de 1,00 = su precio ya es el de compra: se anota `0%`.
+Bastante menos de 1,00 = falta un descuento: se anota como `PENDIENTE`
+con lo medido, y lo confirma preventa.
+
+**La regla en una línea:** se carga lo que dice la lista, tal cual; el
+precio de compra lo calcula el catálogo con el dealer o con el descuento
+del proveedor.
+
+⚠️ **Nunca inventes un descuento.** Si el documento no dice si su
+precio ya es el de compra, se carga como precio de lista y se sigue: la
+pestaña de descuentos y la cotización se encargan de avisarlo. Adivinar
+mal hacia un lado infla la cotización al doble; hacia el otro la deja
 sin margen.
 
 **Otras monedas:** el catálogo es en **dólares** y punto (R16). Si la
@@ -112,10 +153,49 @@ de otra moneda en ningún lado: envejece sola y nadie se entera.
 
 **Grupos de columnas (para saber dónde insertar una columna nueva)**:
 identidad y clasificación (1-6, lo primero que ve un asesor) → precios
-(7-10) → condiciones de venta (11-13) → texto descriptivo (14-15) →
-metadata de la fila (16-17) → logística/aduanas (18-22, dejar vacío si
+(7-12) → condiciones de venta (13-15) → texto descriptivo (16-17) →
+metadata de la fila (18-19) → logística/aduanas (20-24, dejar vacío si
 el documento no lo trae, nunca inventar ni preguntar por cada campo
-faltante) → trazabilidad de origen (23-25, siempre al final).
+faltante) → trazabilidad de origen (25-28, siempre al final).
+
+⚠️ **Insertar una columna corre a todas las de su derecha**, y hay
+scripts que leen por posición (`scripts/verificar-catalogo.py`,
+`medir-*.py`, `casos-patron-linea-base.py`). Después de insertar,
+actualizá sus constantes y corré el verificador. Así se hizo el
+2026-09-28 al agregar las columnas 11 y 12.
+
+## Las pestañas `Descuentos por proveedor` y `Proveedores` (2026-09-28)
+
+**`Descuentos por proveedor`** es de donde el catálogo saca el descuento
+de cada fila sin precio dealer. Columnas: Proveedor, Marca, Categoria,
+Descuento, Se paga (% de la lista, calculada), Estado, De dónde sale,
+Medido en cotizaciones reales, Fecha, Notas, y dos técnicas (Clave y
+Valor) que usa la fórmula. Reglas:
+
+- El **Descuento vacío** no se aplica: el catálogo muestra `PENDIENTE` y
+  usa el precio de lista tal cual.
+- Si escriben `30` en vez de `30%`, se entiende como 30% (el mismo
+  criterio que el impuesto en el machote).
+- **Estado:** `CONFIRMADO POR PREVENTA`, `MEDIDO: FALTA CONFIRMAR`,
+  `PENDIENTE` o `NO APLICA`. La cotización avisa todo lo que no esté
+  confirmado.
+- Es una tabla de Excel: una fila nueva hereda sola las fórmulas técnicas.
+
+**`Proveedores`** dice a quién se le compra, qué vende, si se le compra
+afuera (lo que va en `IMPORTADO`, R1), dónde está y dónde están sus
+precios; y cuenta con una fórmula cuántos productos suyos hay cargados.
+Salió de la base de datos de proveedores de COMERCIAL 2024, de la Lista
+de precios General (su columna "Precio Nacional") y, para los seis que
+no estaban en la base, de internet. Trae también **vendedor, teléfono y
+correo** (pedido de Fabián, 2026-09-28), copiados de la base de
+proveedores; los de EPA, Security Doctors y Salvavidas salieron de su
+web o de sus cotizaciones. **Las notas de la base no se copian**: una
+traía el usuario y la contraseña de un portal. Si un contacto cambia,
+hay que actualizarlo acá y en la base. Al cargar un proveedor nuevo,
+agregale su fila acá también.
+
+⚠️ Estos contactos son datos de personas: viven en el catálogo y en la
+base, que son internos, y **nunca se copian a ningún archivo del repo**.
 
 No hay una pestaña de historial de precios — el archivo vive en
 SharePoint/OneDrive, que ya guarda automáticamente el historial de
@@ -131,7 +211,7 @@ editables a mano por el equipo (`B3` = tipo de cambio de compra, `B4`
 definidos a nivel de libro que las referencian: `TipoCambioCompra` y
 `TipoCambioVenta`.
 
-- **Precio CRC** (columna 8, `H`) y **Precio de compra GV (CRC)** (columna 10, `J`;
+- **Precio de lista (CRC)** (columna 8, `H`) y **Precio de compra GV (CRC)** (columna 10, `J`;
   antes se llamaba "Precio especial GV (CRC)") son fórmulas, no valores
   escritos a mano:
   `=IF(G2="","",IF(TipoCambioVenta="","Actualizar TC",ROUND(G2*TipoCambioVenta,2)))`
@@ -150,18 +230,29 @@ definidos a nivel de libro que las referencian: `TipoCambioCompra` y
   con Excel por COM, que sí las reajusta, y cerrá con
   `python scripts/verificar-catalogo.py`, cuyo chequeo 6 compara cada
   fórmula contra la fila en la que está.
-- **Al agregar una fila nueva**: escribí el precio en dólares en
-  "Precio USD" (columna 7, `G`) y dejá que la fórmula de "Precio CRC"
-  calcule sola — no escribas un valor literal en esa columna. Copiá la
-  fórmula de la fila anterior hacia abajo (mismo patrón relativo) en
-  vez de tipear una fórmula nueva a mano.
+- **El `Precio de compra GV` (col. 9, `I`) también es fórmula**, desde el
+  2026-09-28:
+  `=IF(ISNUMBER($K2),$K2,IF(ISNUMBER($G2),IF(N($L2)=0,$G2,ROUND($G2*(1-N($L2)),2)),""))`.
+  O sea: el dealer si lo hay; si no, el de lista menos el descuento; y si
+  el descuento es 0, `PENDIENTE` o vacío, el de lista exacto, sin redondear.
+  El **Descuento del proveedor** (col. 12, `L`) es otra fórmula, que busca
+  en `TablaDescuentos` la fila más específica: proveedor + marca +
+  categoría, después proveedor + marca, después solo proveedor.
+- **Al agregar una fila nueva**: escribí solo los datos en dólares —
+  columna 7 (`G`, precio de lista) y, si la lista lo trae, columna 11
+  (`K`, precio dealer)—, según "Dónde va el precio de un proveedor
+  nuevo". **No escribas nada en las columnas 8, 9, 10 ni 12**: son
+  fórmulas. Si la fila queda dentro de `TablaCatalogo`, Excel las copia
+  solo; si no, copiá la fórmula de la fila anterior hacia abajo (mismo
+  patrón relativo) en vez de tipear una nueva.
 - **Si el documento fuente solo da el precio en colones** (no en
   dólares): calculá el equivalente en USD como
-  `Precio CRC del documento / TipoCambioVenta` y escribí ese resultado
-  como valor literal en "Precio USD" — la fórmula de "Precio CRC"
-  recalculará y debería coincidir (con un margen mínimo de redondeo)
-  con el valor original del documento. Nunca escribas un valor literal
-  directamente en la columna "Precio CRC".
+  `precio en colones del documento / TipoCambioVenta` y escribí ese
+  resultado como valor literal en la columna en dólares que corresponda
+  (7 u 11) — la fórmula en colones recalculará y debería coincidir (con
+  un margen mínimo de redondeo) con el valor original del documento.
+  Nunca escribas un valor literal directamente en las columnas 8, 9, 10
+  ni 12; el verificador (chequeo 6) avisa si alguien lo hizo.
 - Si el equipo pide actualizar el tipo de cambio, el cambio va en `B3`/
   `B4` de la pestaña `Tipo de Cambio` — eso solo actualiza todas las
   filas del catálogo automáticamente vía la fórmula, no hay que tocar
@@ -184,11 +275,27 @@ Reglas de formato a mantener:
   tabla es escaneable. El contenido completo sigue ahí; se ve entero
   haciendo clic en la celda (barra de fórmulas) o ensanchando la
   columna, no hace falta que la fila crezca.
-- Encabezado (fila 1) congelado (`FreezePanes`) para que se mantenga
-  visible al hacer scroll.
-- Precio de lista (columna 7) y Precio de compra GV (columna 9) con formato de
-  moneda en dólares; Precio CRC y Precio de compra GV (CRC) con formato de moneda en
-  colones (símbolo ₡).
+- Congelados (`FreezePanes`) el encabezado (fila 1) y las columnas
+  Nombre, Marca y Modelo (`A` a `C`), para que se vean al hacer scroll.
+  Categoría y Subcategoría **no** van congeladas (decisión de Fabián,
+  2026-09-28): ocupaban media pantalla.
+- Los precios llevan su signo, para que se sepa de un vistazo en qué
+  moneda están: columnas 7, 9 y 11 en dólares (`[$$-409]#,##0.00`),
+  columnas 8 y 10 en colones (`"₡"#,##0.00`), columna 12 en porcentaje.
+  El formato va puesto sobre la columna entera de la tabla, así las filas
+  nuevas lo heredan. Hasta el 2026-09-28 estaban en formato General y un
+  precio se veía como `1234`; ahora se ve `$1 234,00`, con los
+  separadores de la PC.
+
+  ⚠️ **Dos trampas al poner un formato por COM desde PowerShell**, las
+  dos vistas el 2026-09-28. (1) PowerShell le habla a Excel en el idioma
+  de Windows (es-CR), y Excel lee `$#,##0.00` con la coma como
+  *decimal*: guarda `$#.##0\.00` y un precio de 1234 se ve `$1234,0.00`. El
+  formato se pasa en inglés con
+  `[System.__ComObject].InvokeMember("NumberFormat", SetProperty, $null, $rango, @($formato), [CultureInfo]"en-US")`.
+  (2) En inglés, un `$` suelto —o entre comillas— significa "la moneda
+  del país" y en una PC de Costa Rica sale en **colones**. Para dólares
+  va `[$$-409]`, el dólar de EE. UU., que se ve igual en cualquier PC.
 - Anchos de columna pensados para lectura rápida: Nombre y Descripción
   anchas, Archivo de origen ancha (los nombres de archivo reales son
   largos), campos de código (HTS/ECCN/EAN) angostos.
@@ -280,7 +387,7 @@ ahí quedate con una sola fila.
    fuente es un Excel; vacío si es PDF o dato pegado en chat), y "Fecha
    de última actualización" para cada fila tocada. Las filas nuevas van
    dentro del rango de la tabla `TablaCatalogo` (no debajo, suelto) y
-   con la fórmula de Precio CRC copiada de la fila anterior, no un valor
+   con las fórmulas de las columnas 8, 9, 10 y 12 copiadas de la fila anterior, no un valor
    a mano — ver "Tipo de cambio y precios" y "Formato y presentación"
    arriba para el detalle de cómo escribir cada columna.
 6. **Mostrá un checklist final**: cuántas filas se agregaron, cuántas
@@ -309,8 +416,9 @@ nuevos hasta que se corra.
 
 ## Estado real de la columna "Precio especial GV" (corregido 2026-09-18)
 
-> **Hoy esa columna se llama `Precio de compra GV (USD)`** (renombrada el
-> 2026-09-24 a `Precio de compra GV`, y el 2026-09-28 a su nombre actual; R4 y R15). Esta sección es la historia de cómo se descubrió
+> **Hoy esa columna se llama `Precio de compra GV (USD)`** (el 2026-09-24
+> pasó a llamarse `COSTO USD (precio Dealer)`, y el 2026-09-28 tomó su
+> nombre actual; R4 y R15). Esta sección es la historia de cómo se descubrió
 > qué había cargado en ella; los nombres de abajo son los de entonces.
 
 ⚠️ **Corrección a lo que decía antes este archivo.** Esta sección
@@ -481,7 +589,7 @@ subcategorizada **no desaparece** —sigue en el catálogo— pero
 aparecer en las búsquedas. El producto se vuelve invisible sin que nada
 falle.
 
-Revisa cinco cosas:
+Revisa siete cosas:
 
 1. Que la categoría exista en la taxonomía.
 2. **Que la subcategoría pertenezca a esa categoría.** Es el chequeo que
@@ -492,9 +600,18 @@ Revisa cinco cosas:
    que `taxonomia.py` quedó viejo.
 4. Campos vacíos que impiden cotizar esa fila. Ojo: un SKU vacío **no**
    es error en materiales genéricos ni en servicios; nadie le pone
-   número de parte a "tubo metal 3/4".
-5. SKU repetido dentro del mismo proveedor (puede ser legítimo: el mismo
-   artículo con dos precios, uno por stock limitado).
+   número de parte a "tubo metal 3/4". También cuenta, como aviso,
+   cuántas filas se cotizan con el precio de lista porque su descuento
+   está `PENDIENTE` o el proveedor no está en `Descuentos por proveedor`.
+5. El mismo producto cargado dos veces por el mismo proveedor (SKU
+   comparado sin guiones ni espacios). El mismo producto de dos
+   proveedores distintos es normal: sirve para comparar.
+6. **Que las fórmulas estén y miren su propia fila**: precios en
+   colones, Precio de compra GV y Descuento del proveedor. Detecta el
+   desfase que deja `openpyxl` al borrar filas y, desde el 2026-09-28,
+   un número escrito encima de la fórmula del precio de compra.
+7. Que el `Tipo de precio cargado` sea uno de los cuatro valores y
+   cuadre con el Precio dealer.
 
 ## Los tipos de dato importan, no solo los valores (corregido 2026-09-22)
 
@@ -513,7 +630,7 @@ Ya están convertidos. **Al cargar un proveedor nuevo, escribí números
 como números y fechas como fecha real** (`datetime.date` con formato de
 celda `yyyy-mm-dd`), nunca como cadena.
 
-No confundir con `Precio CRC` y `Precio de compra GV (CRC)`: esas **sí**
+No confundir con `Precio de lista (CRC)` y `Precio de compra GV (CRC)`: esas **sí**
 son texto a veces, y está bien — son fórmulas que devuelven
 `"Actualizar TC"` mientras la pestaña `Tipo de Cambio` esté vacía.
 

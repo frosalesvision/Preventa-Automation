@@ -7,12 +7,12 @@ preventa de Grupo Visión (cotizaciones de sistemas de seguridad/cámaras).
 
 | Skill | Qué hace | Estado (2026-09-25) |
 |---|---|---|
-| `nueva-cotizacion` | **El punto de entrada.** Recibe el pedido tal como te llegó, pregunta solo lo que falta —tipo de cotización, impuesto del cliente, si va la marca exacta o se acepta un equivalente, financiamiento, tipo de cambio— y encadena los demás skills en orden. | Funcional. Probado en corridas de prueba; **falta que lo use el equipo** |
-| `buscar-equipo` | Busca en el catálogo el equipo que cumple la especificación. Toma como costo el **precio dealer**, avisa qué líneas no tienen costo confirmado, tolera variantes del modelo (prefijo de marca, sufijos) y **sugiere** los accesorios que suelen hacer falta, con su frecuencia. | Funcional. Limitado por lo que hay en el catálogo (ver línea base) |
+| `nueva-cotizacion` | **El punto de entrada.** Recibe el pedido tal como te llegó, pregunta solo lo que falta —tipo de cotización, impuesto del cliente, si va la marca exacta o se acepta un equivalente, financiamiento, tipo de cambio, y si se cotiza con el precio con descuento de GV o el de lista— y encadena los demás skills en orden. | Funcional. Probado en corridas de prueba; **falta que lo use el equipo** |
+| `buscar-equipo` | Busca en el catálogo el equipo que cumple la especificación. Muestra el **precio de lista** y el **precio con descuento de GV** de cada línea, pregunta una vez con cuál se arma y avisa qué descuentos no están confirmados; tolera variantes del modelo (prefijo de marca, sufijos) y **sugiere** los accesorios que suelen hacer falta, con su frecuencia. | Funcional. Limitado por lo que hay en el catálogo (ver línea base) |
 | `armar-cotizacion` | Crea la carpeta de la cotización, copia el machote, llena `Equipos` (descripción, IMPORTADO, cantidad, costo) y registra la oferta en los dos Excels de control. | Funcional, probado de punta a punta |
 | `generar-pdf-cotizacion` | Exporta a PDF **solo** la pestaña de cotización que ve el cliente, después de revisar errores, impuesto y total, y de confirmar nombre y ruta. | Funcional desde 2026-09-25; falta usarlo con una cotización real |
 | `seguimiento-correo` | Redacta (nunca envía) el borrador del correo de seguimiento al cliente. | Funcional; faltan ejemplos reales de algunos estados |
-| `actualizar-catalogo` | Carga las listas de precios de los proveedores al catálogo, cada precio en su columna: lo que paga Grupo Visión en `Precio de compra GV`, el público en `Precio de lista`. | Funcional. Catálogo: 2.541 productos, 26 columnas, 6 chequeos automáticos |
+| `actualizar-catalogo` | Carga las listas de precios de los proveedores al catálogo tal cual vienen: el precio de lista y, si la lista lo trae, el dealer. El `Precio de compra GV` lo calcula el catálogo solo, con el dealer o con el descuento del proveedor. | Funcional. Catálogo: 2.541 productos, 28 columnas, 7 chequeos automáticos |
 | `verificar-entorno` | Revisa qué accesos están listos y explica la instalación a quien empieza. | Funcional |
 | `sync-bitrix` | Actualiza la tarjeta del Kanban de Bitrix24 al cerrar una cotización. | En espera: falta que Operaciones genere el webhook |
 
@@ -126,8 +126,8 @@ No sigas al siguiente paso hasta que ese checklist salga en ✅ completo.
 3. **Respondé las preguntas que te haga.** Pregunta solo lo que falte
    para trabajar —nunca inventa cantidades, características ni
    presupuesto—, y si ya lo dijiste en el pedido no te lo vuelve a
-   preguntar. Hay cuatro cosas que **pregunta siempre**, porque cambian
-   la plata:
+   preguntar. Hay cinco cosas que **pregunta siempre**, porque cambian
+   la plata (la quinta, sobre el precio, en el paso 4):
    - **El impuesto del cliente.** Te propone 13%, pero casi un tercio de
      las cotizaciones van exentas y algunas universidades pagan 2%.
    - **Si va la marca exacta o se acepta un equivalente.** Depende del
@@ -135,13 +135,18 @@ No sigas al siguiente paso hasta que ese checklist salga en ✅ completo.
    - **Si la oferta lleva financiamiento.**
    - **El tipo de cambio.** Te propone el que está en el catálogo y te
      pregunta si lo mantenemos o lo cambiás para ese proyecto.
+   - **Con qué precio se arma: con el descuento de GV o el de lista
+     (MSRP).** Una sola vez, cuando ya está elegido el equipo, con los
+     descuentos de cada marca a la vista. Lo recomendado es con descuento.
 4. **Revisá la lista de equipo antes de que se escriba en ningún
    archivo.** Te va a mostrar marca, modelo, costo y cantidad de cada
    línea y va a esperar tu confirmación. Dos cosas para mirar:
-   - El costo es el **precio dealer**, lo que paga Grupo Visión. Si en
-     alguna línea no hay costo cargado y tuvo que usar el de lista, **te
-     lo dice**: ahí el margen real va a ser mayor que el que muestra la
-     matriz.
+   - Cada línea trae el **precio de lista** y el **precio con descuento
+     de GV**. Te pregunta **una sola vez** con cuál armar la cotización,
+     mostrando los descuentos que tiene cada marca de tu lista (por
+     ejemplo, "Hanwha cámaras X%, medido; ISTC 0%"). Lo recomendado es
+     el precio con descuento; si elegís el de lista, el precio al cliente
+     sale alrededor de 1,85 veces el MSRP.
    - Te va a **sugerir accesorios** que suelen hacer falta y nadie pide
      —fuente de poder, batería, base del detector, disco del NVR—,
      diciendo en qué porcentaje de las cotizaciones aparecen. Vos
@@ -179,9 +184,13 @@ detalle y la evidencia de cada una están en
 [`docs/reglas-negocio.md`](../docs/reglas-negocio.md), con un índice al
 principio.
 
-- **El costo es el precio dealer**, lo que paga Grupo Visión. El MSRP es
-  referencia: es donde suele *terminar* el precio al cliente, no de donde
-  arranca el cálculo (R4, R15).
+- **El costo recomendado es el `Precio de compra GV`**, lo que paga Grupo
+  Visión: el precio dealer si la lista lo trae; si no, el precio de lista
+  menos el descuento del proveedor, que vive en la pestaña `Descuentos
+  por proveedor`. Se pregunta una vez por cotización si se usa ese o el
+  precio de lista. El precio cargado nunca se reemplaza por el precio con
+  descuento. El MSRP es donde suele *terminar* el precio al cliente, no
+  de donde arranca el cálculo (R4, R15).
 - **`IMPORTADO` dice a quién se le compra**, no dónde se fabrica. Con
   `no`, transporte y DAI quedan en cero. Una línea de flete va siempre
   como `no` (R1, R1.1).
@@ -206,6 +215,8 @@ principio.
 |---|---|
 | El catálogo | `CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/Catalogo de productos por proveedor.xlsx`. Empezá por su pestaña `LEEME` |
 | Qué significa cada columna del catálogo | Pestaña `Guia de columnas` del mismo archivo |
+| El descuento de cada proveedor | Pestaña `Descuentos por proveedor`: el catálogo lo aplica solo; preventa lo confirma |
+| A quién se le compra, su vendedor, teléfono y correo, si es importado | Pestaña `Proveedores` |
 | Las marcas que faltan cargar | Pestaña `Marcas por cargar`: la completa preventa |
 | Los accesorios que se sugieren | Pestaña `Accesorios Requeridos` |
 | El impuesto por cliente | Pestaña `Regimen Fiscal Clientes` |
@@ -290,9 +301,9 @@ una capa de conveniencia encima, no un reemplazo.
 - Ningún archivo con datos reales de clientes se commitea (ver
   `.gitignore` en la raíz del repo).
 - **Después de cada carga o edición del catálogo**, correr
-  `python scripts/verificar-catalogo.py`. Revisa seis cosas que Excel no
-  avisa, entre ellas filas repetidas y precios en colones que apuntan a
-  otra fila.
+  `python scripts/verificar-catalogo.py`. Revisa siete cosas que Excel no
+  avisa, entre ellas filas repetidas, fórmulas que apuntan a otra fila y
+  un número escrito encima de la fórmula del precio de compra.
 - **Nunca borrar filas del catálogo con `openpyxl`**: no reajusta las
   fórmulas. Y nunca guardar con `openpyxl` el machote ni los Excels de
   control: borra los dibujos y los desplegables sin avisar. Se escribe

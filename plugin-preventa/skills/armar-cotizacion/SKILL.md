@@ -187,20 +187,31 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
      especificación, no cuántas unidades hacen falta), así que
      preguntale al asesor si no la tenés ya de la especificación del
      cliente.
-   - **E (Costo Unit):** el **precio Dealer** del catálogo (columna
-     `Precio de compra GV`) — lo que Grupo Visión le paga al proveedor.
-     Es la base sobre la que el machote calcula transporte, impuestos,
-     margen y precio de venta.
+   - **E (Costo Unit):** el precio que el asesor eligió para esta
+     cotización (se pregunta una sola vez, al confirmar el equipo; ver
+     [`buscar-equipo`](../buscar-equipo/SKILL.md), "El precio con que se
+     arma la cotización"). Por defecto y recomendado: el **precio de
+     compra** del catálogo (columna 9, `Precio de compra GV (USD)`), lo
+     que Grupo Visión le paga al proveedor. Si el asesor pidió precio de
+     lista: la columna 7. Es la base sobre la que el machote calcula
+     transporte, impuestos, margen y precio de venta.
 
-     ⚠️ **No el MSRP.** Medido sobre 1.119 matrices reales: de las 134
-     líneas comparables, 94 usan el Dealer y **cero** el MSRP. El MSRP
-     es donde el precio al cliente *aterriza*, no de donde arranca;
-     escrito acá, la cotización sale cerca del **doble** (ver R4).
+     ⚠️ **Por qué se recomienda el precio de compra y no el de lista.**
+     Medido sobre 1.119 matrices reales: de las 134 líneas comparables,
+     94 usan el Dealer y **cero** el MSRP. El MSRP es donde el precio al
+     cliente *aterriza*, no de donde arranca; escrito acá, la cotización
+     sale cerca del **doble** (ver R4). Si el asesor igual lo pide, se
+     hace y se dice en la entrega.
 
-     Cuando la fila no tiene Dealer —la columna `Tipo de precio
-     cargado` dice `TIPO SIN CONFIRMAR`, y son 1.561 de 2.541— usá el
-     único precio que haya **y decí en la entrega cuáles líneas son
-     esas**, porque no se sabe si ya traen descuento.
+     La columna 9 es una fórmula del catálogo: el precio dealer si la
+     fila lo tiene, y si no, el precio de lista menos el descuento del
+     proveedor (columna 12, que sale de la pestaña `Descuentos por
+     proveedor`). Copiá su valor; no lo recalcules. **Decí en la entrega
+     cuáles líneas llevan un descuento no confirmado**: medido (Hanwha,
+     por ahora), `PENDIENTE` o vacío. Si el asesor te da el precio con
+     descuento de un proyecto, va el suyo. El detalle está en
+     [`buscar-equipo`](../buscar-equipo/SKILL.md), "Cuánto creerle al
+     precio de cada fila".
 
    - **C (IMPORTADO):** `si` cuando Grupo Visión compra ese ítem fuera
      del país, `no` cuando lo compra local (R1). Manda sobre dos

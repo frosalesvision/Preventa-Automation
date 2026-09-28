@@ -1,14 +1,15 @@
 # Lo que falta, y de dónde sale
 
-> **Actualizado el 2026-09-25.** Casi todo lo que antes eran preguntas se
+> **Actualizado el 2026-09-28.** Casi todo lo que antes eran preguntas se
 > resolvió **midiendo las cotizaciones reales** (1.119 matrices) en vez de
 > preguntando. Lo que queda abierto son cosas que **solo el equipo puede
-> dar**: aprobar lo que se midió, y decir de dónde salen los precios que
-> nos faltan.
+> dar**: aprobar lo que se midió, confirmar los descuentos y decir de
+> dónde salen los precios que nos faltan.
 >
-> El mensaje que se le mandó a preventa por Teams el 2026-09-25 cubre los
-> puntos 1 y 2. El detalle de cada regla está en
-> [`reglas-negocio.md`](reglas-negocio.md), con un índice al principio.
+> Los mensajes para preventa por Teams (uno con las reglas de cálculo,
+> otro con las marcas y las confirmaciones) cubren los puntos 1 a 3. El
+> detalle de cada regla está en [`reglas-negocio.md`](reglas-negocio.md),
+> con un índice al principio.
 >
 > Contexto: comprometido en la reunión del 2026-09-14. Meta conjunta:
 > **empezar a usar el plugin en octubre.**
@@ -24,9 +25,9 @@
 Son reglas que el equipo aplica pero no tiene escritas; salieron de leer
 sus cotizaciones. Están en el índice de
 [`reglas-negocio.md`](reglas-negocio.md), columna *De dónde sale* =
-*medido*. La más importante es **R4**: el costo es el precio dealer y no
-el MSRP, que es lo contrario de lo que se había contestado el
-2026-09-22.
+*medido*. La más importante es **R4**: el costo recomendado es el precio
+de compra de GV y no el MSRP. El plugin pregunta una vez por cotización
+con cuál armarla, mostrando los descuentos que aplican.
 
 ### 2. Completar la pestaña `Marcas por cargar` del catálogo
 
@@ -36,21 +37,36 @@ compra, si hay lista de precios y dónde está**. Las columnas en
 amarillo son para eso. Es lo que más mueve la línea base: el 46% de las
 líneas que el plugin no encuentra espera estas marcas.
 
-### 3. Cuatro confirmaciones cortas
+### 3. Confirmaciones cortas
 
-- **¿El precio de Hanwha en el catálogo es lo que Hanwha le cobra a Grupo
-  Visión, o es el precio público sugerido (MSRP)?** Es la pregunta que más
-  pesa: son **1.381 de las 1.561 filas** sin tipo confirmado. En la línea base, una cámara
-  Hanwha se cotizó a **0,68x** del catálogo, lo que sugiere que es de
-  lista. Pero es un solo caso.
-- **¿Los de ISTC y Seguritronic son costo?** Son 84 filas. En la línea
-  base se cotizaron a **1,00x** (Edwards) y **0,89x** (DSC) del catálogo,
-  lo que sugiere que sí.
+- **Los descuentos de Hanwha.** Su lista trae solo el MSRP (se abrió el
+  2026-09-28: tiene una casilla para que cada distribuidor reste su
+  descuento). El descuento se midió en las cotizaciones reales y en las
+  cotizaciones de Anixter, general y por tipo de equipo, y **se aplica
+  desde el 2026-09-28** por decisión de Fabián, con estado `MEDIDO: FALTA
+  CONFIRMAR`. Preventa solo tiene que confirmarlos o corregirlos en la
+  celda amarilla de la pestaña `Descuentos por proveedor`. Es lo que más
+  pesa: 1.381 productos. Dos detalles para preguntar: si las **térmicas**
+  van con otro descuento (su lista dice que van por un acuerdo aparte), y
+  cuánto sube el descuento con **registro de proyecto**.
+- **ISTC, Seguritronic y Security Doctors, 0%.** Medido: su precio ya es
+  el de compra (mediana 1,00). Que lo confirmen con un sí.
 - **¿A quién se le compran gabinetes, breakers, protectores y cables, y van
   en todos los proyectos o solo en algunos?** Son el 29% de lo que falta y
   ninguna lista de marcas los resuelve.
 - **12 clientes del régimen fiscal** marcados `NO CONFIRMADO` (una sola
   cotización cada uno). Mientras tanto el plugin los pregunta igual.
+- **Tres proveedores sin datos** en la pestaña `Proveedores`: quién es
+  "Soluciones tecnológicas" (el nombre está incompleto) y los contactos
+  de Electro Maz y Frama Soluciones.
+
+### 4. La "Lista de precios General 2"
+
+Está solo en el OneDrive de Katherine (compartida por link). El catálogo
+se cargó de un CSV de la lista general que tiene filas que no están en la
+versión de `COMERCIAL 2024 > PREVENTA 2026 > GV`, así que la "2" es
+probablemente la más nueva. Hace falta bajarla a esa carpeta para
+compararla con el catálogo.
 
 ## Para contabilidad
 
@@ -101,10 +117,14 @@ haga falta.
 
 ### Sobre el margen y el 1,85×
 
-Escribir el MSRP en `Costo Unit` hace que el cliente vea **1,85 veces el
-MSRP**, porque la matriz le suma transporte, DAI, administración y
-margen. Se deja así: es lo que hacen en la mayoría de las cotizaciones
-medidas, y el margen se puede cambiar a mano en el Excel.
+La matriz le suma al costo transporte, DAI, administración y margen: con
+los porcentajes de fábrica, el cliente ve alrededor de **1,85 veces el
+costo**. Por eso importa qué se escribe en `Costo Unit`: con el precio
+de compra, el precio al cliente aterriza cerca del MSRP, que es lo que
+muestran las cotizaciones medidas; con el MSRP como costo, el cliente ve
+1,85 veces el MSRP. El plugin recomienda el precio de compra y pregunta
+una vez por cotización (R4). El margen se puede cambiar a mano en el
+Excel.
 
 ---
 
@@ -121,8 +141,8 @@ una respuesta válida y cierra el tema.
 
 | Pregunta | Cómo quedó |
 |---|---|
-| **1. Descuentos por proveedor y marca** | **No hay tabla y no la va a haber.** El descuento depende de marca, tipo de equipo, nivel de partner y proyecto. Se cotiza con MSRP y ellos aplican el descuento a mano. Cuando el proyecto se registra, el proveedor manda los precios ya con descuento. Ver R4 |
-| **2. En qué nivel de precio compramos** | **MSRP, siempre.** La columna del nivel Dealer quedó renombrada como referencia con aviso de no usar. Ver R4.2 |
+| **1. Descuentos por proveedor y marca** | **No hay tabla y no la va a haber.** El descuento depende de marca, tipo de equipo, nivel de partner y proyecto. Se cotiza con MSRP y ellos aplican el descuento a mano. Cuando el proyecto se registra, el proveedor manda los precios ya con descuento. Ver R4. *Revisado después:* el 2026-09-24 la medición mostró que el costo real es el dealer, y desde el 2026-09-28 sí hay una pestaña `Descuentos por proveedor`, con los descuentos medidos por marca y tipo de equipo, editable y conectada al precio de compra (R15) |
+| **2. En qué nivel de precio compramos** | **MSRP, siempre.** La columna del nivel Dealer quedó renombrada como referencia con aviso de no usar. Ver R4.2. *Revisado el 2026-09-24 midiendo:* 94 de 134 líneas usan el dealer y ninguna el MSRP (R4) |
 | **3. Clientes exentos** | ✅ **Datos cargados** en `Regimen Fiscal Clientes`. Una institución de seguridad social exenta, dos universidades públicas al 2%, zona franca varía caso por caso. El 3% de administración **no se modela**: lo deciden según qué tan competitivos quieran ser |
 | **5. Proporciones de materiales** | **Confirmado que no se puede estandarizar.** *"Una cámara puede instalarse a 5 metros del grabador, pueden ser 70, 80 mts."* Coincide con lo que ya se había decidido. Ver R10 |
 | **6. Destinos y kilometraje** | **Ya estaba resuelto en el machote** y ellos lo sabían: `Transporte` + `MANO DE OBRA` lo calculan. Al verificarlo apareció un `-1` en la fórmula de viáticos, ya corregido. Ver R9 |

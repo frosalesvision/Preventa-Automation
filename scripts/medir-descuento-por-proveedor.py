@@ -63,7 +63,8 @@ def leer_catalogo():
         k = lb.mm.clave(r[2])
         if not k or not lb.es_modelo(str(r[2])) or k in idx:
             continue
-        tiene_compra = len(r) > 8 and isinstance(r[8], (int, float))
+        # col. 11 (indice 10) = Precio dealer; la 9 es formula y siempre tiene numero
+        tiene_compra = len(r) > 10 and isinstance(r[10], (int, float))
         lista = r[6] if isinstance(r[6], (int, float)) else None
         if tiene_compra or not lista:
             idx[k] = None          # se indexa para no confundir, pero no se mide

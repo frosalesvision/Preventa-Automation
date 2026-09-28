@@ -283,8 +283,13 @@ def leer_catalogo():
         if k and not es_modelo(str(r[2])):
             por_sub[(r[3], r[4])] += 1
             continue
-        es_costo = len(r) > 8 and isinstance(r[8], (int, float))
-        costo = r[8] if es_costo else (r[6] if isinstance(r[6], (int, float)) else None)
+        # Desde el 2026-09-28: col. 9 (r[8]) = Precio de compra GV, formula que
+        # ya es "el precio con que se cotiza"; col. 11 (r[10]) = Precio dealer;
+        # col. 12 (r[11]) = Descuento del proveedor. Es COSTO de verdad si hay
+        # dealer o si el descuento del proveedor es un numero (tambien 0%).
+        num = lambda v: isinstance(v, (int, float))
+        es_costo = (len(r) > 10 and num(r[10])) or (len(r) > 11 and num(r[11]))
+        costo = r[8] if len(r) > 8 and num(r[8]) else (r[6] if num(r[6]) else None)
         if k and k not in idx:
             # (precio con que se cotizaria, si ese precio es un COSTO de verdad)
             idx[k] = (costo, es_costo)

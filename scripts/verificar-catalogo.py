@@ -42,16 +42,36 @@ RUTA_POR_DEFECTO = os.path.expandvars(
     r"\Catalogo\Catalogo de productos por proveedor.xlsx"
 )
 
-# Columnas, base 0, segun el orden fijo documentado en actualizar-catalogo
+# Columnas, base 0, segun el orden fijo documentado en actualizar-catalogo.
+# Desde el 2026-09-28 son 28: la 9 (Precio de compra GV) es FORMULA, y se
+# agregaron la 11 (Precio dealer, dato) y la 12 (Descuento del proveedor,
+# formula que lee la pestana Descuentos por proveedor).
 COL_NOMBRE, COL_MARCA, COL_SKU = 0, 1, 2
 COL_CATEGORIA, COL_SUBCATEGORIA, COL_PROVEEDOR = 3, 4, 5
-COL_PRECIO = 6
-COL_CRC, COL_DEALER_USD, COL_DEALER_CRC = 7, 8, 9
+COL_PRECIO = 6            # G  Precio de lista del proveedor (USD), dato
+COL_CRC = 7               # H  Precio de lista (CRC), formula
+COL_COMPRA_USD = 8        # I  Precio de compra GV (USD), FORMULA
+COL_COMPRA_CRC = 9        # J  Precio de compra GV (CRC), formula
+COL_DEALER_USD = 10       # K  Precio dealer (USD), dato
+COL_DESCUENTO = 11        # L  Descuento del proveedor, formula
 # Por NOMBRE de posicion, nunca "la ultima columna": el 2026-09-24 se agrego
-# la 26 (Tipo de precio cargado) y el chequeo 3, que usaba r[-1], empezo a
+# la columna del tipo de precio y el chequeo 3, que usaba r[-1], empezo a
 # pasarle "TIPO SIN CONFIRMAR" al clasificador como si fuera la categoria del
 # proveedor. Paso de 2 a 564 diferencias sin que ninguna fila cambiara.
-COL_CAT_ORIGINAL = 24
+COL_CAT_ORIGINAL = 26
+COL_TIPO_PRECIO = 27
+
+# Los valores validos de la columna 28 (Tipo de precio cargado): dicen que
+# trae la fuente. True = tiene que haber Precio dealer; False = no deberia
+# haberlo; None = puede o no. Si se agrega un tipo, va aca, en
+# actualizar-catalogo y en "Cuanto creerle al precio de cada fila" de
+# buscar-equipo.
+TIPOS_PRECIO = {
+    "LISTA Y DEALER": True,
+    "COSTO DE UNA COTIZACION REAL": True,
+    "UN SOLO PRECIO EN LA LISTA": None,
+    "SOLO PRECIO PUBLICO (MSRP)": False,
+}
 
 
 def es_numero(v):
@@ -59,13 +79,16 @@ def es_numero(v):
 
 
 def precio_efectivo(r):
-    """El precio con el que se cotizaria esta fila (R15).
+    """El precio con el que se cotizaria esta fila (R15): el Precio de compra GV.
 
-    El COSTO si existe; si no, el de lista. Es el mismo orden que usa
-    armar-cotizacion, y es el que tiene sentido comparar al buscar filas
-    repetidas: dos filas sin precio de lista pero con costos distintos no
-    son la misma fila.
+    Es formula, asi que se lee el valor que Excel dejo guardado. Si falta
+    (un archivo guardado por algo que no calcula), se rehace a mano: el
+    dealer si lo hay, si no el de lista. Es el que tiene sentido comparar al
+    buscar filas repetidas: dos filas con el mismo precio de lista pero
+    distinto dealer no son la misma fila.
     """
+    if len(r) > COL_COMPRA_USD and es_numero(r[COL_COMPRA_USD]):
+        return r[COL_COMPRA_USD]
     if len(r) > COL_DEALER_USD and es_numero(r[COL_DEALER_USD]):
         return r[COL_DEALER_USD]
     return r[COL_PRECIO] if es_numero(r[COL_PRECIO]) else None
@@ -86,8 +109,9 @@ def cargar_formulas(ruta):
     hoja = wb["Catalogo"]
     out = []
     for n, f in enumerate(hoja.iter_rows(min_row=2, values_only=True), start=2):
-        out.append((n, f[COL_CRC] if len(f) > COL_CRC else None,
-                    f[COL_DEALER_CRC] if len(f) > COL_DEALER_CRC else None))
+        def col(i):
+            return f[i] if len(f) > i else None
+        out.append((n, col(COL_CRC), col(COL_COMPRA_CRC), col(COL_COMPRA_USD), col(COL_DESCUENTO)))
     wb.close()
     return out
 
@@ -176,26 +200,41 @@ def main():
                      if not r[COL_SKU] and r[COL_CATEGORIA] in SIN_SKU_OK)
     sin_sku = sum(1 for r in filas
                   if not r[COL_SKU] and r[COL_CATEGORIA] not in SIN_SKU_OK)
-    # Desde R15 (2026-09-24) una fila puede traer solo el COSTO, sin precio
-    # de lista: es la mejor fila posible, no una incompleta. Lo grave es no
-    # tener NINGUNO de los dos, porque ahi no hay con que cotizar.
+    # Desde R15 (2026-09-24) una fila puede traer solo el precio dealer, sin
+    # precio de lista: es la mejor fila posible, no una incompleta. Lo grave
+    # es no tener NINGUN precio, porque ahi no hay con que cotizar.
+    #
+    # Desde el 2026-09-28 el precio de compra sale solo, y lo que importa es
+    # CUANTO CREERLE cuando no hay dealer: con descuento PENDIENTE (Hanwha)
+    # o con el proveedor sin registrar en Descuentos por proveedor, el precio
+    # de compra es el de lista tal cual y la cotizacion lo tiene que avisar.
+    def descuento(r):
+        return r[COL_DESCUENTO] if len(r) > COL_DESCUENTO else None
+
+    def sin_dealer(r):
+        return not (len(r) > COL_DEALER_USD and es_numero(r[COL_DEALER_USD]))
+
     sin_precio = sum(1 for r in filas if precio_efectivo(r) is None)
-    solo_lista = sum(1 for r in filas
-                     if es_numero(r[COL_PRECIO]) and not (len(r) > COL_DEALER_USD
-                                                          and es_numero(r[COL_DEALER_USD])))
+    pendiente = sum(1 for r in filas if sin_dealer(r) and descuento(r) == "PENDIENTE")
+    sin_registro = sum(1 for r in filas
+                       if sin_dealer(r) and es_numero(r[COL_PRECIO]) and descuento(r) in (None, ""))
     sin_marca = sum(1 for r in filas if not r[COL_MARCA])
     sin_prov = sum(1 for r in filas if not r[COL_PROVEEDOR])
     print("--- 4. Campos vacios que impiden cotizar esa fila ---")
     for etiqueta, n, grave in (("sin Modelo / SKU (equipo)", sin_sku, True),
-                               ("sin ningun precio (ni costo ni lista)", sin_precio, True),
+                               ("sin ningun precio", sin_precio, True),
                                ("sin Proveedor", sin_prov, True),
                                ("sin Marca", sin_marca, False),
-                               ("solo precio de lista, sin costo", solo_lista, False),
+                               ("descuento PENDIENTE: compra = lista", pendiente, False),
+                               ("proveedor sin descuento registrado", sin_registro, False),
                                ("sin SKU, material o servicio", sin_sku_ok, False)):
         marca = "FALTA" if (n and grave) else ("aviso" if n else "OK   ")
-        print("    %-6s %-30s %d" % (marca, etiqueta, n))
+        print("    %-6s %-37s %d" % (marca, etiqueta, n))
         if n and grave:
             problemas += n
+    if pendiente or sin_registro:
+        print("           (no es error: esas filas se cotizan con el precio de lista")
+        print("            y la cotizacion lo avisa; se resuelve en Descuentos por proveedor)")
     if sin_sku_ok:
         print("           (normal: materiales genericos y servicios no llevan SKU)")
     print()
@@ -291,18 +330,31 @@ def main():
     #
     # Por eso se revisa que cada formula mire su PROPIA fila. La de Excel
     # (COM) si reajusta bien; la trampa es solo de openpyxl.
-    print("--- 6. Precio en colones apuntando a otra fila ---")
-    corridas, rotas = [], []
-    for n, f_crc, f_dealer in cargar_formulas(ruta):
-        for col, f in (("Precio CRC", f_crc), ("Dealer CRC", f_dealer)):
+    #
+    # Desde el 2026-09-28 tambien son formula el Precio de compra GV (col. 9)
+    # y el Descuento del proveedor (col. 12). Ahi el riesgo es otro: que
+    # alguien escriba un numero ENCIMA. La celda sigue mostrando un precio
+    # creible, pero ya no sigue al dealer ni al descuento, y nadie se entera.
+    print("--- 6. Formulas del catalogo: que esten y que miren su propia fila ---")
+    corridas, rotas, pisadas = [], [], []
+    RX_REF = re.compile(r"\$?([A-Z]{1,2})\$?(\d+)")
+    for n, f_crc, f_compra_crc, f_compra, f_desc in cargar_formulas(ruta):
+        for col, f, obligatoria in (("Precio de lista (CRC)", f_crc, False),
+                                    ("Precio de compra GV (CRC)", f_compra_crc, False),
+                                    ("Precio de compra GV (USD)", f_compra, True),
+                                    ("Descuento del proveedor", f_desc, True)):
             if not isinstance(f, str) or not f.startswith("="):
+                if obligatoria:
+                    pisadas.append((n, col, f))
                 continue
             if "#REF!" in f:
                 rotas.append((n, col))
                 continue
-            m = re.search(r"IF\(([GI])(\d+)=", f)
-            if m and int(m.group(2)) != n:
-                corridas.append((n, col, int(m.group(2)) - n))
+            # las referencias a TablaDescuentos[...] no llevan numero de fila
+            filas_ref = {int(m.group(2)) for m in RX_REF.finditer(f)}
+            otras = [x for x in filas_ref if x != n]
+            if otras:
+                corridas.append((n, col, otras[0] - n))
     if rotas:
         problemas += len(rotas)
         print("    GRAVE: %d celda(s) con #REF!.  Quedaron apuntando a una" % len(rotas))
@@ -311,16 +363,67 @@ def main():
             print("      fila %-6d %s" % (n, col))
     if corridas:
         problemas += len(corridas)
-        print("    GRAVE: %d celda(s) muestran el precio en colones de OTRO" % len(corridas))
-        print("    producto.  No da error: da un numero creible y equivocado.")
-        desfases = collections.Counter(d for _, _, d in corridas)
-        for d in sorted(desfases):
-            print("      corridas %+d fila(s): %d celdas" % (d, desfases[d]))
+        print("    GRAVE: %d celda(s) calculan con los datos de OTRA fila." % len(corridas))
+        print("    No da error: da un numero creible y equivocado.")
+        desfases = collections.Counter((c, d) for _, c, d in corridas)
+        for (c, d), k in sorted(desfases.items()):
+            print("      %-28s corridas %+d fila(s): %d celdas" % (c, d, k))
         print("    Se arregla reescribiendo la formula de cada fila para que")
-        print("    mire su propia fila.  El precio en dolares NO esta afectado:")
-        print("    es un dato fijo, no una formula.")
-    if not (rotas or corridas):
-        print("    OK: cada precio en colones sale del dolar de su misma fila")
+        print("    mire su propia fila.  Los precios en dolares cargados NO estan")
+        print("    afectados: son datos fijos, no formulas.")
+    if pisadas:
+        problemas += len(pisadas)
+        print("    GRAVE: %d celda(s) con un valor escrito encima de la formula." % len(pisadas))
+        print("    Ese precio ya no sigue al dealer ni al descuento del proveedor.")
+        for n, col, v in pisadas[:6]:
+            print("      fila %-6d %-28s tiene %r" % (n, col, v))
+        print("    Se arregla copiando la formula de la fila de arriba.  Si el valor")
+        print("    escrito era un precio de compra real, va en Precio dealer (col. 11).")
+    if not (rotas or corridas or pisadas):
+        print("    OK: todas las formulas estan y cada una mira su propia fila")
+    print()
+
+    # --- 7. Tipo de precio cargado: que exista y que cuadre con los precios ---
+    #
+    # La columna 28 dice que trae la fuente de cada fila. Un tipo mal escrito
+    # no rompe el calculo, pero deja a quien lee sin saber de donde salio el
+    # precio; y un tipo que promete precio dealer sin tenerlo es un dato que
+    # se perdio al cargar.
+    print("--- 7. Tipo de precio cargado ---")
+    conteo = collections.Counter()
+    desconocidos, sin_su_dealer, dealer_de_mas = [], [], []
+    for n, r in enumerate(filas, start=2):
+        tipo = str(r[COL_TIPO_PRECIO] or "").strip() if len(r) > COL_TIPO_PRECIO else ""
+        conteo[tipo or "(vacio)"] += 1
+        tiene_dealer = len(r) > COL_DEALER_USD and es_numero(r[COL_DEALER_USD])
+        if tipo not in TIPOS_PRECIO:
+            desconocidos.append((n, tipo or "(vacio)"))
+        elif TIPOS_PRECIO[tipo] is True and not tiene_dealer:
+            sin_su_dealer.append((n, tipo))
+        elif TIPOS_PRECIO[tipo] is False and tiene_dealer:
+            dealer_de_mas.append((n, tipo))
+    for tipo, c in conteo.most_common():
+        print("      %-34s %d" % (tipo, c))
+    if desconocidos:
+        problemas += len(desconocidos)
+        print("    GRAVE: %d fila(s) con el tipo vacio o mal escrito.  Validos:" % len(desconocidos))
+        print("    %s" % ", ".join(TIPOS_PRECIO))
+        for n, t in desconocidos[:6]:
+            print("      fila %-6d '%s'" % (n, t))
+    if sin_su_dealer:
+        problemas += len(sin_su_dealer)
+        print("    REVISAR: %d fila(s) dicen traer precio dealer y la columna 11" % len(sin_su_dealer))
+        print("    esta vacia: se estan cotizando con el precio de lista.")
+        for n, t in sin_su_dealer[:6]:
+            print("      fila %-6d %s" % (n, t))
+    if dealer_de_mas:
+        print("    aviso: %d fila(s) tienen precio dealer y el tipo dice que la" % len(dealer_de_mas))
+        print("    lista trae solo el precio publico.  Se cotizan bien (manda el")
+        print("    dealer); falta actualizar el tipo.")
+        for n, t in dealer_de_mas[:6]:
+            print("      fila %-6d %s" % (n, t))
+    if not (desconocidos or sin_su_dealer):
+        print("    OK: todos los tipos existen y cuadran con los precios")
     print()
 
     print("=" * 66)

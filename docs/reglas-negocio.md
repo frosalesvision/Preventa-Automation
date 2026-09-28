@@ -19,7 +19,7 @@
 
 ## Índice: todas las reglas de un vistazo
 
-Actualizado el 2026-09-25. **De dónde sale** dice si la regla la dijo
+Actualizado el 2026-09-28. **De dónde sale** dice si la regla la dijo
 preventa, si sale de medir las cotizaciones reales, o si la decidió
 Fabián. Las que salen de medir están pendientes de que preventa las
 apruebe.
@@ -30,7 +30,7 @@ apruebe.
 | R1.1 | Una línea de flete va como `no` importada | medido: 728 líneas, el 91% así | vigente |
 | R2 | Hay dos IVA: el de línea (un costo nuestro) y el impuesto al cliente | preventa | vigente |
 | R3 | El impuesto al cliente depende del cliente: se pregunta, con 13% recomendado | preventa; medido: 873 cotizaciones, 29% exentas | vigente, tabla de 46 clientes |
-| R4 | El costo es el precio **dealer**, no el MSRP | medido: 94 de 134 líneas, ninguna con MSRP | vigente; contradice lo que dijo preventa |
+| R4 | El costo recomendado es el **precio de compra de GV** (dealer, o lista menos el descuento del proveedor), no el MSRP. Se pregunta una vez por cotización con cuál se arma | medido: 94 de 134 líneas, ninguna con MSRP; la pregunta, Fabián | vigente |
 | R5 | Sin registro de proyecto no aplica el descuento mayor | preventa | concepto vigente, falta el mecanismo |
 | R6 | No hay tabla de porcentajes; los del machote son los más usados, y el margen se mueve según el tipo | preventa; medido: 499 matrices | vigente |
 | R7 | Tipo de cambio: por defecto el de la pestaña del catálogo; en cada cotización se confirma o se cambia | preventa y Fabián | vigente |
@@ -41,7 +41,7 @@ apruebe.
 | R12 | Se avisa si el precio tiene más de 2 meses | Fabián | vigente |
 | R13 | Financiamiento: siempre preguntar | preventa | vigente |
 | R14 | Hasta 50 líneas por cotización | medido | vigente |
-| R15 | Modelo de precios: un costo obligatorio (`Precio de compra GV`), lo demás es referencia | medido y decidido | vigente |
+| R15 | Modelo de precios: los precios se cargan tal cual y el `Precio de compra GV` se calcula solo, con el dealer o con la pestaña `Descuentos por proveedor` | medido y decidido | vigente desde 2026-09-28 |
 | R16 | Solo dólares; otra moneda la convierte quien cotiza | Fabián | vigente |
 | R17 | La primera corrida apunta a quedar bien; el Excel siempre se corrige a mano | Fabián | principio de diseño |
 | R18 | Marca exacta o equivalente: lo decide el asesor | Fabián; caso patrón #5 | vigente |
@@ -340,9 +340,10 @@ mayúsculas) más la comprobación de que la financiada respeta la
 exención. Si alguien vuelve a quemar un porcentaje, el smoke test falla.
 
 ⚠️ **Lo que esto NO resuelve:** la pestaña `Regimen Fiscal Clientes`
-sigue vacía, así que el valor de `B15`/`B16` hoy lo tiene que escribir
-la persona que cotiza. La fórmula garantiza que *si se escribe, se
-respeta* — no que alguien lo sepa.
+tiene 46 clientes derivados de las cotizaciones (12 sin confirmar), pero
+un cliente nuevo no está, y 14 cambian de tasa según el proyecto. La
+fórmula garantiza que *si se escribe, se respeta* — no que alguien lo
+sepa. Por eso el impuesto se pregunta siempre.
 
 ---
 
@@ -388,32 +389,48 @@ Lo que se midió no coincide con eso. Las dos lecturas posibles:
 
 La primera explica los datos sin que nadie se haya equivocado, y encaja
 con que el precio final del caso patrón quedó al 92% del MSRP en la
-línea principal. **Igual se sigue preguntando al asesor al inicio**: la
-medición cambia el default, no la conversación.
+línea principal.
 
-### Lo que de verdad limita hoy
+### Cómo se decide en cada cotización (Fabián, 2026-09-28)
+
+Primero dijo: *"se toma el precio dealer siempre, si por alguna razón
+ese precio no está en nuestro catálogo se toma el precio default"*. Ese
+es el **default recomendado**. Y después, para no imponerlo: el plugin
+pregunta **una sola vez por cotización** —no por línea— si arma con el
+precio con descuento de GV o con el precio de lista (MSRP), mostrando
+los descuentos que aplican a los productos elegidos, con su estado
+(confirmado, medido o sin registrar). Si el asesor elige el de lista, se
+hace y se le dice que el precio al cliente sale alrededor de 1,85 veces
+el MSRP (R4.1).
+
+### Lo que de verdad limitaba, y cómo quedó
 
 Más importante que "Dealer o MSRP": de 2.524 productos, solo **945**
-tienen las dos columnas, y los 945 son de **un mismo proveedor**. Para
-los otros **1.579** hay un solo número y no se sabía de qué tipo era.
+tenían las dos columnas, y los 945 eran de **un mismo proveedor**. Para
+los otros **1.579** había un solo número y no se sabía de qué tipo era.
 
-Por eso el catálogo tiene desde el 2026-09-24 una columna **`Tipo de
-precio cargado`** con tres valores:
+**Resuelto el 2026-09-28** (ver R15): el precio de compra dejó de ser un
+dato que alguien tiene que conseguir y pasó a calcularse. Para los
+productos sin precio dealer, sale del **precio de lista menos el
+descuento del proveedor**, anotado en la pestaña `Descuentos por
+proveedor`. Se midió proveedor por proveedor:
 
-| Valor | Filas | Qué significa |
-|---|---|---|
-| `LISTA Y DEALER` | 743 | están los dos; el costo es el Dealer |
-| `UN SOLO PRECIO EN LA LISTA` | 202 | el proveedor publica uno solo |
-| `TIPO SIN CONFIRMAR` | 1.561 | hay un número y no sabemos si ya trae descuento |
-| `COSTO DE UNA COTIZACION REAL` | 35 | sacado del `Costo Unit` de una cotización real; es costo, pero con la fecha de esa cotización |
+- **ISTC, Seguritronic y Security Doctors:** su único precio ya es el de
+  compra (mediana 1,00 entre el costo usado y el precio cargado). Van con
+  0%.
+- **Hanwha:** su lista trae solo el MSRP y una casilla para que cada
+  distribuidor reste su descuento. El descuento se midió en las
+  cotizaciones reales y en las de Anixter, por tipo de equipo, y se
+  aplica desde el 2026-09-28 con estado `MEDIDO: FALTA CONFIRMAR`
+  (decisión de Fabián: *"apliquémoslos tal cual la data que
+  recolectamos"*). Los porcentajes viven en la pestaña, no acá: son una
+  condición comercial.
+- **El resto** no tiene fila todavía: se cotiza con su precio tal cual y
+  la cotización avisa que no se sabe si ya trae descuento.
 
-**Cuando una línea sale de una fila `TIPO SIN CONFIRMAR`, hay que
-decirlo en la cotización.** No es un error usarla: es un dato que el
-asesor tiene que saber antes de mandar el precio, no después.
-
-No hay tabla de reglas de descuento y no la va a haber. La pestaña
-`Reglas de Descuento` del catálogo, que nunca se llenó, se eliminó el
-2026-09-28.
+La pestaña `Reglas de Descuento` que había antes nunca se llenó y se
+eliminó el 2026-09-28. La diferencia con la nueva es que **esta está
+conectada**: el precio de compra se calcula con ella.
 
 ### R4.1 — Lo que el MSRP como costo le hace al precio final
 
@@ -1426,9 +1443,13 @@ OneDrive y que la carpeta se lee. Lo que sí aplica en toda máquina es
 
 ---
 
-## R15 — Modelo de precios: un costo obligatorio, todo lo demás es referencia
+## R15 — Modelo de precios: se carga lo que dice la lista, y el precio de compra se calcula
 
-**Estado: definida el 2026-09-24, después de medir.**
+**Estado: definida el 2026-09-24, después de medir. Rehecha el
+2026-09-28 a pedido de Fabián:** *"no debes cambiar el precio que
+tenemos en el catálogo por el precio con descuento"*, y que el precio de
+compra sea *"una fórmula que tome el precio normal y le haga la fórmula
+con el descuento"*, con los descuentos en una pestaña aparte.
 
 Cada proveedor publica sus precios como se le antoja. Uno trae tres
 niveles (`Dealer Program`, `DEAL`, `MSRP`), otro trae dos, la mayoría
@@ -1437,40 +1458,56 @@ marca, tipo de equipo y qué nivel de partners somos"*, y averiguarlo es
 manual. Cargar eso tal cual, cada proveedor con su estructura, vuelve el
 catálogo inservible para automatizar.
 
-**La cotización necesita exactamente un número por producto: el costo.**
-Todo lo demás es referencia. Así que el catálogo se organiza alrededor de
-eso, no alrededor de cómo publica cada proveedor.
+**La cotización necesita un número por producto: el costo.** El catálogo
+lo calcula en vez de pedírselo a alguien.
 
-### Las tres columnas y qué va en cada una
+### Las columnas de precio (desde el 2026-09-28)
 
-| Columna | Qué es | ¿Obligatoria? |
-|---|---|---|
-| `Precio de compra GV` | **lo que Grupo Visión paga**, el mejor precio al que podemos comprar de verdad | **sí, siempre que se sepa** |
-| `Precio de lista al público (MSRP)` | referencia de mercado, lo que el fabricante sugiere que valga | no |
-| `Tipo de precio cargado` | de dónde salió el costo y cuánto se le puede creer | **sí** |
+| Col. | Columna | Qué es | ¿Dato o fórmula? |
+|---|---|---|---|
+| 7 | `Precio de lista del proveedor (USD)` | el precio que trae la lista, tal cual (en Hanwha e InVid, el MSRP). **Nunca se reemplaza por el precio con descuento** | dato |
+| 9 | `Precio de compra GV (USD)` | **lo que Grupo Visión paga** | **fórmula** |
+| 11 | `Precio dealer (USD)` | el precio para distribuidores, si la lista lo trae aparte; o el costo de una cotización real | dato |
+| 12 | `Descuento del proveedor` | el que corresponde a esa fila, buscado en la pestaña `Descuentos por proveedor` | fórmula |
+| 28 | `Tipo de precio cargado` | qué trae la fuente: `LISTA Y DEALER`, `UN SOLO PRECIO EN LA LISTA`, `SOLO PRECIO PUBLICO (MSRP)` o `COSTO DE UNA COTIZACION REAL` | dato |
+
+```
+Precio de compra GV  =  Precio dealer                          si la fila lo tiene
+                        Precio de lista × (1 − descuento)      si no
+```
 
 **La regla al cargar un proveedor nuevo, sin importar cuántos niveles
 publique:**
 
-1. El **precio más bajo al que GV puede comprar de verdad** va a
-   `Precio de compra GV`. Si publica tres niveles, es el de dealer/programa. Si
-   publica uno solo y sabemos que es el nuestro, ese.
-2. El **precio público**, si lo hay, va a `Precio de lista`.
+1. El **precio de lista** va a la columna 7, tal cual.
+2. Si la lista trae un **precio dealer** (el más bajo al que GV compra de
+   verdad), va a la columna 11.
 3. Los niveles intermedios **no se cargan**: no se usan para cotizar y
    solo agregan ruido.
-4. `Tipo de precio cargado` dice qué caso fue.
+4. Si no hay dealer, el **descuento del proveedor** se anota en la
+   pestaña `Descuentos por proveedor`: una fila por proveedor, y si hace
+   falta por marca y por tipo de equipo (gana la más específica). Si su
+   precio ya es el de compra, va con 0%.
+5. `Tipo de precio cargado` dice qué trajo la fuente.
 
 ### Qué hace la cotización con esto
 
-```
-Costo Unit  =  Precio de compra GV     si existe        → confianza alta
-               Precio de lista         si no hay costo  → SE AVISA al asesor
-```
+Pregunta **una vez por cotización** si arma con el precio de compra de GV
+(recomendado) o con el de lista, mostrando los descuentos que aplican y
+su estado (R4). Y en la entrega marca, línea por línea, lo que no esté
+confirmado:
 
-Cuando cae en el segundo caso, **hay que decirlo en la entrega**, línea
-por línea. No es un error cotizar así; es que el margen real va a ser
-mayor que el que muestra la matriz, y el asesor tiene que saberlo antes
-de mandar el precio.
+| El descuento de la fila… | Qué se dice |
+|---|---|
+| viene del precio dealer | nada |
+| está `CONFIRMADO POR PREVENTA` | nada |
+| es `MEDIDO: FALTA CONFIRMAR` | que es medido y falta que preventa lo confirme |
+| dice `PENDIENTE` o está vacío | que el costo es el precio de lista tal cual y el real puede ser menor |
+
+⚠️ **El descuento es lo que se resta, no lo que se paga.** El
+2026-09-28 se cargaron los de Hanwha al revés (lo que se paga en vez del
+descuento) y el precio de compra quedó más alto que el real. Desde
+entonces la pestaña muestra al lado `Se paga (% de la lista)`.
 
 ### Para qué sirve entonces el precio de lista
 
@@ -1483,14 +1520,14 @@ lo puede googlear. Ese contraste es el uso real de la columna de lista:
 Medido en el caso patrón #3, el precio final quedó entre el 92% y el 157%
 del MSRP según la línea. Así que no es un techo, pero sí un aviso.
 
-### Estado del dato hoy
+### Estado del dato hoy (2026-09-28)
 
-| `Tipo de precio cargado` | Filas |
-|---|---|
-| `LISTA Y DEALER` | 743 |
-| `UN SOLO PRECIO EN LA LISTA` | 202 |
-| `TIPO SIN CONFIRMAR` | 1.561 |
-| `COSTO DE UNA COTIZACION REAL` | 35 |
+| `Tipo de precio cargado` | Filas | De dónde sale su precio de compra |
+|---|---|---|
+| `SOLO PRECIO PUBLICO (MSRP)` | 1.381 | del descuento medido de Hanwha, por tipo de equipo |
+| `LISTA Y DEALER` | 743 | del precio dealer de InVid |
+| `UN SOLO PRECIO EN LA LISTA` | 382 | 202 de InVid con su dealer; 89 con 0% (ISTC, Seguritronic, Security Doctors y 3 de InVid); 91 de proveedores sin descuento registrado, que la cotización avisa |
+| `COSTO DE UNA COTIZACION REAL` | 35 | del costo de esa cotización |
 
 Y el catálogo es **92% dos proveedores** (2.329 de 2.524 filas). El caso
 patrón #4 mostró lo que eso cuesta: de 10 equipos de un proyecto real,

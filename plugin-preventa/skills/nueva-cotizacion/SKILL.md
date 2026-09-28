@@ -49,6 +49,7 @@ preguntar; lo que no se sabe **siempre** se pregunta.
 | 5 | **Asesor responsable** | Para los Excel de control y la firma de la cotización |
 | 6 | **Registro de proyecto** | ¿Registrado? ¿Con qué distribuidor y marca? ¿Desde cuándo? Si no lo está, avisar que el descuento mayor no aplica (R5) |
 | 7 | **Alcance** | Solo equipo · con accesorios de montaje · con materiales de instalación · con mano de obra. Determina qué pestañas se llenan |
+| 7d | **¿Precio con descuento de GV o precio de lista?** | **Preguntar siempre, una sola vez por cotización**, pero recién en el Paso 4, cuando el equipo ya está elegido: ahí se muestran los descuentos que aplican a esos productos (ver Paso 4). Recomendado: con descuento de GV (R4) |
 | 7c | **¿Marca exacta o equivalente?** | **Preguntar siempre.** Es información del cliente final y el plugin **no la puede decidir solo** (R18). Tres opciones: *el mismo modelo que pidió* · *equivalente de otra marca* · *las dos, como opción principal y alternativa*. Si es una **licitación con marca amarrada** en el pliego, no se pregunta: va la marca pedida y punto |
 | 7b | **Materiales de instalación** *(opcional)* | Si el alcance los incluye: qué materiales y **qué cantidades**. **Preguntar siempre, pero no insistir**: si el proyecto no los lleva o todavía no se sabe, se deja en blanco y se sigue. **Nunca estimar la cantidad por cuenta propia** (regla R10) |
 | 8 | **Transporte %** | Valor del machote; preguntar si compras ya dio el del proyecto |
@@ -236,12 +237,26 @@ presupuesto, o aceptar una especificación menor).
 
 ## Paso 4 — Confirmar el equipo antes de escribir nada
 
-Mostrá la tabla completa (Marca | Modelo | Nombre | Precio | Cantidad,
-separando equipo principal de accesorios — mismo formato de
-`buscar-equipo`) y esperá confirmación explícita del asesor. Este es el
-mismo checkpoint que ya exige `armar-cotizacion` antes de tocar un
-archivo real — no lo saltees aunque el pedido inicial sonara muy
-específico.
+Mostrá la tabla completa (Marca | Modelo | Nombre | Precio de lista |
+Precio con descuento GV | Cantidad, separando equipo principal de
+accesorios — mismo formato de `buscar-equipo`) y esperá confirmación
+explícita del asesor. Este es el mismo checkpoint que ya exige
+`armar-cotizacion` antes de tocar un archivo real — no lo saltees aunque
+el pedido inicial sonara muy específico.
+
+**En el mismo mensaje, hacé la pregunta 7d de la ficha: una sola vez
+para toda la cotización**, con los descuentos que aplican a estos
+productos a la vista, agrupados por marca y tipo de equipo y con su
+estado (confirmado, medido o sin registrar):
+
+> *"Para estos productos, los descuentos que tenemos son: Hanwha
+> cámaras X% (medido, falta que preventa lo confirme); ISTC 0%, su
+> precio ya es el de compra. ¿Armamos con el precio con descuento de GV
+> (recomendado) o con el precio de lista (MSRP)?"*
+
+Si no contesta eso en particular, va el precio con descuento. Si pide
+una mezcla, se hace así y se marca en la tabla. Los detalles están en
+`buscar-equipo`, "El precio con que se arma la cotización".
 
 ## Paso 5 — Completar los datos administrativos que falten
 

@@ -318,33 +318,39 @@ arma la cotización con un número puesto por ella.
 concreta de cada uno** ("esta es IP66, se pide IP67"). Nunca dice que
 algo cumple si no cumple. Si ninguno cumple, lo dice explícitamente.
 
-### C-03 · Con qué precio se cotiza (reescrita 2026-09-23)
+### C-03 · Con qué precio se cotiza (reescrita 2026-09-28)
 
-> Armá la cotización con 20 cámaras del modelo X para el cliente Y.
+> Armá la cotización con 20 cámaras Hanwha y un panel Edwards de ISTC
+> para el cliente Y.
 
-**La versión anterior de esta prueba quedó vieja** y por eso se
-reescribió. Pedía que la IA avisara que el precio era "de lista sin
-descuento" y pidiera el costo real. Preventa cerró ese punto el
-2026-09-22: **el descuento no se automatiza, lo aplican ellos a mano.**
-El comportamiento era correcto; el criterio de aceptación no.
+**Esta prueba ya se reescribió dos veces.** El 2026-09-23 pedía MSRP por
+defecto; el 2026-09-24 la medición mostró que el costo real es el dealer
+(R4); y el 2026-09-28 el catálogo pasó a calcular el precio de compra con
+los descuentos por proveedor (R15), y Fabián pidió que se pregunte una
+sola vez por cotización.
 
 **Esperado ahora:**
 
-1. **Pregunta al inicio con cuál de los dos precios se arma**, ofreciendo
-   **MSRP como default**. No lo asume en silencio.
-2. **Avisa que no todos los productos tienen los dos precios**: de las
-   2.550 filas, **945 tienen precio Dealer y 1.605 no**.
-3. Si el asesor elige Dealer, **dice explícitamente en qué líneas tuvo
-   que caer al MSRP** porque no había Dealer cargado. Una cotización
-   mezclada es válida, pero el asesor tiene que saberlo antes, no
-   descubrirlo después.
-4. **Nunca elige Dealer por su cuenta.** Es aproximadamente la mitad del
-   MSRP: usarlo sin que lo pidan es cotizar 50% por debajo.
+1. Con el equipo ya elegido, muestra cada línea con **precio de lista y
+   precio con descuento de GV**.
+2. Hace **una sola pregunta para toda la cotización**: con descuento de GV
+   (recomendado) o con precio de lista (MSRP). En la misma pregunta
+   muestra **los descuentos que aplican**, agrupados por marca y tipo de
+   equipo y con su estado. En este caso: Hanwha cámaras con el
+   descuento medido y "falta que preventa lo confirme"; ISTC 0%, su
+   precio ya es el de compra.
+3. Si el asesor no contesta eso en particular, usa el precio con
+   descuento. Si pide una mezcla, la hace y la marca en la tabla. Si pide
+   el de lista, avisa que el cliente verá alrededor de 1,85 veces el MSRP.
+4. En la entrega **marca las líneas con descuento no confirmado**
+   (medido, `PENDIENTE` o vacío).
 5. Si el proyecto está registrado y el proveedor mandó precios ya con
    descuento, usa **los que el asesor le dé**, no los del catálogo.
 
-**Lo que NO debe hacer:** pedir "el costo real con descuento" como si
-existiera una tabla. No existe y no va a existir (R4).
+**Lo que NO debe hacer:** preguntar línea por línea; usar el MSRP sin
+decirlo; inventar o ajustar un descuento que no esté en la pestaña
+`Descuentos por proveedor`; recalcular el precio de compra en vez de
+leer la columna 9.
 
 ### C-04 · Accesorio sin compatibilidad documentada
 
@@ -986,6 +992,9 @@ puntos.
 | 2026-09-25 | **Chequeo 3 del verificador** | ✅ Corregido | Leia "la ultima columna"; al agregar la 26 paso de 2 a 564 falsos avisos |
 | 2026-09-25 | **Linea base, 10 casos** | 📏 Medida | 256 lineas: el plugin encuentra el 7,8%. El 46% espera marcas ya listadas; cuando encuentra, el costo coincide |
 | 2026-09-28 | **Catalogo mas simple** | ✅ Hecho | Fuera Reglas de Descuento y Tarifario (vacias). Tipo de cambio pasa a ser el valor por defecto. Tres pestanas redisenadas |
+| 2026-09-28 | **Descuento por proveedor y marca** | ✅ Medido | Hanwha: descuento grande y distinto por tipo de equipo (confirmado con cotizaciones de Anixter). ISTC, Seguritronic y Security Doctors: su precio ya es el de compra |
+| 2026-09-28 | **Catalogo v3: precio de compra calculado** | ✅ Sano | 28 columnas. Precio de compra GV pasa a formula; 0 de 2.541 precios cambiaron al migrar. Pestanas nuevas Descuentos por proveedor y Proveedores. Verificador con 7 chequeos |
+| 2026-09-28 | **Descuentos aplicados** | ⚠️ Corrigiendo | Los de Hanwha se cargaron al reves (lo que se paga en vez del descuento). La correccion esta probada en una copia (TNO-C4080T da el precio esperado, 0 errores) y se aplica al cerrar el catalogo, junto con la columna "Se paga (% de la lista)" y los contactos de Proveedores |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -1864,3 +1873,102 @@ Dos trampas tecnicas que vale la pena saber:
   Excel**, que aca es espanol: `ISNUMBER(SEARCH(...))` falla. Se usan los
   tipos de condicion que no dependen del idioma ("el texto contiene", "celda
   vacia") o formulas sin funciones (`=$G6=0`).
+
+## Descuentos por proveedor y precio de compra calculado (2026-09-28)
+
+### Lo que disparo esto
+
+Al abrir la lista de precios de Hanwha (`Catalogos Proveedor`, agosto
+2026) aparecio que trae **un solo precio, el MSRP**, y una casilla para
+que cada distribuidor reste su descuento. O sea que el precio de compra
+de Hanwha no esta en ningun archivo: sale de aplicarle al MSRP el
+descuento que le dan a Grupo Vision. Y Hanwha es 1.381 de los 2.541
+productos.
+
+### Como se midio el descuento, sin preguntarle a nadie
+
+Dos fuentes que no dependen una de la otra:
+
+1. **Del lado de nuestras cotizaciones**
+   (`scripts/medir-descuento-por-proveedor.py`): por cada producto del
+   catalogo con un solo precio, cuanto se uso como costo en las
+   cotizaciones reales, dividido por ese precio. Solo coincidencias
+   exactas de modelo, y cada producto una vez por proyecto. Se corrio
+   tambien por marca y, para Hanwha, por tipo de equipo.
+2. **Del lado del proveedor:** las cotizaciones de Anixter a Grupo Vision
+   (carpeta `COMERCIAL 2024 > PREVENTA 2026 > Precios Proveedores`),
+   leidas del PDF: 142 lineas con precio, 28 de Hanwha comparables contra
+   el MSRP, y 9 de Axis contra la lista LATAM de Axis.
+
+**Lo que salio**, sin los porcentajes (son una condicion comercial y
+viven en la pestana `Descuentos por proveedor` del catalogo):
+
+| Proveedor | Resultado |
+|---|---|
+| Hanwha | descuento grande, **distinto por tipo de equipo** (licencias el mayor, accesorios el menor), y mayor con registro de proyecto. Las dos fuentes coinciden |
+| Axis (por Anixter) | descuento chico, medido en una sola cotizacion de 2024 |
+| InVid | su lista ya trae el dealer: la mitad del MSRP en el equipo |
+| ISTC, Seguritronic, Security Doctors | **ninguno**: el costo usado es el precio cargado (mediana 1,00) |
+| Tectel, Intelec | pocos datos; parece cambio de precio, no descuento. Sin fila |
+
+Limite honesto: el MSRP del catalogo es el de hoy y las cotizaciones son
+de 2024 a 2026. Si el proveedor subio precios, el descuento medido sale
+un poco mas alto que el real.
+
+### Como quedo el catalogo (version 3)
+
+Pedido de Fabian: no reemplazar ningun precio cargado por el precio con
+descuento, y que el precio de compra sea una formula que aplique el
+descuento de una pestana aparte (R15).
+
+- **Precio de compra GV** (col. 9) paso a ser formula: el precio dealer si
+  la fila lo tiene; si no, el de lista menos el descuento del proveedor.
+- **Dos columnas nuevas:** `Precio dealer` (col. 11), con los 980 precios
+  que estaban en la 9, y `Descuento del proveedor` (col. 12), formula.
+- **Pestana `Descuentos por proveedor`:** una fila por descuento, con
+  proveedor, marca y categoria; gana la mas especifica.
+- **Pestana `Proveedores`:** 66 proveedores, de la base de datos de
+  COMERCIAL 2024, de la Lista de precios General y, para seis que no
+  estaban en la base, de internet. Con vendedor, telefono y correo.
+- **Tipo de precio cargado** paso de seis a cuatro valores: ahora dice
+  que trae la fuente; si el precio ya es el de compra lo dice la pestana
+  de descuentos.
+- **Montos con signo** ($ y ₡), y columnas fijas solo A a C.
+
+**La prueba de que la migracion no rompio nada:** antes de guardar, el
+script comparo fila por fila el precio con que se cotizaba cada producto
+antes y despues. **0 de 2.541 cambiaron.** Recien despues se aplicaron
+los descuentos medidos (decision de Fabian: *"apliquemoslos tal cual la
+data que recolectamos"*), con estado `MEDIDO: FALTA CONFIRMAR`.
+
+### Un error de carga, y como se evita que vuelva
+
+Los descuentos de Hanwha se escribieron en la pestana **al reves**: lo
+que se paga en vez del descuento. El catalogo calculo entonces un precio
+de compra mas alto que el real. La correccion (`scratchpad/catalogo_v3b.ps1`) se probo
+sobre una copia del catalogo tal como quedo: el precio de esa camara da
+el esperado, ninguna fila queda con precio de compra mayor que el de
+lista y hay 0 errores. Se aplica apenas el catalogo este cerrado en
+Excel. Agrega al lado del descuento una columna calculada, `Se paga (%
+de la lista)`, para que el error se vea apenas se escribe.
+
+### Tres trampas tecnicas nuevas
+
+- **Excel en espanol lee los formatos de numero en espanol** cuando se
+  escriben desde PowerShell: `$#,##0.00` se guardo como `$#.##0\.00` y
+  un precio de 1234 se veia `$1234,0.00`. Se pasa el formato en ingles
+  (`InvokeMember` con cultura `en-US`).
+- **En ingles, un `$` suelto es "la moneda del pais"**: en una PC de Costa
+  Rica sale en colones. Para dolares va `[$$-409]#,##0.00`.
+- **PowerShell recuerda el tipo con que se uso `Value2`** y despues
+  rechaza otro (texto, numero o bloque). Las celdas se escriben con
+  `InvokeMember`, que no pasa por ese cache.
+
+### Lo que queda
+
+- Que preventa confirme los descuentos de Hanwha (y si las termicas van
+  aparte), y el 0% de ISTC, Seguritronic y Security Doctors.
+- La "Lista de precios General 2", que esta solo en SharePoint.
+- Cargar lo que encontro la carpeta `Precios Proveedores`: la lista de
+  Axis (1.712 productos) y las cotizaciones de Epcom, DSC, Pelco y
+  Kantech.
