@@ -63,8 +63,8 @@ ubicarla dentro del grupo que le corresponda (ver grupos abajo).
 | 6 | Proveedor | |
 | 7 | Precio de lista al público (MSRP) | Referencia de mercado. **No es lo que pagamos** — ver la columna 9. Dejar vacío si el documento no da precio en dólares. Ver "Tipo de cambio y precios" abajo |
 | 8 | Precio CRC | **Fórmula**, no se escribe a mano (ver "Tipo de cambio y precios") |
-| 9 | COSTO USD (precio Dealer) | Lo que Grupo Visión le **paga** al proveedor. Va en el `Costo Unit` de la pestaña de costo — **el cliente nunca ve este número** (medido el 2026-09-24 sobre 1.119 matrices: 94 de 134 líneas comparables usan este, y cero el MSRP). Solo si el documento lo trae aparte del de lista |
-| 10 | COSTO CRC (precio Dealer) | **Fórmula**, igual que Precio CRC |
+| 9 | Precio de compra GV (USD) | Lo que Grupo Visión le **paga** al proveedor. Va en el `Costo Unit` de la pestaña de costo — **el cliente nunca ve este número** (medido el 2026-09-24 sobre 1.119 matrices: 94 de 134 líneas comparables usan este, y cero el MSRP). Solo si el documento lo trae aparte del de lista |
+| 10 | Precio de compra GV (CRC) | **Fórmula**, igual que Precio CRC |
 | 11 | Unidad de venta | `Unidad` en la mayoría de los casos; usar `Metro`, `Rollo`, `Caja`, etc. cuando el producto se venda por medida (ej. cable) en vez de por unidad |
 | 12 | Tiempo de entrega (días) | Lead time del proveedor si lo indica. Útil para saber si un equipo se puede prometer a tiempo en una cotización |
 | 13 | País de origen | Relevante para licitaciones que piden certificación de origen del fabricante (ej. tipo NDAA). Dejar vacío si el documento no lo indica |
@@ -91,12 +91,12 @@ alrededor de cómo publica cada proveedor.
 
 | Si el proveedor publica… | Qué se carga |
 |---|---|
-| tres niveles (dealer / intermedio / lista) | el de **dealer** a `COSTO USD`, el de lista a `Precio de lista`. **El intermedio no se carga**: no se usa para cotizar y solo agrega ruido |
-| dos niveles | el más bajo al que podemos comprar de verdad a `COSTO USD`, el otro a `Precio de lista` |
-| un solo precio, y sabemos que es el nuestro | a `COSTO USD`. `Precio de lista` queda vacío |
+| tres niveles (dealer / intermedio / lista) | el de **dealer** a `Precio de compra GV`, el de lista a `Precio de lista`. **El intermedio no se carga**: no se usa para cotizar y solo agrega ruido |
+| dos niveles | el más bajo al que podemos comprar de verdad a `Precio de compra GV`, el otro a `Precio de lista` |
+| un solo precio, y sabemos que es el nuestro | a `Precio de compra GV`. `Precio de lista` queda vacío |
 | un solo precio, y no sabemos cuál es | a `Precio de lista`, y `Tipo de precio cargado` = `TIPO SIN CONFIRMAR` |
 
-**La regla en una línea:** en `COSTO USD` va el **precio más bajo al que
+**La regla en una línea:** en `Precio de compra GV` va el **precio más bajo al que
 Grupo Visión puede comprar de verdad**. Todo lo demás es referencia.
 
 ⚠️ **Nunca inventes en cuál de los dos va.** Si el documento no dice si
@@ -131,7 +131,7 @@ editables a mano por el equipo (`B3` = tipo de cambio de compra, `B4`
 definidos a nivel de libro que las referencian: `TipoCambioCompra` y
 `TipoCambioVenta`.
 
-- **Precio CRC** (columna 8, `H`) y **COSTO CRC** (columna 10, `J`;
+- **Precio CRC** (columna 8, `H`) y **Precio de compra GV (CRC)** (columna 10, `J`;
   antes se llamaba "Precio especial GV (CRC)") son fórmulas, no valores
   escritos a mano:
   `=IF(G2="","",IF(TipoCambioVenta="","Actualizar TC",ROUND(G2*TipoCambioVenta,2)))`
@@ -186,8 +186,8 @@ Reglas de formato a mantener:
   columna, no hace falta que la fila crezca.
 - Encabezado (fila 1) congelado (`FreezePanes`) para que se mantenga
   visible al hacer scroll.
-- Precio de lista (columna 7) y COSTO USD (columna 9) con formato de
-  moneda en dólares; Precio CRC y COSTO CRC con formato de moneda en
+- Precio de lista (columna 7) y Precio de compra GV (columna 9) con formato de
+  moneda en dólares; Precio CRC y Precio de compra GV (CRC) con formato de moneda en
   colones (símbolo ₡).
 - Anchos de columna pensados para lectura rápida: Nombre y Descripción
   anchas, Archivo de origen ancha (los nombres de archivo reales son
@@ -309,8 +309,8 @@ nuevos hasta que se corra.
 
 ## Estado real de la columna "Precio especial GV" (corregido 2026-09-18)
 
-> **Hoy esa columna se llama `COSTO USD (precio Dealer)`** (renombrada el
-> 2026-09-24, R4 y R15). Esta sección es la historia de cómo se descubrió
+> **Hoy esa columna se llama `Precio de compra GV (USD)`** (renombrada el
+> 2026-09-24 a `Precio de compra GV`, y el 2026-09-28 a su nombre actual; R4 y R15). Esta sección es la historia de cómo se descubrió
 > qué había cargado en ella; los nombres de abajo son los de entonces.
 
 ⚠️ **Corrección a lo que decía antes este archivo.** Esta sección
@@ -355,7 +355,7 @@ pide un modelo viejo por nombre.
 ## ~~Pendiente: reglas de descuento GV por proveedor/proyecto (agregado 2026-09-14)~~
 
 > **Cerrado.** No hay tabla de descuentos y no la va a haber (R4): el costo
-> sale de la columna `COSTO USD`. La pestaña `Reglas de Descuento`, que
+> sale de la columna `Precio de compra GV`. La pestaña `Reglas de Descuento`, que
 > nunca se llenó, se eliminó del catálogo el 2026-09-28. Lo que sigue es
 > la historia.
 
@@ -513,7 +513,7 @@ Ya están convertidos. **Al cargar un proveedor nuevo, escribí números
 como números y fechas como fecha real** (`datetime.date` con formato de
 celda `yyyy-mm-dd`), nunca como cadena.
 
-No confundir con `Precio CRC` y `COSTO CRC`: esas **sí**
+No confundir con `Precio CRC` y `Precio de compra GV (CRC)`: esas **sí**
 son texto a veces, y está bien — son fórmulas que devuelven
 `"Actualizar TC"` mientras la pestaña `Tipo de Cambio` esté vacía.
 

@@ -12,7 +12,7 @@ preventa de Grupo Visión (cotizaciones de sistemas de seguridad/cámaras).
 | `armar-cotizacion` | Crea la carpeta de la cotización, copia el machote, llena `Equipos` (descripción, IMPORTADO, cantidad, costo) y registra la oferta en los dos Excels de control. | Funcional, probado de punta a punta |
 | `generar-pdf-cotizacion` | Exporta a PDF **solo** la pestaña de cotización que ve el cliente, después de revisar errores, impuesto y total, y de confirmar nombre y ruta. | Funcional desde 2026-09-25; falta usarlo con una cotización real |
 | `seguimiento-correo` | Redacta (nunca envía) el borrador del correo de seguimiento al cliente. | Funcional; faltan ejemplos reales de algunos estados |
-| `actualizar-catalogo` | Carga las listas de precios de los proveedores al catálogo, cada precio en su columna: lo que paga Grupo Visión en `COSTO USD`, el público en `Precio de lista`. | Funcional. Catálogo: 2.541 productos, 26 columnas, 6 chequeos automáticos |
+| `actualizar-catalogo` | Carga las listas de precios de los proveedores al catálogo, cada precio en su columna: lo que paga Grupo Visión en `Precio de compra GV`, el público en `Precio de lista`. | Funcional. Catálogo: 2.541 productos, 26 columnas, 6 chequeos automáticos |
 | `verificar-entorno` | Revisa qué accesos están listos y explica la instalación a quien empieza. | Funcional |
 | `sync-bitrix` | Actualiza la tarjeta del Kanban de Bitrix24 al cerrar una cotización. | En espera: falta que Operaciones genere el webhook |
 

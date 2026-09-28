@@ -41,7 +41,7 @@ apruebe.
 | R12 | Se avisa si el precio tiene más de 2 meses | Fabián | vigente |
 | R13 | Financiamiento: siempre preguntar | preventa | vigente |
 | R14 | Hasta 50 líneas por cotización | medido | vigente |
-| R15 | Modelo de precios: un costo obligatorio (`COSTO USD`), lo demás es referencia | medido y decidido | vigente |
+| R15 | Modelo de precios: un costo obligatorio (`Precio de compra GV`), lo demás es referencia | medido y decidido | vigente |
 | R16 | Solo dólares; otra moneda la convierte quien cotiza | Fabián | vigente |
 | R17 | La primera corrida apunta a quedar bien; el Excel siempre se corrige a mano | Fabián | principio de diseño |
 | R18 | Marca exacta o equivalente: lo decide el asesor | Fabián; caso patrón #5 | vigente |
@@ -1445,7 +1445,7 @@ eso, no alrededor de cómo publica cada proveedor.
 
 | Columna | Qué es | ¿Obligatoria? |
 |---|---|---|
-| `COSTO USD` | **lo que Grupo Visión paga**, el mejor precio al que podemos comprar de verdad | **sí, siempre que se sepa** |
+| `Precio de compra GV` | **lo que Grupo Visión paga**, el mejor precio al que podemos comprar de verdad | **sí, siempre que se sepa** |
 | `Precio de lista al público (MSRP)` | referencia de mercado, lo que el fabricante sugiere que valga | no |
 | `Tipo de precio cargado` | de dónde salió el costo y cuánto se le puede creer | **sí** |
 
@@ -1453,7 +1453,7 @@ eso, no alrededor de cómo publica cada proveedor.
 publique:**
 
 1. El **precio más bajo al que GV puede comprar de verdad** va a
-   `COSTO USD`. Si publica tres niveles, es el de dealer/programa. Si
+   `Precio de compra GV`. Si publica tres niveles, es el de dealer/programa. Si
    publica uno solo y sabemos que es el nuestro, ese.
 2. El **precio público**, si lo hay, va a `Precio de lista`.
 3. Los niveles intermedios **no se cargan**: no se usan para cotizar y
@@ -1463,7 +1463,7 @@ publique:**
 ### Qué hace la cotización con esto
 
 ```
-Costo Unit  =  COSTO USD               si existe        → confianza alta
+Costo Unit  =  Precio de compra GV     si existe        → confianza alta
                Precio de lista         si no hay costo  → SE AVISA al asesor
 ```
 

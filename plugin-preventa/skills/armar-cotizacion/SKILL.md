@@ -188,7 +188,7 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
      preguntale al asesor si no la tenés ya de la especificación del
      cliente.
    - **E (Costo Unit):** el **precio Dealer** del catálogo (columna
-     `Precio Dealer USD`) — lo que Grupo Visión le paga al proveedor.
+     `Precio de compra GV`) — lo que Grupo Visión le paga al proveedor.
      Es la base sobre la que el machote calcula transporte, impuestos,
      margen y precio de venta.
 
