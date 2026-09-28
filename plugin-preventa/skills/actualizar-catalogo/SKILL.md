@@ -352,7 +352,12 @@ descontinuado es un error caro y silencioso. Esa misma pestaña trae el
 **reemplazo recomendado** de cada SKU — útil si alguna vez el cliente
 pide un modelo viejo por nombre.
 
-## Pendiente: reglas de descuento GV por proveedor/proyecto (agregado 2026-09-14)
+## ~~Pendiente: reglas de descuento GV por proveedor/proyecto (agregado 2026-09-14)~~
+
+> **Cerrado.** No hay tabla de descuentos y no la va a haber (R4): el costo
+> sale de la columna `COSTO USD`. La pestaña `Reglas de Descuento`, que
+> nunca se llenó, se eliminó del catálogo el 2026-09-28. Lo que sigue es
+> la historia.
 
 La columna 8 también sirve para un caso puntual distinto: un proveedor
 que da por escrito un precio negociado fijo. Ese caso todavía no se ha

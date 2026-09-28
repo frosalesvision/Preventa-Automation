@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+# ============================================================================
+# HISTÓRICO — NO VOLVER A CORRER.
+# Construyó el catálogo (y sus guías) una sola vez. Desde entonces el
+# catálogo cambió mucho y se mantiene con Excel (COM): este script recrearía
+# pestañas eliminadas el 2026-09-28 (Reglas de Descuento, Tarifario Mano de
+# Obra), pisaría las guías corregidas y, por usar openpyxl, borraría los
+# desplegables sin avisar. Queda como registro de cómo se armó.
+# ============================================================================
 """
 Quita la pestana 'Proporciones Instalacion' y REHACE desde cero LEEME y
 'Guia de columnas' (parchearlas en sitio rompe las celdas combinadas).

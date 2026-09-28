@@ -985,6 +985,7 @@ puntos.
 | 2026-09-25 | **Accesorios requeridos** | ✅ Medido | Ninguno llega al 70%: se sugieren, no se agregan. Nueva pestana |
 | 2026-09-25 | **Chequeo 3 del verificador** | ✅ Corregido | Leia "la ultima columna"; al agregar la 26 paso de 2 a 564 falsos avisos |
 | 2026-09-25 | **Linea base, 10 casos** | 📏 Medida | 256 lineas: el plugin encuentra el 7,8%. El 46% espera marcas ya listadas; cuando encuentra, el costo coincide |
+| 2026-09-28 | **Catalogo mas simple** | ✅ Hecho | Fuera Reglas de Descuento y Tarifario (vacias). Tipo de cambio pasa a ser el valor por defecto. Tres pestanas redisenadas |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -1833,3 +1834,33 @@ python scripts/casos-patron-linea-base.py --rehacer
 Mide los mismos 10 casos contra el catalogo de ese momento. La seleccion vive
 en `medicion-casos-patron.json`, que no va a git porque lleva rutas con
 nombres de clientes.
+
+
+## Catalogo mas simple, y tres pestanas redisenadas (2026-09-28)
+
+Decisiones de Fabian, aplicadas el mismo dia:
+
+- **Se eliminaron dos pestanas vacias**: `Reglas de Descuento` (la borro el,
+  nunca se uso: R4) y `Tarifario Mano de Obra` (los valores por defecto viven
+  en `MANO DE OBRA` del machote y se editan ahi: R8).
+- **Tipo de cambio**: el de la pestana del catalogo pasa a ser el valor por
+  defecto, y en cada cotizacion se pregunta si se mantiene o se cambia (R7).
+  Hoy esa pestana esta vacia: el sistema pregunta cual usar.
+- **Regimen fiscal**: se saco la atribucion "confirmado por preventa" (el
+  borro la columna; quedaba repetida en tres notas y en la nota de arriba).
+- **LEEME y Guia de columnas** al dia con todo lo anterior.
+- **Diseno** de `Accesorios Requeridos`, `Tipo de Cambio` y `Marcas por
+  cargar` con la paleta del LEEME: titulo, bandas, encabezado, filas
+  alternadas, barras en los numeros, rojo donde falta algo, y en `Marcas por
+  cargar` una lista desplegable de estado (Pendiente / Pedida / Cargada) con
+  color por estado.
+
+Dos trampas tecnicas que vale la pena saber:
+
+- **PowerShell no distingue mayusculas en las variables**: `$A` y `$a` son la
+  misma. Un script que use `$T` para los textos y `$t` para una hoja se pisa
+  solo.
+- **Las formulas de formato condicional se interpretan en el idioma de
+  Excel**, que aca es espanol: `ISNUMBER(SEARCH(...))` falla. Se usan los
+  tipos de condicion que no dependen del idioma ("el texto contiene", "celda
+  vacia") o formulas sin funciones (`=$G6=0`).

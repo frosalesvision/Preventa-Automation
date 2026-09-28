@@ -133,7 +133,8 @@ No sigas al siguiente paso hasta que ese checklist salga en ✅ completo.
    - **Si va la marca exacta o se acepta un equivalente.** Depende del
      presupuesto y del cliente: no lo decide solo.
    - **Si la oferta lleva financiamiento.**
-   - **El tipo de cambio**, de compra y de venta.
+   - **El tipo de cambio.** Te propone el que está en el catálogo y te
+     pregunta si lo mantenemos o lo cambiás para ese proyecto.
 4. **Revisá la lista de equipo antes de que se escriba en ningún
    archivo.** Te va a mostrar marca, modelo, costo y cantidad de cada
    línea y va a esperar tu confirmación. Dos cosas para mirar:

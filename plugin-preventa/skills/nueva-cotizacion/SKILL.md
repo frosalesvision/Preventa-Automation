@@ -55,10 +55,10 @@ preguntar; lo que no se sabe **siempre** se pregunta.
 | 9 | **Imprevistos %** | Valor del machote |
 | 10 | **Administración %** | Valor del machote; puede bajar a 0 en licitaciones agresivas |
 | 11 | **Margen %** | **27,4%, el estándar. No proponer cambiarlo.** Aclarar que se puede cambiar a mano en el Excel, y que hacerlo en `Equipos` mueve también `OPEX GV` |
-| 12 | **Mano de obra** | Días y personas: se preguntan siempre. El precio unitario sale del tarifario (R8) |
+| 12 | **Mano de obra** | Días y personas: se preguntan siempre. Los precios —hora, día, alimentación, kilometraje— vienen por defecto en `MANO DE OBRA` del machote y se cambian ahí si el proyecto lo pide (R8) |
 | 12b | **Viajes al sitio** | Cuántos viajes, cuántos vehículos y si hay hospedaje. **Se preguntan**: solo los kilómetros salen de la tabla de destinos (R9) |
 | 13 | **Financiamiento** | **Siempre preguntar**, sin importar el tamaño del proyecto. Si va: plazo y tasa. Si no: la columna `Financ.` queda vacía (R13) |
-| 14 | **Tipo de cambio** | **Preguntar siempre el precio de COMPRA y el de VENTA del dólar.** No hay una regla fija: a veces se usa el del BCCR tal cual y a veces se sube un poco a favor de la empresa, y eso se decide por proyecto (R7) |
+| 14 | **Tipo de cambio** | **Proponer el de la pestaña `Tipo de Cambio` del catálogo y preguntar si se mantiene:** *"En el catálogo tenemos el tipo de cambio X, ¿seguimos con ese o lo cambiás para este proyecto?"*. Si la pestaña está vacía, preguntar cuál usar. El que se elija queda en la cotización; la pestaña del catálogo no se toca (R7) |
 | 15 | **Vigencia** | Días de validez de la oferta y fecha límite de entrega |
 
 ### Sobre el margen: informar, no decidir (agregado 2026-09-23)
@@ -116,7 +116,7 @@ notas dice de cuál se trata. **No todas valen lo mismo:**
 
 | Lo que dice la nota | Qué hacer |
 |---|---|
-| sin marca `DERIVADO` | lo confirmó preventa: usalo |
+| sin marca `DERIVADO` | regímenes conocidos (CCSS, UCR, TEC, zona franca): usalo |
 | `DERIVADO … la misma tasa en las N` | 16 clientes, consistente: usalo y decí de dónde salió |
 | `VARIA SEGUN EL PROYECTO` | **14 clientes.** Precargá la dominante pero **preguntá igual** |
 | `NO CONFIRMADO` | 12 clientes con una sola cotización. Tratalo como si no estuviera |

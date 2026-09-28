@@ -38,18 +38,19 @@ líneas que el plugin no encuentra espera estas marcas.
 
 ### 3. Cuatro confirmaciones cortas
 
-- **¿El precio de Hanwha en el catálogo es de lista, o es lo que le
-  cobran a Grupo Visión?** Es la pregunta que más pesa: son **1.381 de
-  las 1.561 filas** sin tipo confirmado. En la línea base, una cámara
+- **¿El precio de Hanwha en el catálogo es lo que Hanwha le cobra a Grupo
+  Visión, o es el precio público sugerido (MSRP)?** Es la pregunta que más
+  pesa: son **1.381 de las 1.561 filas** sin tipo confirmado. En la línea base, una cámara
   Hanwha se cotizó a **0,68x** del catálogo, lo que sugiere que es de
   lista. Pero es un solo caso.
 - **¿Los de ISTC y Seguritronic son costo?** Son 84 filas. En la línea
   base se cotizaron a **1,00x** (Edwards) y **0,89x** (DSC) del catálogo,
   lo que sugiere que sí.
-- **¿A quién se le compran gabinetes, breakers, protectores y cables?** Son
-  el 29% de lo que falta y ninguna lista de marcas los resuelve.
+- **¿A quién se le compran gabinetes, breakers, protectores y cables, y van
+  en todos los proyectos o solo en algunos?** Son el 29% de lo que falta y
+  ninguna lista de marcas los resuelve.
 - **12 clientes del régimen fiscal** marcados `NO CONFIRMADO` (una sola
-  cotización cada uno). No urge: el plugin los pregunta igual.
+  cotización cada uno). Mientras tanto el plugin los pregunta igual.
 
 ## Para contabilidad
 

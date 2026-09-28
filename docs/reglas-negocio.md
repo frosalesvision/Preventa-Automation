@@ -33,8 +33,8 @@ apruebe.
 | R4 | El costo es el precio **dealer**, no el MSRP | medido: 94 de 134 líneas, ninguna con MSRP | vigente; contradice lo que dijo preventa |
 | R5 | Sin registro de proyecto no aplica el descuento mayor | preventa | concepto vigente, falta el mecanismo |
 | R6 | No hay tabla de porcentajes; los del machote son los más usados, y el margen se mueve según el tipo | preventa; medido: 499 matrices | vigente |
-| R7 | Tipo de cambio: se preguntan compra y venta en cada cotización | preventa y Fabián | vigente |
-| R8 | Mano de obra: tarifas por defecto medidas; el tarifario lo está armando preventa | medido: 184 matrices | defaults vigentes, tarifario pendiente |
+| R7 | Tipo de cambio: por defecto el de la pestaña del catálogo; en cada cotización se confirma o se cambia | preventa y Fabián | vigente |
+| R8 | Mano de obra: valores por defecto medidos, en el machote, editables en cada cotización | medido: 184 matrices | vigente |
 | R9 | Transporte: km × viajes × carros × costo por km, ya en el machote | preventa; verificado | vigente |
 | R10 | Materiales de instalación: en el catálogo; la cantidad se pregunta, no se estima | decidido y confirmado | vigente |
 | R11 | Un solo catálogo, con categorías normalizadas | decidido | vigente |
@@ -411,8 +411,9 @@ precio cargado`** con tres valores:
 decirlo en la cotización.** No es un error usarla: es un dato que el
 asesor tiene que saber antes de mandar el precio, no después.
 
-La pestaña `Reglas de Descuento` del catálogo sigue sin llenarse: no hay
-tabla de reglas de descuento y no la va a haber.
+No hay tabla de reglas de descuento y no la va a haber. La pestaña
+`Reglas de Descuento` del catálogo, que nunca se llenó, se eliminó el
+2026-09-28.
 
 ### R4.1 — Lo que el MSRP como costo le hace al precio final
 
@@ -469,7 +470,8 @@ El costo real de Grupo Visión depende de:
 Preventa confirmó que **por ahora esta columna se llena a mano**, hasta
 que existan las reglas cargadas.
 
-**Dónde van a vivir las reglas:** pestaña `Reglas de Descuento` del
+**Dónde iban a vivir las reglas** *(nunca se llenó; la pestaña se
+eliminó el 2026-09-28)*: pestaña `Reglas de Descuento` del
 Excel del catálogo — `Proveedor` · `Marca` ·
 `Familia / categoría (vacío = toda la marca)` · `% de descuento` ·
 `Requiere registro de proyecto (si/no)` · `Monto mínimo de compra (USD)`
@@ -763,53 +765,50 @@ decir "dos juegos independientes" es incorrecto.
 
 ---
 
-## R7 — Tipo de cambio con colchón hacia arriba
+## R7 — Tipo de cambio: por defecto el del catálogo, y se confirma en cada cotización
 
-**Estado: RESUELTA del todo el 2026-09-23.**
+**Estado: decidida por Fabián el 2026-09-28.** Reemplaza la versión del
+2026-09-23, que pedía preguntar compra y venta desde cero en cada
+cotización.
 
-> **Preventa:** *"Podemos manejarlos al tipo de cambio del banco central
-> al precio de venta."*
->
-> **Fabián, cerrando el punto:** *"es política de cada proyecto, a veces
-> se usa el monto del BCCR, o a veces se sube un poco hacia arriba para
-> beneficiar a la empresa. Creo que es necesario consultar siempre
-> cuando el usuario solicita una cotización, preguntar por el precio
-> venta y compra del dólar."*
+> *"el tipo de cambio se toma por default de la pestaña de catálogo, tipo
+> de cambio, pero aun así consulta algo tipo 'en la pestaña de catálogo
+> tenemos el tipo de cambio X, ¿seguimos utilizándolo o cambiás el tipo de
+> cambio para este proyecto en específico?'"*
 
-**No hay una regla fija, y no hace falta que la haya.** El tipo de
-cambio del BCCR es la referencia; subirlo un poco a favor de la empresa
-es una decisión por proyecto.
+**Cómo funciona:**
 
-**Lo que tiene que hacer la automatización:** en la ficha, **preguntar
-siempre los dos valores** —precio de **compra** y precio de **venta** del
-dólar— al armar cada cotización. Se puede proponer el del BCCR como
-punto de partida, pero el número que se use lo confirma quien cotiza.
-Nunca tomar el del catálogo en silencio.
+1. **El valor por defecto es el de la pestaña `Tipo de Cambio` del
+   catálogo**: `B3` compra, `B4` venta.
+2. Al armar cada cotización, el sistema **lo propone y pregunta** si se
+   mantiene o se cambia para ese proyecto.
+3. Lo que se elija queda **en esa cotización**. Desde una cotización la
+   pestaña del catálogo no se toca: la actualiza el equipo cuando
+   corresponde.
+4. **Si la pestaña está vacía, el sistema pregunta cuál usar.** Al
+   2026-09-28 lo está.
 
-La pestaña `Tipo de Cambio` del catálogo sigue existiendo como
-referencia compartida para convertir precios a colones, pero **no manda
-sobre la cotización**: la cotización usa el que se preguntó en la ficha.
+**Por qué así.** Preventa había dicho que es política de cada proyecto:
 
-Se toma el tipo de cambio del banco y **se redondea hacia arriba** como
-colchón ante variación futura. Ejemplo dado por preventa: con el tipo de
-cambio alrededor de 470–480, ella usa 500.
+> *"Podemos manejarlos al tipo de cambio del banco central al precio de
+> venta."* Y Fabián: *"a veces se usa el monto del BCCR, o a veces se
+> sube un poco hacia arriba para beneficiar a la empresa."* Ejemplo de
+> preventa: con el tipo de cambio alrededor de 470–480, usa 500.
 
-**Regla de ejecución:** consultar el tipo de cambio de venta vigente,
-**proponer** el valor redondeado hacia arriba, y que una persona lo
-acepte o lo corrija. Nunca escribirlo directo en la pestaña
-`Tipo de Cambio` del catálogo.
-
-**Pendiente de confirmar:** si la fuente es el Banco Central o el Banco
-de Costa Rica (en la reunión la pregunta mencionaba un banco y la
-respuesta fue "el de Costa Rica", que puede ser eco de la pregunta), y
-si el redondeo es política de la empresa o criterio de cada asesor.
+Un valor por defecto compartido evita escribirlo cada vez, y la pregunta
+deja la decisión por proyecto donde estaba. Nunca se toma en silencio.
 
 ---
 
 ## R8 — Mano de obra: mitad tarifario, mitad estimación
 
-**Estado: regla confirmada. El tarifario sigue pendiente, y ahora
-sabemos por qué.**
+**Estado: vigente. Decidido el 2026-09-28: no se arma un tarifario
+aparte.** Los valores por defecto —medidos sobre las cotizaciones de 2025 y
+2026— viven en la pestaña `MANO DE OBRA` del machote y se cambian desde el
+Excel en cada cotización, como se hizo siempre. La pestaña `Tarifario
+Mano de Obra` del catálogo, que estaba vacía, se eliminó ese día.
+
+Lo que sigue es la historia de cómo se llegó ahí.
 
 > **Lo que contestó preventa:** *"eso aún no lo tenemos 100%
 > establecido. Tengo anotado un par de precios base por instalaciones
@@ -924,11 +923,10 @@ precio por día, días, personas, y un bloque de viáticos
 `Imprevistos` de `OPEX GV` traen **100** como valor de relleno del
 machote. No es un precio real.
 
-**Pestaña `Tarifario Mano de Obra`** en el Excel del catálogo (mismo
-criterio que `Tipo de Cambio`): `Concepto` · `Unidad` · `Precio USD` ·
-`Aplica a (tipo de equipo)` · `Notas` · `Fecha de actualización` ·
-`Confirmado por`. ✅ **Ya existe, creada vacía el 2026-09-18.** Falta
-que el equipo comercial la llene.
+~~**Pestaña `Tarifario Mano de Obra`** en el Excel del catálogo.~~
+**Eliminada el 2026-09-28.** Se había creado vacía el 2026-09-18 para que
+el equipo la llenara. Nunca se llenó, y dejó de tener sentido cuando los
+valores por defecto quedaron fijados en el machote, donde se editan.
 
 ---
 
@@ -1082,6 +1080,10 @@ además trae su propia columna de nivel de confianza;
 mínimo) son columnas; `Tarifario Mano de Obra` lo avaló preventa
 textualmente (*"al final siempre va a ser lo mismo, independientemente
 del proyecto"*) y lo que sí varía —días y personas— quedó como pregunta.
+
+*(Esas dos últimas se eliminaron el 2026-09-28: la de descuentos nunca se
+usó —R4— y la del tarifario dejó de tener sentido cuando los valores por
+defecto se fijaron en el machote —R8—.)*
 
 ⚠️ **`Regimen Fiscal Clientes` quedó con una advertencia.** Es la que más
 se acerca al problema: una exención puede cambiar por contrato, no solo
