@@ -994,7 +994,7 @@ puntos.
 | 2026-09-28 | **Catalogo mas simple** | ✅ Hecho | Fuera Reglas de Descuento y Tarifario (vacias). Tipo de cambio pasa a ser el valor por defecto. Tres pestanas redisenadas |
 | 2026-09-28 | **Descuento por proveedor y marca** | ✅ Medido | Hanwha: descuento grande y distinto por tipo de equipo (confirmado con cotizaciones de Anixter). ISTC, Seguritronic y Security Doctors: su precio ya es el de compra |
 | 2026-09-28 | **Catalogo v3: precio de compra calculado** | ✅ Sano | 28 columnas. Precio de compra GV pasa a formula; 0 de 2.541 precios cambiaron al migrar. Pestanas nuevas Descuentos por proveedor y Proveedores. Verificador con 7 chequeos |
-| 2026-09-28 | **Descuentos aplicados** | ⚠️ Corrigiendo | Los de Hanwha se cargaron al reves (lo que se paga en vez del descuento). La correccion esta probada en una copia (TNO-C4080T da el precio esperado, 0 errores) y se aplica al cerrar el catalogo, junto con la columna "Se paga (% de la lista)" y los contactos de Proveedores |
+| 2026-09-28 | **Descuentos aplicados** | ✅ Corregido | Los de Hanwha se cargaron al reves (lo que se paga en vez del descuento). Corregido en el catalogo real: la termica de prueba da el precio esperado, ninguna fila con compra mayor que lista, 0 errores, verificador sano. Tambien la columna "Se paga (% de la lista)" y los contactos de Proveedores (63 de 66) |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -1945,12 +1945,13 @@ data que recolectamos"*), con estado `MEDIDO: FALTA CONFIRMAR`.
 
 Los descuentos de Hanwha se escribieron en la pestana **al reves**: lo
 que se paga en vez del descuento. El catalogo calculo entonces un precio
-de compra mas alto que el real. La correccion (`scratchpad/catalogo_v3b.ps1`) se probo
-sobre una copia del catalogo tal como quedo: el precio de esa camara da
-el esperado, ninguna fila queda con precio de compra mayor que el de
-lista y hay 0 errores. Se aplica apenas el catalogo este cerrado en
-Excel. Agrega al lado del descuento una columna calculada, `Se paga (%
-de la lista)`, para que el error se vea apenas se escribe.
+de compra mas alto que el real. La correccion se probo primero sobre una
+copia del catalogo tal como quedo y se aplico el mismo dia al real: una
+camara termica de la lista da el precio de compra esperado, ninguna fila
+queda con precio de compra mayor que el de lista, 0 errores y el
+verificador da sano. Ademas, al lado del descuento hay ahora una columna
+calculada, `Se paga (% de la lista)`, para que el error se vea apenas se
+escribe.
 
 ### Tres trampas tecnicas nuevas
 
@@ -1968,7 +1969,6 @@ de la lista)`, para que el error se vea apenas se escribe.
 
 - Que preventa confirme los descuentos de Hanwha (y si las termicas van
   aparte), y el 0% de ISTC, Seguritronic y Security Doctors.
-- La "Lista de precios General 2", que esta solo en SharePoint.
 - Cargar lo que encontro la carpeta `Precios Proveedores`: la lista de
   Axis (1.712 productos) y las cotizaciones de Epcom, DSC, Pelco y
   Kantech.

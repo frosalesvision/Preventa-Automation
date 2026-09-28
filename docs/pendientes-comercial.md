@@ -60,13 +60,13 @@ líneas que el plugin no encuentra espera estas marcas.
   "Soluciones tecnológicas" (el nombre está incompleto) y los contactos
   de Electro Maz y Frama Soluciones.
 
-### 4. La "Lista de precios General 2"
+### Descartado: la "Lista de precios General 2"
 
-Está solo en el OneDrive de Katherine (compartida por link). El catálogo
-se cargó de un CSV de la lista general que tiene filas que no están en la
-versión de `COMERCIAL 2024 > PREVENTA 2026 > GV`, así que la "2" es
-probablemente la más nueva. Hace falta bajarla a esa carpeta para
-compararla con el catálogo.
+Está solo en el OneDrive de Katherine (compartida por link) y podría ser
+más nueva que la versión de `COMERCIAL 2024 > PREVENTA 2026 > GV`. **Fabián
+decidió no seguirla (2026-09-28).** La lista general que sí está en la
+carpeta es la fuente de las filas de proveedores locales del catálogo, y
+ya está cargada.
 
 ## Para contabilidad
 
