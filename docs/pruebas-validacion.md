@@ -995,6 +995,11 @@ puntos.
 | 2026-09-28 | **Descuento por proveedor y marca** | ✅ Medido | Hanwha: descuento grande y distinto por tipo de equipo (confirmado con cotizaciones de Anixter). ISTC, Seguritronic y Security Doctors: su precio ya es el de compra |
 | 2026-09-28 | **Catalogo v3: precio de compra calculado** | ✅ Sano | 28 columnas. Precio de compra GV pasa a formula; 0 de 2.541 precios cambiaron al migrar. Pestanas nuevas Descuentos por proveedor y Proveedores. Verificador con 7 chequeos |
 | 2026-09-28 | **Descuentos aplicados** | ✅ Corregido | Los de Hanwha se cargaron al reves (lo que se paga en vez del descuento). Corregido en el catalogo real: la termica de prueba da el precio esperado, ninguna fila con compra mayor que lista, 0 errores, verificador sano. Tambien la columna "Se paga (% de la lista)" y los contactos de Proveedores (63 de 66) |
+| 2026-09-30 | **Carga de "Precios Proveedores"** | ✅ Sano | 2.541 → 4.091 filas: lista de Axis (1.297, con 2N), APC y Aruba (54) y cotizaciones de 10 proveedores (199). Ningun precio viejo cambio. Verificador sano. Ver la seccion de abajo |
+| 2026-09-30 | **Cotizacion con precios corridos** | ⚠️ Descartada | Una cotizacion de Anixter repetia en orden los precios de otra anterior, con otros productos. No se cargo |
+| 2026-09-30 | **Autoguardado de OneDrive** | ⚠️ Trampa | Una "prueba" sin guardar quedo guardada a medias. Los scripts ahora lo apagan al abrir y siempre sacan respaldo |
+| 2026-09-30 | **55 filas reclasificadas** | ✅ Corregido | 42 cubiertas de domo estaban como camaras y un sensor de humo como disco duro (por "SSD"). Mejoras al clasificador |
+| 2026-09-30 | **Linea base** | 📏 Medida | De 7,8% a 10,2% de las 256 lineas. Los casos usan sobre todo otras marcas |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -1969,6 +1974,146 @@ escribe.
 
 - Que preventa confirme los descuentos de Hanwha (y si las termicas van
   aparte), y el 0% de ISTC, Seguritronic y Security Doctors.
-- Cargar lo que encontro la carpeta `Precios Proveedores`: la lista de
+- ~~Cargar lo que encontro la carpeta `Precios Proveedores`: la lista de
   Axis (1.712 productos) y las cotizaciones de Epcom, DSC, Pelco y
-  Kantech.
+  Kantech.~~ Hecho el 2026-09-30 (ver la seccion siguiente).
+
+## Carga de "Precios Proveedores" (2026-09-30)
+
+Pedido de Fabian: cargar al catalogo lo que se encontro en
+`COMERCIAL 2024 > PREVENTA 2026 > Precios Proveedores`. Como se carga
+cada tipo de documento, y como se leen sus PDF, quedo en el skill
+`actualizar-catalogo` (seccion "La otra carpeta de precios").
+
+### Que entro
+
+| Fuente | Filas | Tipo de precio |
+|---|---|---|
+| Lista de Axis LATAM (oct-2025), sin descontinuados, repuestos ni servicios | 1.297 (1.035 Axis, 262 2N) | lista (MSRP) |
+| Listas de Solution Box (abr-2025) | 54 (23 APC, 31 Aruba) | lista |
+| Cotizaciones a Grupo Vision (2024-2025): Epcom, Anixter, Security Doctors, Seguritronic, ISTC, Ditesa, Sekunet, Iesa, Lamprosa, Salvavidas | 199 | costo de una cotizacion real |
+| **Total** | **1.550** | |
+
+Ademas:
+
+- **Control iD:** sus 9 productos ya estaban, con el nombre comercial en
+  la columna del codigo ("iDFace"). La lista trae el codigo real
+  (`IDFACE/FP/A`): se corrigio en 7 filas.
+- **Proveedores:** se agrego `Axis Communications` (fabricante; se le
+  compra por Anixter o Intcomex).
+- **Descuentos:** el descuento de Axis medido con Anixter paso de
+  `Anixter | Axis` a `Axis Communications | Axis`, que es el proveedor con
+  que se cargo la lista. 2N queda sin descuento: no hay medicion.
+- **Marcas por cargar:** Axis, APC y Aruba pasan a `Cargada`, con a quien
+  se le compra y donde esta la lista.
+
+### Que no entro, y por que
+
+- **136 renglones de cotizaciones cuyo producto ya estaba en el
+  catalogo**, aunque fuera de otro proveedor.
+- **Una cotizacion de Anixter de enero 2025** repetia, en el mismo orden,
+  los cinco precios de una cotizacion anterior al mismo cliente, con
+  otros productos: un transformador salia al precio de un comunicador
+  doble via. Se descarto entera. Se detecto comparando las secuencias de
+  precios de todas las cotizaciones del proveedor entre si.
+- **6 productos de Security Doctors sin codigo** (ni renglon `SKU:` ni
+  modelo suelto): sin codigo no se pueden buscar ni deduplicar.
+- **La cotizacion de patch cords de Anixter (agosto 2025)** esta "solo
+  en la nube" en OneDrive y OneDrive no estaba abierto: no se pudo
+  descargar. Se carga cuando se abra OneDrive y se marque para tener en
+  el equipo.
+- Un servidor Dell cuyo "codigo" es el nombre del modelo con espacio
+  (`Precision 3660`).
+
+### Lo que costo leer los PDF
+
+Ningun PDF trae una tabla limpia. Lo que hizo falta, de mayor a menor
+impacto:
+
+- **Anixter** centra la descripcion en el renglon del producto. Al
+  principio solo se leia ese renglon y los nombres salian cortados o con
+  la cola del producto de al lado; ahora se reparten los renglones entre
+  dos productos por la mitad. La marca es la *ultima* antes del precio
+  (en "Dell Monitor ... DELL" la primera es parte de la descripcion), y
+  faltaban marcas en la lista: 19 renglones no entraban (Suprema,
+  Seco-Larm, Ademco, STI, Dell, Power-Sonic, Allied Telesis, y
+  "PEERLESS" sin el "-AV"). Un codigo de 3 letras (`R2P`, un rack) no se
+  reconocia y su renglon se pegaba al producto anterior.
+- **Security Doctors** termina cada producto en un renglon `SKU:`. Tomar
+  "el renglon de arriba del precio" mezclaba productos; ahora el SKU que
+  esta entre dos precios es del primero. El codigo con `/`
+  (`E941S600/ZQ`) no se leia.
+- **Seguritronic** parte el codigo en varios renglones; la primera
+  version los descartaba y despues tomo "power" como parte del codigo. Y
+  el pie de pagina (horario y cuentas del banco) se colaba en una
+  descripcion: ahora hay una revision final que busca correos, cuentas y
+  horarios en todo lo que se va a cargar.
+- **Epcom** trae letras encimadas ("WIdTH", "Z W ALL"). La limpieza se
+  aplica solo a sus textos: aplicada a todo, le borraba el "mm" a "AXIS
+  P1465-LE 9 mm".
+
+### El clasificador (taxonomia.py)
+
+Con los nombres cortos de Axis la clasificacion fallaba en grande:
+cubiertas de domo como camaras, frentes de calle 2N como camaras ("main
+W camera"), licencias como NVR ("ACS Pro Core Device NVR Lic"). Se
+reescribio la parte de las secciones de Axis/2N: la seccion de la lista
+decide antes que las reglas generales, con sus propias palabras clave.
+De 355 filas sin clasificar en la primera vuelta quedaron 2, y se
+clasificaron a mano.
+
+Las reglas nuevas tambien cambian filas que ya estaban. Se comparo fila
+por fila el clasificador viejo (el de git) con el nuevo sobre todo el
+catalogo: **55 filas cambian, todas para bien** (42 cubiertas de domo
+de Hanwha que estaban como camaras, un sensor de humo Simplex que estaba
+como disco duro por la palabra "SSD", un teclado de red que estaba como
+camara termica, switches PoE que estaban como fibra, una sirena de
+alarma que estaba como deteccion de incendio). Se corrigieron solo las
+filas que tenian lo que decia el clasificador viejo; las 4 que alguien
+habia corregido a mano no se tocaron.
+
+Efecto en el precio: 43 de esas filas cambiaron de precio de compra (las
+42 cubiertas y un servidor de grabacion que estaba como accesorio),
+porque el descuento de Hanwha depende de la categoria y una cubierta
+lleva el de accesorio y no el de camara. Su precio de lista no cambio.
+
+### Como se comprobo
+
+- Prueba completa sin guardar, con el Autoguardado apagado, y despues la
+  carga. La verificacion del script frena el guardado si: cambia algun
+  precio cargado (lista o dealer) de una fila vieja, cambia el precio de
+  compra de una fila vieja que no se reclasifico, queda una fila nueva
+  sin precio de compra, un codigo no quedo igual (los que empiezan con
+  cero se escriben como texto) o hay alguna celda con error.
+- Resultado: 4.091 filas, 0 errores, 0 precios viejos cambiados, las
+  1.035 filas de Axis con su descuento, y `verificar-catalogo.py` dice
+  **"el catalogo esta sano"** (el chequeo 3 deja 5 filas corregidas a
+  mano a proposito).
+- `casos-patron-linea-base.py`: de **7,8% a 10,2%** de las 256 lineas de
+  equipo de los 10 casos. Sube poco porque los casos usan sobre todo
+  otras marcas (i-PRO, Hikvision, Dahua); Axis, APC y Aruba casi no
+  aparecen en ellos.
+
+### El Autoguardado de OneDrive
+
+La primera prueba de la carga fallo a la mitad (un detalle de PowerShell
+al limpiar el portapapeles de Excel) y no guardaba. Aun asi, la segunda
+corrida encontro hechos los primeros pasos: Excel tenia el Autoguardado
+prendido por estar el archivo en OneDrive, y grabo solo lo que alcanzo a
+escribir. Una fila quedo con la categoria nueva y la subcategoria vieja.
+Los cambios eran los que se iban a hacer igual, y la corrida siguiente
+los completo, pero la leccion vale para cualquier script: **en OneDrive
+una prueba no es una prueba si no se apaga el Autoguardado.** Quedo
+escrito en el skill `actualizar-catalogo`.
+
+### Lo que queda
+
+- **2N y Solution Box sin descuento registrado** (316 filas): su precio
+  de compra es igual al de lista hasta que preventa diga cual es.
+- **Que preventa confirme el descuento de Axis**, medido en una sola
+  cotizacion de 2024.
+- **La cotizacion de patch cords de Anixter**, cuando OneDrive la
+  descargue.
+- **La pestana `Compatibilidad de Accesorios`** no incluye lo nuevo: su
+  generador guarda con `openpyxl`, que borra los desplegables. Hay que
+  rehacerlo por COM antes de regenerarla.

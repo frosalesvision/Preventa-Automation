@@ -45,6 +45,68 @@ Los compañeros solo tocan `Catalogos Proveedor/<Proveedor>/` (agregan o
 reemplazan un documento). Nadie edita el Excel a mano línea por línea —
 este skill lo hace por ellos, con confirmación.
 
+### La otra carpeta de precios: `Precios Proveedores` (cargada el 2026-09-30)
+
+En `COMERCIAL 2024 > PREVENTA 2026 > Precios Proveedores` hay una
+subcarpeta por proveedor con dos tipos de documento, y cada uno se carga
+distinto:
+
+| Documento | Ejemplos | Va a | Tipo de precio cargado |
+|---|---|---|---|
+| **Lista de precios** del proveedor | Axis LATAM (en la subcarpeta de Intcomex), APC y Aruba (Solution Box), Control iD (Assa Abloy) | `Precio de lista` (col. 7) | `UN SOLO PRECIO EN LA LISTA` |
+| **Cotización** del proveedor a Grupo Visión | Anixter, Epcom, Security Doctors, Seguritronic, ISTC, Sekunet, Ditesa, Iesa, Lamprosa, Salvavidas | `Precio dealer` (col. 11): es lo que el proveedor le cobra a GV | `COSTO DE UNA COTIZACION REAL` |
+
+Reglas de la carga:
+
+- **La fecha de la fila es la del precio** (la de la cotización o la de
+  la lista), no la del día en que se cargó.
+- **Lo que ya está en el catálogo no se vuelve a cargar**, aunque venga
+  de otro proveedor: el código se compara normalizado (sin guiones ni
+  espacios). Entre dos cotizaciones del mismo proveedor gana la más
+  reciente.
+- **Cotizaciones en colones** (Ditesa, Iesa, Lamprosa): se pasan a
+  dólares con `TipoCambioVenta` y la Descripción dice el monto original
+  y el tipo de cambio usado.
+- **El `Archivo de origen` nunca lleva el nombre del cliente** de la
+  cotización (los archivos de Anixter traen el proyecto en el nombre):
+  se escribe "Cotización de <proveedor> a Grupo Visión del <fecha>".
+- **Ningún dato de contacto, cuenta bancaria ni horario** puede quedar
+  en un nombre o descripción: los pies de página de las cotizaciones los
+  traen y un renglón de más los arrastra. Se revisa al final de la carga.
+- **Antes de cargar las cotizaciones de un proveedor, comparar sus
+  precios entre sí.** Una cotización de Anixter (enero 2025) repetía en
+  el mismo orden los precios de otra anterior al mismo cliente, pero con
+  otros productos: un transformador salía al precio de un comunicador.
+  Se descartó entera. La señal: tres o más precios seguidos idénticos a
+  los de otra cotización, con códigos distintos.
+
+Cómo leer cada formato (los PDF no traen tablas limpias):
+
+- **Anixter:** la descripción va centrada en el renglón del producto,
+  parte arriba y parte abajo; los renglones entre dos productos se
+  reparten por la mitad. La marca es la columna Fabricante, o sea la
+  *última* marca antes del precio ("Dell Monitor ... DELL"). Algunas
+  descripciones vienen con las letras separadas y no se pueden leer: esos
+  nombres se escriben a mano a partir del mismo texto. En DSC para
+  Latinoamérica la "N" final del modelo viene aparte (`HS2TCHP N`), igual
+  que en el catálogo (`HS2LCD N`).
+- **Security Doctors:** cada producto es un bloque que termina en un
+  renglón `SKU:SD-<modelo>-INT-00`. El SKU que está entre un precio y el
+  siguiente es del producto de ese precio.
+- **Seguritronic:** la columna del código es angosta y sigue en los
+  renglones de abajo, un pedazo por renglón (`RBH-INT-` / `UNC100-` /
+  `122S`).
+- **ISTC:** la descripción sigue abajo en mayúsculas; en los productos
+  nuevos viene toda después del renglón del precio.
+- **Epcom:** el texto trae letras encimadas ("Z W ALL MOUNTED",
+  "SURVEILdLANCE"); se limpian solo en textos en mayúsculas.
+- **Lista de Axis:** se cargan los productos vigentes, sin descontinuados,
+  repuestos ni servicios. Trae Axis y 2N: la marca sale del nombre.
+
+Los scripts de esa carga (lector de PDF y escritura por COM) no están en
+el repo: llevan rutas y nombres de archivos de clientes. Lo que se
+aprendió está en esta sección y en `docs/pruebas-validacion.md`.
+
 ## Columnas del catálogo (26, orden fijo por prioridad — actualizado 2026-09-28)
 
 El orden de columnas **no es alfabético ni de conveniencia técnica**:
@@ -296,6 +358,19 @@ Reglas de formato a mantener:
   (2) En inglés, un `$` suelto —o entre comillas— significa "la moneda
   del país" y en una PC de Costa Rica sale en **colones**. Para dólares
   va `[$$-409]`, el dólar de EE. UU., que se ve igual en cualquier PC.
+
+  ⚠️ **El Autoguardado de OneDrive guarda solo, aunque el script no
+  llame a `Save()`** (visto el 2026-09-30). El catálogo vive en OneDrive y
+  Excel le prende el Autoguardado: una "prueba" que no guardaba quedó
+  guardada **a medias**, porque falló a la mitad y lo que alcanzó a
+  escribir ya se había grabado (hasta una fila con la categoría nueva y la
+  subcategoría vieja). Por eso todo script que escriba en el catálogo:
+  (1) **apaga el Autoguardado apenas abre el archivo**
+  (`InvokeMember("AutoSaveOn", SetProperty, ..., @($false))`, y si no
+  queda apagado, no sigue); (2) **saca el respaldo siempre**, también en
+  prueba; (3) antes de escribir una celda comprueba que tenga el valor
+  que espera, así una segunda corrida no pisa nada; y (4) después de la
+  prueba se confirma que la fecha de modificación del archivo no cambió.
 - Anchos de columna pensados para lectura rápida: Nombre y Descripción
   anchas, Archivo de origen ancha (los nombres de archivo reales son
   largos), campos de código (HTS/ECCN/EAN) angostos.

@@ -37,6 +37,12 @@ compra, si hay lista de precios y dónde está**. Las columnas en
 amarillo son para eso. Es lo que más mueve la línea base: el 46% de las
 líneas que el plugin no encuentra espera estas marcas.
 
+**Avance (2026-09-30):** Axis, APC y Aruba quedaron `Cargada` con sus
+listas de `Precios Proveedores`. De varias marcas más (Suprema,
+Seco-Larm, Pelco, Fortinet, ViewZ, Panduit, Western Digital, DSC) entraron
+algunos productos sueltos desde cotizaciones de proveedores, pero no su
+lista: siguen `Pendiente`.
+
 ### 3. Confirmaciones cortas
 
 - **Los descuentos de Hanwha.** Su lista trae solo el MSRP (se abrió el
@@ -51,6 +57,12 @@ líneas que el plugin no encuentra espera estas marcas.
   cuánto sube el descuento con **registro de proyecto**.
 - **ISTC, Seguritronic y Security Doctors, 0%.** Medido: su precio ya es
   el de compra (mediana 1,00). Que lo confirmen con un sí.
+- **El descuento de Axis** (cargada el 2026-09-30, 1.035 productos en
+  MSRP). Se midió en una sola cotización de Anixter de 2024 y se aplica
+  con estado `MEDIDO: FALTA CONFIRMAR`. Preguntar también **si vale para
+  2N** (262 productos de la misma lista, hoy sin descuento).
+- **El descuento de Solution Box en APC y Aruba** (54 productos). No hay
+  medición: hoy su precio de compra es el de lista.
 - **¿A quién se le compran gabinetes, breakers, protectores y cables, y van
   en todos los proyectos o solo en algunos?** Son el 29% de lo que falta y
   ninguna lista de marcas los resuelve.
