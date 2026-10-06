@@ -1001,6 +1001,7 @@ puntos.
 | 2026-09-30 | **55 filas reclasificadas** | ✅ Corregido | 42 cubiertas de domo estaban como camaras y un sensor de humo como disco duro (por "SSD"). Mejoras al clasificador |
 | 2026-09-30 | **Linea base** | 📏 Medida | De 7,8% a 10,2% de las 256 lineas. Los casos usan sobre todo otras marcas |
 | 2026-10-06 | **Pestaña Clientes** | ✅ Sana | `Regimen Fiscal Clientes` pasa a `Clientes`: 247 clientes con sus datos. Las 49 filas de impuesto quedaron idénticas, 0 celdas con error, las demás pestañas sin cambios. Ver la sección de abajo |
+| 2026-10-06 | **BD Proveedores - Clientes revertida** | ↩️ Revertida | La primera carga de clientes se había hecho ahí. Quedó idéntica byte por byte a como la dejó preventa el 10-01. Desde hoy es de solo lectura |
 | 2026-10-06 | **Un guardado que no llegó a la nube** | ⚠️ Corregido | El ajuste de 11 filas del 09-30 no estaba en el catálogo: OneDrive no lo había subido y la versión de la nube lo pisó. Reaplicado; verificador sano. Ahora se espera a que OneDrive suba cada guardado |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |

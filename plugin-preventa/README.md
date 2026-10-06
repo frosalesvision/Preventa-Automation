@@ -195,7 +195,8 @@ principio.
   `no`, transporte y DAI quedan en cero. Una línea de flete va siempre
   como `no` (R1, R1.1).
 - **El impuesto al cliente se pregunta siempre**, con 13% recomendado;
-  hay una tabla de 46 clientes con régimen especial (R3).
+  la pestaña `Clientes` del catálogo trae el de 247 clientes, pero varios
+  cambian según el proyecto (R3).
 - **Marca exacta o equivalente la decide el asesor.** En una licitación
   con marca obligatoria nunca se ofrece otra (R18).
 - **Los accesorios que nadie pide se sugieren, nunca se agregan solos**
@@ -208,6 +209,10 @@ principio.
 - **Nunca se escribe una fórmula del machote, nunca se manda la matriz al
   cliente y nunca se envía un correo**: se redacta y lo manda una
   persona.
+- **`BD Proveedores - Clientes.xltm` es de preventa y es de solo
+  lectura**: se consulta o se toma de referencia, nunca se escribe. Los
+  datos de los clientes se mantienen en la pestaña `Clientes` del
+  catálogo.
 
 ## Dónde está cada cosa
 
@@ -220,6 +225,7 @@ principio.
 | Las marcas que faltan cargar | Pestaña `Marcas por cargar`: la completa preventa |
 | Los accesorios que se sugieren | Pestaña `Accesorios Requeridos` |
 | Los clientes: sus datos (cédula, contacto, teléfono, correo, dirección, asesor) y el impuesto de cada uno | Pestaña `Clientes` (antes `Regimen Fiscal Clientes`): la corrige y completa preventa |
+| La agenda de proveedores y clientes de preventa | `COMERCIAL 2024/PREVENTA 2026/Base datos de proveedores/BD Proveedores - Clientes.xltm`. **Solo lectura**: es de preventa |
 | El machote de la matriz | `plugin-preventa/skills/armar-cotizacion/references/`. Trae su `LEEME` y tres guías al final: pestañas, fórmulas y skills |
 | Las reglas de negocio | [`docs/reglas-negocio.md`](../docs/reglas-negocio.md) |
 | Lo que falta que conteste preventa | [`docs/pendientes-comercial.md`](../docs/pendientes-comercial.md) |

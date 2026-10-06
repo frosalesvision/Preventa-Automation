@@ -362,6 +362,12 @@ columnas, en vez de crear otro archivo. Es el Excel al que todo el
 equipo ya tiene acceso, y **preventa lo abre y lo corrige ahí, no en
 ningún otro archivo**. El plugin trabaja sobre el mismo.
 
+Una primera carga se hizo en la pestaña `Cliente` de
+`BD Proveedores - Clientes.xltm`, la agenda de preventa, porque sus
+columnas eran las del pedido. Se revirtió el mismo día: el archivo quedó
+idéntico a como lo dejó preventa, y desde entonces es de **solo
+lectura** (se consulta o se toma de referencia, nunca se escribe).
+
 | Columnas | Qué traen |
 |---|---|
 | A a F | El impuesto, igual que antes. **No se movieron**: el plugin las lee |

@@ -461,7 +461,10 @@ centralizadas (en revisión, 2026-08-26):
 - `BD Proveedores - Clientes.xltm` — en
   `GRUPO VISION CR/COMERCIAL 2024/PREVENTA 2026/Base datos de
   proveedores/` (biblioteca de SharePoint distinta a `CLIENTES`,
-  requiere acceso directo de OneDrive aparte).
+  requiere acceso directo de OneDrive aparte). Es la agenda de
+  proveedores y clientes de preventa. **Solo lectura** (decisión de
+  Fabián, 2026-10-06): se consulta o se toma de referencia, nunca se
+  escribe.
 - Carpeta `PRECIOS EQUIPOS Y ACCESORIOS` en el OneDrive personal de
   Alessandro (cuenta `alazzarotto_grupovision_org`) — según él, "lo más
   actualizado". Se le agregó acceso directo el 2026-08-26 (en

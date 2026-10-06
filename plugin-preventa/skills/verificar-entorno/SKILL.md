@@ -180,8 +180,9 @@ que existan los dos archivos de arriba (con su ruta relativa: uno en la
 raíz, el otro dentro de `PREVENTA 2026/Cotizaciones pendientes 2026/`).
 
 Esta misma carpeta `COMERCIAL 2024` también trae `PREVENTA 2026/Base
-datos de proveedores/BD Proveedores - Clientes.xltm` (pendiente desde
-hace tiempo para `actualizar-catalogo`) y varias carpetas de precios/
+datos de proveedores/BD Proveedores - Clientes.xltm` (la agenda de
+proveedores y clientes de preventa: **solo lectura**, nunca se escribe)
+y varias carpetas de precios/
 fichas técnicas de proveedores — útil a futuro, pero fuera del alcance
 de este skill; no lo explores más allá de confirmar que existe, y
 nunca toques archivos de otros asesores que están ahí (ej. carpeta

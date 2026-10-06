@@ -252,9 +252,16 @@ no estaban en la base, de internet. Trae también **vendedor, teléfono y
 correo** (pedido de Fabián, 2026-09-28), copiados de la base de
 proveedores; los de EPA, Security Doctors y Salvavidas salieron de su
 web o de sus cotizaciones. **Las notas de la base no se copian**: una
-traía el usuario y la contraseña de un portal. Si un contacto cambia,
-hay que actualizarlo acá y en la base. Al cargar un proveedor nuevo,
-agregale su fila acá también.
+traía el usuario y la contraseña de un portal. Si un contacto cambia, se
+actualiza acá. Al cargar un proveedor nuevo, agregale su fila acá
+también.
+
+⚠️ **La base de proveedores es de SOLO LECTURA** (decisión de Fabián,
+2026-10-06). Es `COMERCIAL 2024 > PREVENTA 2026 > Base datos de
+proveedores > BD Proveedores - Clientes.xltm`, la agenda de proveedores
+y clientes que lleva preventa: se consulta o se toma de referencia,
+**nunca se escribe**, ni para agregar ni para corregir. Si un dato de
+ahí está mal, se corrige en el catálogo y se le avisa a preventa.
 
 ⚠️ Estos contactos son datos de personas: viven en el catálogo y en la
 base, que son internos, y **nunca se copian a ningún archivo del repo**.
