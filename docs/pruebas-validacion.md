@@ -1000,6 +1000,8 @@ puntos.
 | 2026-09-30 | **Autoguardado de OneDrive** | ⚠️ Trampa | Una "prueba" sin guardar quedo guardada a medias. Los scripts ahora lo apagan al abrir y siempre sacan respaldo |
 | 2026-09-30 | **55 filas reclasificadas** | ✅ Corregido | 42 cubiertas de domo estaban como camaras y un sensor de humo como disco duro (por "SSD"). Mejoras al clasificador |
 | 2026-09-30 | **Linea base** | 📏 Medida | De 7,8% a 10,2% de las 256 lineas. Los casos usan sobre todo otras marcas |
+| 2026-10-06 | **Pestaña Clientes** | ✅ Sana | `Regimen Fiscal Clientes` pasa a `Clientes`: 247 clientes con sus datos. Las 49 filas de impuesto quedaron idénticas, 0 celdas con error, las demás pestañas sin cambios. Ver la sección de abajo |
+| 2026-10-06 | **Un guardado que no llegó a la nube** | ⚠️ Corregido | El ajuste de 11 filas del 09-30 no estaba en el catálogo: OneDrive no lo había subido y la versión de la nube lo pisó. Reaplicado; verificador sano. Ahora se espera a que OneDrive suba cada guardado |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -2117,3 +2119,57 @@ escrito en el skill `actualizar-catalogo`.
 - **La pestana `Compatibilidad de Accesorios`** no incluye lo nuevo: su
   generador guarda con `openpyxl`, que borra los desplegables. Hay que
   rehacerlo por COM antes de regenerarla.
+
+## La pestaña Clientes (2026-10-06)
+
+Preventa pidió tener a mano los datos de cada cliente sin ir carpeta por
+carpeta. Fabián decidió que vivan en el catálogo: la pestaña
+`Regimen Fiscal Clientes` pasó a llamarse `Clientes` y se le agregaron
+diez columnas (G a P). El detalle de qué trae cada una está en R3 de
+[`reglas-negocio.md`](reglas-negocio.md). Los datos de los clientes no
+se copian a este repositorio.
+
+### Cómo se comprobó
+
+- **Prueba sin guardar primero**, con el Autoguardado apagado y respaldo;
+  después de la prueba, la fecha y el contenido del archivo seguían
+  iguales.
+- La verificación del script frena el guardado si: la pestaña no quedó
+  con el nombre nuevo, cambió algún encabezado de A a F, **alguna de las
+  49 filas de impuesto que ya estaban no quedó idéntica** (son las que lee
+  `nueva-cotizacion`), la cantidad de filas no cuadra, cambió el número de
+  productos o hay alguna celda con error.
+- Releída después de guardar: 247 filas sin renglones vacíos en medio,
+  0 celdas distintas de lo preparado, cédula y teléfono como texto, y
+  las demás pestañas iguales al respaldo (LEEME cambió solo en su fila de
+  la pestaña; `Guia de columnas`, en su sección y seis filas nuevas).
+- `verificar-catalogo.py`: **el catálogo está sano**.
+
+### Cómo se cruzaron los nombres
+
+El mismo cliente aparece escrito de varias formas entre una cotización y
+otra. Dos nombres se toman como el mismo cliente si tienen las mismas
+palabras, o si uno contiene al otro con al menos dos palabras en común,
+o si difieren en un error de dedo en palabras largas. Los cruces que
+salieron mal en la primera pasada y quedaron corregidos: una
+municipalidad que se cruzaba con otra cuyo nombre empieza igual, una
+sigla de banco privado que coincidía con las iniciales de un banco
+estatal ya cerrado, y la palabra "central", que es relleno en el nombre
+oficial de una municipalidad pero no en el de un banco estatal.
+
+### Un guardado que nunca llegó a la nube
+
+Al correr el verificador sobre la pestaña nueva salieron **2 filas sin
+clasificar y 15 avisos del chequeo 3**, cuando el 09-30 había quedado
+sano. El catálogo de hoy era, celda por celda, el del 09-30 **antes** del
+ajuste de clasificación de 11 filas: ese ajuste se guardó en esta PC
+pero OneDrive no lo subió. El 10-02 el archivo se abrió en Excel Online
+—que trabaja sobre la copia de la nube— y se guardó; cuando OneDrive
+volvió a sincronizar, la versión de la nube reemplazó a la local, sin
+copia en conflicto.
+
+Se reaplicó el ajuste con el mismo script (solo toca una fila si todavía
+tiene el valor viejo: las 11 lo tenían) y el verificador volvió a dar
+sano. **Lo que cambia desde hoy:** después de cada guardado en el
+catálogo se espera a que OneDrive termine de subirlo antes de dar el
+trabajo por hecho. Quedó escrito en el skill `actualizar-catalogo`.

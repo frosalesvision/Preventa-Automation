@@ -213,7 +213,9 @@ no está quemado. Ver el detalle en R3.
 ## R3 — El impuesto al cliente depende del cliente
 
 **Estado: RESUELTA el 2026-09-22.** Llegaron los datos y ya están
-cargados en la pestaña `Regimen Fiscal Clientes` del catálogo.
+cargados en la pestaña `Regimen Fiscal Clientes` del catálogo, que desde
+el 2026-10-06 se llama **`Clientes`** y trae también los datos de cada
+cliente (ver "La pestaña Clientes", abajo).
 
 > **Lo que contestó preventa:** hay una institución de seguridad social
 > exenta; **dos universidades públicas llevan únicamente 2%**, no 13%; y
@@ -239,14 +241,15 @@ No todos los clientes pagan lo mismo. Casos que dio preventa
 
 **Diseño acordado con Fabián (2026-09-18):** dos niveles, no uno.
 
-1. **Tabla maestra** en el Excel del catálogo, pestaña
-   `Regimen Fiscal Clientes`, con la misma lógica que `Tipo de Cambio`:
-   dato de referencia que el equipo mantiene a mano.
-   Columnas: `Cliente` · `Exento de impuesto (si/no)` ·
+1. **Tabla maestra** en el Excel del catálogo, pestaña `Clientes`
+   (hasta el 2026-10-06, `Regimen Fiscal Clientes`), con la misma lógica
+   que `Tipo de Cambio`: dato de referencia que el equipo mantiene a mano.
+   Columnas del impuesto, A a F: `Cliente` · `Exento de impuesto (si/no)` ·
    `% impuesto al cliente` · `% administración` · `Notas` ·
-   `Fecha de actualización` · `Confirmado por`.
-   ✅ **La pestaña ya existe, creada vacía el 2026-09-18.** Falta que el
-   equipo comercial la llene.
+   `Fecha de actualización`. Las columnas G a P son los datos del
+   cliente (ver abajo).
+   ✅ Creada vacía el 2026-09-18, cargada el 2026-09-24 y ampliada el
+   2026-10-06.
 2. **Copia congelada dentro de cada cotización**, en la pestaña
    `Datos del proyecto` del machote. Cuando se arma una cotización se
    copian ahí los valores vigentes ese día.
@@ -339,11 +342,55 @@ escenarios (vacío, exento, 0.04, 4, texto basura, ` SI ` con espacios y
 mayúsculas) más la comprobación de que la financiada respeta la
 exención. Si alguien vuelve a quemar un porcentaje, el smoke test falla.
 
-⚠️ **Lo que esto NO resuelve:** la pestaña `Regimen Fiscal Clientes`
-tiene 46 clientes derivados de las cotizaciones (12 sin confirmar), pero
-un cliente nuevo no está, y 14 cambian de tasa según el proyecto. La
+⚠️ **Lo que esto NO resuelve:** la pestaña `Clientes` tiene 247
+clientes, casi todos con el impuesto derivado de las cotizaciones (82
+con una sola cotización, sin confirmar, y 31 sin el dato), pero un
+cliente nuevo no está, y 38 cambian de tasa según el proyecto. La
 fórmula garantiza que *si se escribe, se respeta* — no que alguien lo
 sepa. Por eso el impuesto se pregunta siempre.
+
+### La pestaña Clientes (2026-10-06)
+
+**Pedido de preventa, por medio de Fabián:** tener a mano los datos de
+cada cliente (nombre, cédula o cédula jurídica, contacto, teléfono,
+correo, dirección, asesor, lo que se le cotizó y si es exento de IVA)
+sin tener que ir carpeta por carpeta a buscarlos.
+
+**Dónde vive: en el catálogo, y solo ahí.** Fabián lo decidió así: la
+pestaña de régimen fiscal pasó a llamarse `Clientes` y se le agregaron
+columnas, en vez de crear otro archivo. Es el Excel al que todo el
+equipo ya tiene acceso, y **preventa lo abre y lo corrige ahí, no en
+ningún otro archivo**. El plugin trabaja sobre el mismo.
+
+| Columnas | Qué traen |
+|---|---|
+| A a F | El impuesto, igual que antes. **No se movieron**: el plugin las lee |
+| G | Cédula / cédula jurídica |
+| H a K | Contacto, teléfono, correo y dirección |
+| L | Asesor comercial |
+| M | Ventas: **vacía**, la llena preventa (no hay de dónde sacarla, ver abajo) |
+| N y O | Lo que se le cotizó y la fecha de la última cotización |
+| P | De dónde salió cada dato |
+
+**De dónde salieron los datos.** De las matrices de cotización desde
+2024 (el encabezado de la pestaña de cotización trae nombre, atención,
+dirección, teléfono y correo), de las órdenes de servicio y del control
+de cotizaciones de preventa. Cuando un cliente tiene varias, manda la
+más reciente. Las cédulas jurídicas son solo las que salieron rápido y
+seguras: las de órdenes de compra y las de instituciones públicas, que
+se tomaron de la consulta pública de Hacienda (`api.hacienda.go.cr/fe/ae`)
+recorriendo los rangos donde están las municipalidades, las instituciones
+autónomas y los ministerios, y cruzando por nombre oficial. **Las cédulas
+de personas físicas no se buscan** (decisión de Fabián), y las de
+empresas privadas quedan para que preventa las complete.
+
+**Ventas no se pudo llenar.** Ninguna fuente dice qué cotización se
+ganó: el control de cotizaciones no tiene una columna de estado y solo
+hay órdenes de compra de unos pocos clientes. Se dejó la columna para
+que preventa la llene al cerrar una venta.
+
+**Los nombres y los datos de los clientes no se copian a este
+repositorio**: viven en el catálogo, que es archivo interno.
 
 ---
 
@@ -1102,7 +1149,7 @@ del proyecto"*) y lo que sí varía —días y personas— quedó como pregunta.
 usó —R4— y la del tarifario dejó de tener sentido cuando los valores por
 defecto se fijaron en el machote —R8—.)*
 
-⚠️ **`Regimen Fiscal Clientes` quedó con una advertencia.** Es la que más
+⚠️ **`Regimen Fiscal Clientes` (hoy `Clientes`) quedó con una advertencia.** Es la que más
 se acerca al problema: una exención puede cambiar por contrato, no solo
 por cliente. No se eliminó porque preventa misma la propuso y porque
 cobrar mal un impuesto en una licitación es peor — pero está documentada

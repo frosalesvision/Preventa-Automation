@@ -39,8 +39,8 @@ los montos en guión: no lo generes sin que lo pidan.
    PDF que ve el cliente es peor que no mandarlo.
 2. **Que el impuesto sea el del cliente.** Sale de `Datos del proyecto`
    (R3). Casi un tercio de las cotizaciones van exentas: si la fila
-   `IMPUESTO` dice 13% y el cliente es de la tabla de régimen fiscal con
-   otra tasa, pará y preguntá.
+   `IMPUESTO` dice 13% y la pestaña `Clientes` del catálogo le da otra
+   tasa a ese cliente, pará y preguntá.
 3. **Que el total cuadre** con lo registrado en los Excels de control. Al
    control va el **subtotal sin impuesto**; al cliente, el **total**. No
    son el mismo número.

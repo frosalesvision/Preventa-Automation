@@ -371,6 +371,19 @@ Reglas de formato a mantener:
   prueba; (3) antes de escribir una celda comprueba que tenga el valor
   que espera, así una segunda corrida no pisa nada; y (4) después de la
   prueba se confirma que la fecha de modificación del archivo no cambió.
+
+  ⚠️ **Guardar en esta PC no es guardar en la nube** (visto el
+  2026-10-06). Un ajuste del 09-30 se guardó acá, OneDrive no lo subió,
+  alguien abrió el catálogo en Excel Online —que trabaja sobre la copia
+  de la nube— y cuando OneDrive volvió a sincronizar, la versión de la
+  nube reemplazó a la local sin avisar. Por eso, (5) **antes de escribir**
+  se confirma que OneDrive esté corriendo (`Get-Process OneDrive`) y que
+  el archivo esté sincronizado; y **después de guardar** se espera a que
+  termine de subirlo antes de dar el trabajo por hecho. El estado se lee
+  con `Shell.Application`:
+  `Namespace(carpeta).ParseName(archivo).ExtendedProperty("System.StorageProviderState")`
+  da `2` cuando está sincronizado y `4` mientras falta subirlo (tarda
+  unos segundos).
 - Anchos de columna pensados para lectura rápida: Nombre y Descripción
   anchas, Archivo de origen ancha (los nombres de archivo reales son
   largos), campos de código (HTS/ECCN/EAN) angostos.

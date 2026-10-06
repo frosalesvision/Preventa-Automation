@@ -268,8 +268,10 @@ def leer_catalogo():
             if f[3]:
                 conocidas_marca.add(str(f[3]))
     regimen = {}
-    if "Regimen Fiscal Clientes" in wb.sheetnames:
-        for f in wb["Regimen Fiscal Clientes"].iter_rows(min_row=5, values_only=True):
+    # "Clientes" desde el 2026-10-06; las columnas A..F no cambiaron
+    hoja_reg = next((n for n in ("Clientes", "Regimen Fiscal Clientes") if n in wb.sheetnames), None)
+    if hoja_reg:
+        for f in wb[hoja_reg].iter_rows(min_row=5, values_only=True):
             if not f or not f[0]:
                 break
             regimen[mm.norm(f[0])] = (f[2], str(f[4] or ""))

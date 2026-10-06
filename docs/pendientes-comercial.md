@@ -66,11 +66,28 @@ lista: siguen `Pendiente`.
 - **¿A quién se le compran gabinetes, breakers, protectores y cables, y van
   en todos los proyectos o solo en algunos?** Son el 29% de lo que falta y
   ninguna lista de marcas los resuelve.
-- **12 clientes del régimen fiscal** marcados `NO CONFIRMADO` (una sola
-  cotización cada uno). Mientras tanto el plugin los pregunta igual.
 - **Tres proveedores sin datos** en la pestaña `Proveedores`: quién es
   "Soluciones tecnológicas" (el nombre está incompleto) y los contactos
   de Electro Maz y Frama Soluciones.
+
+### 4. Revisar y completar la pestaña `Clientes` del catálogo
+
+La pidieron ellos (2026-10-06) y quedó cargada con 247 clientes, los que
+tienen cotizaciones desde 2024. Se corrige y se completa **ahí mismo, en
+el catálogo**, no en otro archivo. Lo que falta, por orden de utilidad:
+
+- **El impuesto de 113 clientes:** 82 marcados `NO CONFIRMADO` (una sola
+  cotización cada uno) y 31 sin el dato. Mientras tanto el plugin los
+  pregunta igual.
+- **Ventas (columna M), vacía.** No hay de dónde sacarla: el control de
+  cotizaciones no dice cuál se ganó. Si les sirve, la llenan al cerrar
+  una venta, o se agrega una columna de estado (ganada / perdida) a su
+  control de cotizaciones y de ahí se saca.
+- **Las cédulas jurídicas de las empresas privadas.** Solo están las de
+  instituciones públicas y las que salieron de órdenes de compra (53 de
+  247). Las de personas físicas no se buscaron, a propósito.
+- **Los contactos son los de la última cotización:** si alguno cambió,
+  se corrige en la fila.
 
 ### Descartado: la "Lista de precios General 2"
 
@@ -155,7 +172,7 @@ una respuesta válida y cierra el tema.
 |---|---|
 | **1. Descuentos por proveedor y marca** | **No hay tabla y no la va a haber.** El descuento depende de marca, tipo de equipo, nivel de partner y proyecto. Se cotiza con MSRP y ellos aplican el descuento a mano. Cuando el proyecto se registra, el proveedor manda los precios ya con descuento. Ver R4. *Revisado después:* el 2026-09-24 la medición mostró que el costo real es el dealer, y desde el 2026-09-28 sí hay una pestaña `Descuentos por proveedor`, con los descuentos medidos por marca y tipo de equipo, editable y conectada al precio de compra (R15) |
 | **2. En qué nivel de precio compramos** | **MSRP, siempre.** La columna del nivel Dealer quedó renombrada como referencia con aviso de no usar. Ver R4.2. *Revisado el 2026-09-24 midiendo:* 94 de 134 líneas usan el dealer y ninguna el MSRP (R4) |
-| **3. Clientes exentos** | ✅ **Datos cargados** en `Regimen Fiscal Clientes`. Una institución de seguridad social exenta, dos universidades públicas al 2%, zona franca varía caso por caso. El 3% de administración **no se modela**: lo deciden según qué tan competitivos quieran ser |
+| **3. Clientes exentos** | ✅ **Datos cargados** en `Regimen Fiscal Clientes` (hoy pestaña `Clientes`). Una institución de seguridad social exenta, dos universidades públicas al 2%, zona franca varía caso por caso. El 3% de administración **no se modela**: lo deciden según qué tan competitivos quieran ser |
 | **5. Proporciones de materiales** | **Confirmado que no se puede estandarizar.** *"Una cámara puede instalarse a 5 metros del grabador, pueden ser 70, 80 mts."* Coincide con lo que ya se había decidido. Ver R10 |
 | **6. Destinos y kilometraje** | **Ya estaba resuelto en el machote** y ellos lo sabían: `Transporte` + `MANO DE OBRA` lo calculan. Al verificarlo apareció un `-1` en la fórmula de viáticos, ya corregido. Ver R9 |
 | **7. Porcentajes por etapa** | **No hay valores establecidos y es a propósito.** Varía por magnitud del proyecto y por cuán agresivos quieran ser. Queda manual. Ver R6 |

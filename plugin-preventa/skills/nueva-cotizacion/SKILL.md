@@ -43,10 +43,10 @@ preguntar; lo que no se sabe **siempre** se pregunta.
 | # | Campo | Default / de dónde sale |
 |---|---|---|
 | 1 | **Tipo de cotización** | Estudio de mercado · Oferta de licitación · Cliente privado. Define los porcentajes de abajo (regla R6) |
-| 2 | **Cliente** | Si está en la tabla de régimen fiscal, se precarga exención y porcentajes — **pero mirá la nota de la fila**, porque 14 de los 46 clientes cambian de tasa según el proyecto. Si no está, se pregunta ofreciendo **13% como primera opción recomendada** — ver abajo (R3) |
+| 2 | **Cliente** | Si está en la pestaña `Clientes` del catálogo, se precarga exención y porcentajes — **pero mirá la nota de la fila**, porque 38 de los 247 clientes cambian de tasa según el proyecto y 82 tienen una sola cotización. Si no está, o su fila no trae el impuesto, se pregunta ofreciendo **13% como primera opción recomendada** — ver abajo (R3) |
 | 3 | **Proyecto** | Descripción corta y número de licitación si aplica |
 | 4 | **Ubicación** | Para el kilometraje. La **distancia** sale de la columna `Destino / localidad` de la pestaña `Transporte` del machote; si el destino no está, se pregunta y se ofrece agregarlo (R9) |
-| 5 | **Asesor responsable** | Para los Excel de control y la firma de la cotización |
+| 5 | **Asesor responsable** | Para los Excel de control y la firma de la cotización. Si el cliente está en la pestaña `Clientes`, proponé el de su columna `Asesor comercial` y preguntá si se mantiene |
 | 6 | **Registro de proyecto** | ¿Registrado? ¿Con qué distribuidor y marca? ¿Desde cuándo? Si no lo está, avisar que el descuento mayor no aplica (R5) |
 | 7 | **Alcance** | Solo equipo · con accesorios de montaje · con materiales de instalación · con mano de obra. Determina qué pestañas se llenan |
 | 7d | **¿Precio con descuento de GV o precio de lista?** | **Preguntar siempre, una sola vez por cotización**, pero recién en el Paso 4, cuando el equipo ya está elegido: ahí se muestran los descuentos que aplican a esos productos (ver Paso 4). Recomendado: con descuento de GV (R4) |
@@ -109,30 +109,43 @@ marca por compatibilidad con algo instalado. Ahí **no se ofrece
 equivalente nunca**, aunque el asesor no lo aclare. Ofrecer otra marca es
 peor que decir "no lo tengo".
 
-### Cómo leer la tabla de régimen fiscal
+### Cómo leer la pestaña `Clientes`
 
-La tabla tiene **46 clientes** (2026-09-24). Cuatro los confirmó preventa;
-los otros 42 salieron de medir las cotizaciones ya hechas, y la columna de
-notas dice de cuál se trata. **No todas valen lo mismo:**
+Hasta el 2026-10-06 se llamaba `Regimen Fiscal Clientes` y solo traía el
+impuesto. Ahora es **un renglón por cliente** (247, los que tienen
+cotizaciones desde 2024): las columnas A a F son las del impuesto, igual
+que antes, y de la G a la P vienen sus datos — cédula, contacto, teléfono,
+correo, dirección, asesor, lo que se le cotizó y la fecha de la última
+cotización. La columna P dice de dónde salió cada dato. **Preventa la
+corrige y le agrega clientes**: lo que diga la pestaña manda sobre lo que
+encuentres en una carpeta vieja.
+
+El impuesto salió casi todo de medir las cotizaciones ya hechas, y la
+columna de notas dice de cuál se trata. **No todas valen lo mismo:**
 
 | Lo que dice la nota | Qué hacer |
 |---|---|
 | sin marca `DERIVADO` | regímenes conocidos (CCSS, UCR, TEC, zona franca): usalo |
-| `DERIVADO … la misma tasa en las N` | 16 clientes, consistente: usalo y decí de dónde salió |
-| `VARIA SEGUN EL PROYECTO` | **14 clientes.** Precargá la dominante pero **preguntá igual** |
-| `NO CONFIRMADO` | 12 clientes con una sola cotización. Tratalo como si no estuviera |
+| `DERIVADO … la misma tasa en las N` | 92 clientes, consistente: usalo y decí de dónde salió |
+| `VARIA SEGUN EL PROYECTO` | **38 clientes.** Precargá la dominante pero **preguntá igual** |
+| `NO CONFIRMADO` | 82 clientes con una sola cotización. Tratalo como si no estuviera |
+| exento y % vacíos | 31 clientes: tenemos sus datos pero no el impuesto. Tratalo como si no estuviera. (La fila `Clientes de zona franca` también los tiene vacíos, a propósito: leé su nota) |
 
-Que 14 clientes cambien de tasa entre proyectos no es un error de la tabla:
-**la exención a veces es del proyecto, no del cliente.** Uno de ellos va
-exento en 50 de 57 cotizaciones y al 13% en las otras 7.
+Que tantos clientes cambien de tasa entre proyectos no es un error de la
+tabla: **la exención a veces es del proyecto, no del cliente.** Uno de
+ellos va exento en 50 de 57 cotizaciones y al 13% en las otras 7.
 
-### Cuando el cliente no está en la tabla, o la nota dice que varía
+Los datos de contacto salen de la **última** cotización de ese cliente:
+pueden estar viejos. Si los usás, mostralos para que el asesor los
+confirme; no los des por buenos en silencio.
+
+### Cuando el cliente no está en la pestaña, o la nota dice que varía
 
 No preguntes en abstracto. **Ofrecé el 13% como primera opción** — es lo
 que aplica a dos de cada tres, medido sobre 873 cotizaciones — y listá al
 lado los otros casos que existen de verdad:
 
-> *"Ese cliente no está en la tabla de régimen fiscal. ¿Cuál le aplica?*
+> *"No tengo el impuesto de ese cliente en la pestaña Clientes. ¿Cuál le aplica?*
 > - ***13%** — lo normal, dos de cada tres cotizaciones* ← recomendada
 > - *Exento — **casi un tercio de las cotizaciones van así**, no es raro*
 > - *2% — algunas universidades públicas*
@@ -146,8 +159,8 @@ del machote ya es 13% si la ficha queda vacía, así que no preguntar
 equivale a elegir — y en el caso real que se midió, un cliente **privado**
 llevaba **0%**.
 
-Cuando conteste, ofrecé **agregarlo a la tabla** del catálogo para la
-próxima vez.
+Cuando conteste, ofrecé **agregarlo a la pestaña `Clientes`** del
+catálogo para la próxima vez.
 
 ⚠️ **Lo que la ficha pregunta y no busca en ninguna tabla.** Hay datos
 que dependen del sitio y no de un catálogo: **la cantidad de material de

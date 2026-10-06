@@ -219,7 +219,7 @@ principio.
 | A quién se le compra, su vendedor, teléfono y correo, si es importado | Pestaña `Proveedores` |
 | Las marcas que faltan cargar | Pestaña `Marcas por cargar`: la completa preventa |
 | Los accesorios que se sugieren | Pestaña `Accesorios Requeridos` |
-| El impuesto por cliente | Pestaña `Regimen Fiscal Clientes` |
+| Los clientes: sus datos (cédula, contacto, teléfono, correo, dirección, asesor) y el impuesto de cada uno | Pestaña `Clientes` (antes `Regimen Fiscal Clientes`): la corrige y completa preventa |
 | El machote de la matriz | `plugin-preventa/skills/armar-cotizacion/references/`. Trae su `LEEME` y tres guías al final: pestañas, fórmulas y skills |
 | Las reglas de negocio | [`docs/reglas-negocio.md`](../docs/reglas-negocio.md) |
 | Lo que falta que conteste preventa | [`docs/pendientes-comercial.md`](../docs/pendientes-comercial.md) |
