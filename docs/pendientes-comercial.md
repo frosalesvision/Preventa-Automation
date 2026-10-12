@@ -1,93 +1,53 @@
 # Lo que falta, y de dónde sale
 
-> **Actualizado el 2026-09-28.** Casi todo lo que antes eran preguntas se
-> resolvió **midiendo las cotizaciones reales** (1.119 matrices) en vez de
-> preguntando. Lo que queda abierto son cosas que **solo el equipo puede
-> dar**: aprobar lo que se midió, confirmar los descuentos y decir de
-> dónde salen los precios que nos faltan.
+> **Actualizado el 2026-10-12.** Fabián cerró lo que quedaba abierto con
+> una regla simple: **lo que salió de medir las cotizaciones reales se
+> aplica tal cual se midió, y lo que no tiene de dónde salir no se
+> inventa.** Ya no hay preguntas que bloqueen el plugin; lo que sigue es
+> que el equipo lo use.
 >
-> Los mensajes para preventa por Teams (uno con las reglas de cálculo,
-> otro con las marcas y las confirmaciones) cubren los puntos 1 a 3. El
-> detalle de cada regla está en [`reglas-negocio.md`](reglas-negocio.md),
-> con un índice al principio.
->
-> Contexto: comprometido en la reunión del 2026-09-14. Meta conjunta:
+> El detalle de cada regla está en [`reglas-negocio.md`](reglas-negocio.md),
+> con un índice al principio. Meta conjunta (reunión del 2026-09-14):
 > **empezar a usar el plugin en octubre.**
 
 ---
 
 # Lo que está abierto hoy
 
-## Para preventa
+## Para Fabián y preventa: usarlo
 
-### 1. Aprobar las reglas de cálculo que salieron de medir
+1. **Instalar el plugin** en las computadoras de preventa (guía en el
+   README del plugin; `verificar-entorno` revisa los accesos).
+2. **Una cotización real de punta a punta** con alguien de preventa,
+   empezando por un pedido escrito como les llega. Es lo único que
+   todavía no se ha probado así.
 
-Son reglas que el equipo aplica pero no tiene escritas; salieron de leer
-sus cotizaciones. Están en el índice de
-[`reglas-negocio.md`](reglas-negocio.md), columna *De dónde sale* =
-*medido*. La más importante es **R4**: el costo recomendado es el precio
-de compra de GV y no el MSRP. El plugin pregunta una vez por cotización
-con cuál armarla, mostrando los descuentos que aplican.
+## Opcional, si preventa quiere mejorar los datos
 
-### 2. Completar la pestaña `Marcas por cargar` del catálogo
+Nada de esto bloquea; el plugin funciona con lo que hay.
 
-94 marcas o familias de modelo que se cotizan y casi no están en el
-catálogo, ordenadas por uso. Por cada una: **a qué proveedor se le
-compra, si hay lista de precios y dónde está**. Las columnas en
-amarillo son para eso. Es lo que más mueve la línea base: el 46% de las
-líneas que el plugin no encuentra espera estas marcas.
+- **Corregir un descuento** si conocen el real: es la celda amarilla de
+  la pestaña `Descuentos por proveedor` y todo el catálogo se recalcula
+  solo.
+- **Pestaña `Clientes`:** la columna Ventas (no hay de dónde sacarla),
+  las cédulas jurídicas de empresas privadas, contactos que hayan
+  cambiado, y el impuesto de un cliente si lo conocen (los que no se
+  pudieron confirmar quedaron en el 13% estándar).
 
-**Avance (2026-09-30):** Axis, APC y Aruba quedaron `Cargada` con sus
-listas de `Precios Proveedores`. De varias marcas más (Suprema,
-Seco-Larm, Pelco, Fortinet, ViewZ, Panduit, Western Digital, DSC) entraron
-algunos productos sueltos desde cotizaciones de proveedores, pero no su
-lista: siguen `Pendiente`.
+---
 
-### 3. Confirmaciones cortas
+# Cerrado por Fabián el 2026-10-12 (no volver a preguntar)
 
-- **Los descuentos de Hanwha.** Su lista trae solo el MSRP (se abrió el
-  2026-09-28: tiene una casilla para que cada distribuidor reste su
-  descuento). El descuento se midió en las cotizaciones reales y en las
-  cotizaciones de Anixter, general y por tipo de equipo, y **se aplica
-  desde el 2026-09-28** por decisión de Fabián, con estado `MEDIDO: FALTA
-  CONFIRMAR`. Preventa solo tiene que confirmarlos o corregirlos en la
-  celda amarilla de la pestaña `Descuentos por proveedor`. Es lo que más
-  pesa: 1.381 productos. Dos detalles para preguntar: si las **térmicas**
-  van con otro descuento (su lista dice que van por un acuerdo aparte), y
-  cuánto sube el descuento con **registro de proyecto**.
-- **ISTC, Seguritronic y Security Doctors, 0%.** Medido: su precio ya es
-  el de compra (mediana 1,00). Que lo confirmen con un sí.
-- **El descuento de Axis** (cargada el 2026-09-30, 1.035 productos en
-  MSRP). Se midió en una sola cotización de Anixter de 2024 y se aplica
-  con estado `MEDIDO: FALTA CONFIRMAR`. Preguntar también **si vale para
-  2N** (262 productos de la misma lista, hoy sin descuento).
-- **El descuento de Solution Box en APC y Aruba** (54 productos). No hay
-  medición: hoy su precio de compra es el de lista.
-- **¿A quién se le compran gabinetes, breakers, protectores y cables, y van
-  en todos los proyectos o solo en algunos?** Son el 29% de lo que falta y
-  ninguna lista de marcas los resuelve.
-- **Tres proveedores sin datos** en la pestaña `Proveedores`: quién es
-  "Soluciones tecnológicas" (el nombre está incompleto) y los contactos
-  de Electro Maz y Frama Soluciones.
-
-### 4. Revisar y completar la pestaña `Clientes` del catálogo
-
-La pidieron ellos (2026-10-06) y quedó cargada con 247 clientes, los que
-tienen cotizaciones desde 2024. Se corrige y se completa **ahí mismo, en
-el catálogo**, no en otro archivo. Lo que falta, por orden de utilidad:
-
-- **El impuesto de 113 clientes:** 82 marcados `NO CONFIRMADO` (una sola
-  cotización cada uno) y 31 sin el dato. Mientras tanto el plugin los
-  pregunta igual.
-- **Ventas (columna M), vacía.** No hay de dónde sacarla: el control de
-  cotizaciones no dice cuál se ganó. Si les sirve, la llenan al cerrar
-  una venta, o se agrega una columna de estado (ganada / perdida) a su
-  control de cotizaciones y de ahí se saca.
-- **Las cédulas jurídicas de las empresas privadas.** Solo están las de
-  instituciones públicas y las que salieron de órdenes de compra (53 de
-  247). Las de personas físicas no se buscaron, a propósito.
-- **Los contactos son los de la última cotización:** si alguno cambió,
-  se corrige en la fila.
+| Lo que estaba abierto | Cómo quedó |
+|---|---|
+| **Aprobar las reglas que salieron de medir** | **Se aplican tal cual se midieron.** Si salieron de las cotizaciones reales, esa es la regla |
+| **Confirmar los descuentos medidos** (Hanwha, Axis, ISTC, Seguritronic, Security Doctors) | **Se aplican los medidos.** Los que no se confirmaron es porque solo había una o dos cotizaciones; igual se usan. Su estado pasa de `MEDIDO: FALTA CONFIRMAR` a `MEDIDO`, y la cotización dice de dónde salió el número en vez de pedir confirmación |
+| **Completar `Marcas por cargar`** | **No hay más listas de marca.** Las de PDF ya están cargadas; lo de las otras marcas salió del estudio de las cotizaciones anteriores. Se trabaja con lo que hay |
+| **¿A quién se le compran gabinetes, breakers, protectores y cables?** | Se trabaja con lo que hay en el catálogo |
+| **Impuesto de clientes sin confirmar** | **13%, el estándar.** No hay forma de confirmarlo sin preguntar cliente por cliente; la nota de cada fila dice qué se vio en su única cotización |
+| **Tres proveedores sin datos** en `Proveedores` | Es lo que hay |
+| **¿El IVA de las compras locales se acredita?** (R2, contabilidad) | **Se replica lo que hace el equipo hoy:** `Equipos` con IVA de línea 0% y `MATERIALES` con 13% |
+| **Correos de seguimiento reales** | No hay ejemplos; los modelos del skill se escribieron con tono muy profesional |
 
 ### Descartado: la "Lista de precios General 2"
 
@@ -96,21 +56,6 @@ más nueva que la versión de `COMERCIAL 2024 > PREVENTA 2026 > GV`. **Fabián
 decidió no seguirla (2026-09-28).** La lista general que sí está en la
 carpeta es la fuente de las filas de proveedores locales del catálogo, y
 ya está cargada.
-
-## Para contabilidad
-
-### ¿El IVA de las compras locales se acredita? `R2`
-
-**Aplazada a propósito.** No es para preventa: la contesta quien lleva
-la contabilidad o los impuestos de la empresa.
-
-Cuando Grupo Visión compra local y paga 13% de IVA, ¿ese dinero **se
-recupera** después contra el IVA que se le cobra al cliente, o **se
-queda como costo** del proyecto?
-
-**Mientras tanto se replica lo que hacen hoy**, que es lo que muestran
-las 649 matrices: `Equipos` con IVA de línea 0% y `MATERIALES` con 13%.
-No se toca nada.
 
 ---
 

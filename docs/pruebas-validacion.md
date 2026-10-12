@@ -1003,6 +1003,12 @@ puntos.
 | 2026-10-06 | **Pestaña Clientes** | ✅ Sana | `Regimen Fiscal Clientes` pasa a `Clientes`: 247 clientes con sus datos. Las 49 filas de impuesto quedaron idénticas, 0 celdas con error, las demás pestañas sin cambios. Ver la sección de abajo |
 | 2026-10-06 | **BD Proveedores - Clientes revertida** | ↩️ Revertida | La primera carga de clientes se había hecho ahí. Quedó idéntica byte por byte a como la dejó preventa el 10-01. Desde hoy es de solo lectura |
 | 2026-10-06 | **Un guardado que no llegó a la nube** | ⚠️ Corregido | El ajuste de 11 filas del 09-30 no estaba en el catálogo: OneDrive no lo había subido y la versión de la nube lo pisó. Reaplicado; verificador sano. Ahora se espera a que OneDrive suba cada guardado |
+| 2026-10-12 | **Compatibilidad de accesorios rehecha** | ✅ Sana | 793 → 1.247 pares, cada uno con la frase del fabricante que lo respalda. Fuera los 10 pares "de cotización" (copiados de otra versión del mismo proyecto) y el emparejamiento por categoría. Se escribe por COM: los desplegables quedan |
+| 2026-10-12 | **Carga de lo que había quedado afuera** | ✅ Sano | 58 productos: una cotización de Anixter que estaba solo en la nube (54) y 4 de Security Doctors cuyo código estaba al final de la descripción. Se descartaron, con motivo, un servidor sin configuración, 2 productos con el precio de otro y un gabinete sin código |
+| 2026-10-12 | **Decisiones de Fabián aplicadas** | ✅ Hecho | Descuentos medidos: estado `MEDIDO` (sin pedir confirmación). 113 clientes sin régimen confirmado: 13% estándar. Reglas medidas: se aplican tal cual |
+| 2026-10-12 | **Una subida a OneDrive trabada 26 minutos** | ⚠️ Resuelto | Quedó en la caché de Office; se destrabó abriendo y cerrando el archivo en Excel. Ahora es un paso del skill |
+| 2026-10-12 | **Línea base y prueba del machote** | 📏 Medida | Línea base igual (10,2% de 256 líneas): los productos nuevos no aparecen en esos 10 casos. Impuesto 7 de 8, y 1 se pregunta (un cliente que quedó en el 13% estándar y cuya única cotización iba exenta; la nota lo avisa). `smoke-machote.ps1`: todas las pruebas pasan |
+| 2026-10-12 | **El verificador contaba una fila vacía** | ✅ Corregido | Al borrar una fila de la tabla queda la de abajo con alto propio y openpyxl la recorría como un producto. Ahora se ignoran las vacías del final |
 | 2026-09-24 | Fechas de los productos cargados | ✅ Corregido | Llevan la fecha de la cotización de origen. Tres tienen precio de 2024 |
 | | C-01 a C-04, C-06, C-09 | ⬜ Sin correr | Requieren conversación con preventa, no script |
 | | R-01 a R-10 | ⬜ Bloqueadas | Esperan datos del equipo comercial |
@@ -2174,3 +2180,115 @@ tiene el valor viejo: las 11 lo tenían) y el verificador volvió a dar
 sano. **Lo que cambia desde hoy:** después de cada guardado en el
 catálogo se espera a que OneDrive termine de subirlo antes de dar el
 trabajo por hecho. Quedó escrito en el skill `actualizar-catalogo`.
+
+
+## Compatibilidad de accesorios rehecha, y cierre de pendientes (2026-10-12)
+
+Pedido de Fabián: regenerar la pestaña `Compatibilidad de Accesorios`
+**verificando que todo esté correcto**, y buscar en el documento de
+origen los pares que no salieron de un PDF sino de cotizaciones
+anteriores. Además: analizar las cotizaciones que quedaron sin cargar el
+09-30, y aplicar sus decisiones sobre lo que estaba pendiente con
+preventa.
+
+### Lo que tenía la pestaña, y por qué no se podía regenerar tal cual
+
+- **Los 10 pares "de cotización real"** (cámaras Paramont con soportes
+  i-PRO y con una base de poste Hanwha) se buscaron en su matriz de
+  origen. La versión InVid de esa cotización se armó **copiando la
+  versión i-PRO del mismo proyecto y cambiando solo las cámaras**: en la
+  versión i-PRO, esos soportes estaban debajo de una PTZ i-PRO y la base
+  Hanwha debajo de una bullet i-PRO. Debajo de las Paramont quedaron de
+  arrastre. Las fichas de las Paramont no los mencionan y la ficha de la
+  base Hanwha nombra solo modelos Hanwha. Se sacaron los 10.
+- **El emparejamiento "por categoría genérica"**, revisado contra el PDF
+  de InVid: un soporte de techo que el PDF dice que es para *un* modelo
+  se había aplicado a todas las PTZ de la marca; un soporte de pared
+  "for Vision Series Dome" a una domo antiexplosión. Corrido sobre el
+  catálogo de hoy, con Axis cargada, habría dado 832 pares por palabras
+  sueltas como "dome". Se reemplazó por una lista corta de familias
+  revisadas a mano contra el PDF (hoy, 2 soportes).
+- **El script viejo no veía a Axis**: Axis nombra sus modelos ("AXIS
+  Q6124-E") y no su número de parte, que es lo que buscaba.
+- **Guardaba con openpyxl**, que borra los desplegables del catálogo.
+
+### Cómo quedó
+
+`generar_matriz_accesorios.py` (solo lee, deja un JSON) y
+`escribir_matriz_accesorios.ps1` (escribe por COM). Un par entra solo si
+el texto del fabricante nombra el modelo, y cada fila lleva en `Notas` la
+frase que lo respalda. Qué lado es el accesorio lo decide la categoría
+del catálogo. **1.247 pares, 445 equipos** (Hanwha 832, Axis 350, 2N 39,
+Paramont 22, InVid 2, Vision 2).
+
+### Cómo se comprobó
+
+- Contra la pestaña vieja, par por par. De los 749 pares exactos viejos
+  quedaron fuera 17, y se revisaron uno por uno: pares entre dos
+  accesorios (una caja con su soporte de pared), o pares que estaban **al
+  revés** (la tapa puesta como si fuera la cámara) y que ahora entran
+  con el sentido correcto.
+- Lectura a mano de la evidencia de una muestra: 45 pares de Axis, los
+  39 de 2N, los 22 de Paramont, todos los de cables, inyectores, fuentes
+  y monitores. Esa lectura destapó y corrigió cinco detalles: una cámara
+  "Flush Mount Dome" tomada por accesorio por su nombre, las placas de
+  dos intercomunicadores (versión normal y "Safety") cruzadas, piezas que
+  el fabricante dice que ya vienen incluidas, una placa de domo
+  registrada como cámara, y un modelo que se perdía en "M4317/M4318-PLVE".
+- Chequeos automáticos: ningún par sin evidencia que nombre a uno de los
+  dos, ningún accesorio que no lo sea, ninguna autorreferencia ni
+  repetido.
+- Escrita en prueba primero (archivo sin tocar), después de verdad:
+  0 celdas distintas del JSON, las demás pestañas iguales al respaldo,
+  los desplegables del catálogo intactos, verificador sano. Regenerada
+  otra vez al final, con el catálogo de hoy: idéntica.
+
+### Lo que había quedado sin cargar el 09-30
+
+| Qué | Qué se hizo |
+|---|---|
+| Cotización de Anixter que estaba "solo en la nube" | No se podía abrir porque su ruta pasa de 260 caracteres. Leída con la ruta larga de Windows: **54 productos** (baterías, soportes de TV, monitores y patch cords), ninguno estaba en el catálogo. Cargados |
+| 6 productos de Security Doctors "sin código" | Cuatro **tenían el código al final de la descripción**, no en un renglón `SKU:`. Se cargaron tres (un detector de haz y dos cables); el cuarto ya estaba, de otro proveedor. Un lector de huella sin código de pedido se cargó con su nombre de modelo y la nota de confirmar el código con el proveedor |
+| Gabinete de piso sin marca ni código | Se cargó y se volvió a sacar: el verificador no admite equipo sin código. Sigue valiendo lo que dice `buscar-equipo`: los gabinetes no están en el catálogo |
+| Cotización de Anixter con los precios corridos | Confirmado: de sus 10 productos, 5 tienen el precio de otro producto de la cotización anterior. Tres de esos ya están en el catálogo con precio de otro proveedor; los otros 2 **no tienen ningún precio confiable** y no se cargan |
+| Un servidor Dell | La cotización no dice procesador, memoria ni disco: un precio sin configuración engaña. No se carga |
+
+Se cargaron con el mismo script del 09-30 (prueba primero; frena si
+cambia algún precio viejo, si una fila nueva queda sin precio de compra
+o si un código no queda igual): **4.091 → 4.149 productos**, ningún
+precio viejo cambió, el precio de compra de cada fila nueva es el de su
+cotización.
+
+### Decisiones de Fabián aplicadas
+
+- **Reglas y descuentos medidos se aplican tal cual se midieron.** El
+  estado `MEDIDO: FALTA CONFIRMAR` pasó a `MEDIDO` en las 9 filas, en el
+  desplegable y en la `Guia de columnas`; los skills dicen de dónde salió
+  el número en vez de pedir confirmación. Ningún precio cambió (la
+  fórmula solo mira si el estado es `PENDIENTE`).
+- **113 clientes sin régimen confirmado quedan en el 13% estándar.** La
+  nota de cada uno dice qué se vio en su única cotización; en 14 iba
+  exenta, y su nota lo avisa para preguntar.
+- **Contabilidad:** se replica lo que hace el equipo con el IVA de línea.
+
+### Una subida que se trabó 26 minutos
+
+La carga se guardó a las 08:36 y OneDrive la dejó "subida pendiente": el
+archivo había quedado en la caché de Office esperando, probablemente
+porque alguien tenía el catálogo abierto en la nube. Reiniciar OneDrive
+habría sido peligroso (el 10-06 eso hizo que la versión de la nube pisara
+la local), así que se hizo lo que haría una persona: **abrir el archivo
+en Excel y cerrarlo sin guardar**. Excel mostró la versión de la nube con
+las filas nuevas y la subida se completó. Quedó como paso del skill
+`actualizar-catalogo`.
+
+### El verificador contaba una fila vacía
+
+Al sacar el gabinete, Excel corrió la tabla y dejó la fila de abajo
+vacía pero con su alto propio. El modo de solo lectura de openpyxl la
+recorría, y el verificador la contaba como un producto sin código, sin
+precio y sin proveedor. Ahora ignora las filas vacías **del final** (una
+vacía en medio de la tabla sí se sigue marcando). Con eso: **el
+catálogo está sano**; el chequeo 3 tiene 6 filas corregidas a mano a
+propósito (la nueva es el detector de haz, que el clasificador manda a
+"accesorio").

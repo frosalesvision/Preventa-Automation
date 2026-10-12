@@ -43,7 +43,7 @@ preguntar; lo que no se sabe **siempre** se pregunta.
 | # | Campo | Default / de dónde sale |
 |---|---|---|
 | 1 | **Tipo de cotización** | Estudio de mercado · Oferta de licitación · Cliente privado. Define los porcentajes de abajo (regla R6) |
-| 2 | **Cliente** | Si está en la pestaña `Clientes` del catálogo, se precarga exención y porcentajes — **pero mirá la nota de la fila**, porque 38 de los 247 clientes cambian de tasa según el proyecto y 82 tienen una sola cotización. Si no está, o su fila no trae el impuesto, se pregunta ofreciendo **13% como primera opción recomendada** — ver abajo (R3) |
+| 2 | **Cliente** | Si está en la pestaña `Clientes` del catálogo, se precarga exención y porcentajes — **pero mirá la nota de la fila**, porque 38 de los 247 clientes cambian de tasa según el proyecto y 113 quedaron en el 13% estándar porque no se pudo confirmar su régimen. Si no está, se pregunta ofreciendo **13% como primera opción recomendada** — ver abajo (R3) |
 | 3 | **Proyecto** | Descripción corta y número de licitación si aplica |
 | 4 | **Ubicación** | Para el kilometraje. La **distancia** sale de la columna `Destino / localidad` de la pestaña `Transporte` del machote; si el destino no está, se pregunta y se ofrece agregarlo (R9) |
 | 5 | **Asesor responsable** | Para los Excel de control y la firma de la cotización. Si el cliente está en la pestaña `Clientes`, proponé el de su columna `Asesor comercial` y preguntá si se mantiene |
@@ -128,8 +128,8 @@ columna de notas dice de cuál se trata. **No todas valen lo mismo:**
 | sin marca `DERIVADO` | regímenes conocidos (CCSS, UCR, TEC, zona franca): usalo |
 | `DERIVADO … la misma tasa en las N` | 92 clientes, consistente: usalo y decí de dónde salió |
 | `VARIA SEGUN EL PROYECTO` | **38 clientes.** Precargá la dominante pero **preguntá igual** |
-| `NO CONFIRMADO` | 82 clientes con una sola cotización. Tratalo como si no estuviera |
-| exento y % vacíos | 31 clientes: tenemos sus datos pero no el impuesto. Tratalo como si no estuviera. (La fila `Clientes de zona franca` también los tiene vacíos, a propósito: leé su nota) |
+| `13% ESTANDAR` | **113 clientes** cuyo régimen no hay forma de confirmar (una sola cotización, o ninguna con el impuesto). Decisión de Fabián (2026-10-12): van al 13%, el estándar. Proponé 13% y preguntá como siempre; si la nota dice **"OJO: su única cotización iba exenta"** (14 clientes), decíselo al asesor al preguntar |
+| exento y % vacíos | Solo la fila `Clientes de zona franca`, a propósito: leé su nota |
 
 Que tantos clientes cambien de tasa entre proyectos no es un error de la
 tabla: **la exención a veces es del proyecto, no del cliente.** Uno de
@@ -263,9 +263,12 @@ productos a la vista, agrupados por marca y tipo de equipo y con su
 estado (confirmado, medido o sin registrar):
 
 > *"Para estos productos, los descuentos que tenemos son: Hanwha
-> cámaras X% (medido, falta que preventa lo confirme); ISTC 0%, su
-> precio ya es el de compra. ¿Armamos con el precio con descuento de GV
+> cámaras X% (medido en N cotizaciones reales); ISTC 0%, su precio ya
+> es el de compra. ¿Armamos con el precio con descuento de GV
 > (recomendado) o con el precio de lista (MSRP)?"*
+
+Lo `MEDIDO` se aplica tal cual (Fabián, 2026-10-12): se dice de dónde
+salió, no se pide que alguien lo confirme.
 
 Si no contesta eso en particular, va el precio con descuento. Si pide
 una mezcla, se hace así y se marca en la tabla. Los detalles están en

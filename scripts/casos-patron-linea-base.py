@@ -416,7 +416,10 @@ def medir_caso(caso, cat):
         tasa = "invalido"
     cliente = os.path.relpath(caso["carpeta"], mm.CLIENTES).split(os.sep)[0]
     reg = regimen.get(mm.norm(cliente))
-    if reg and "NO CONFIRMADO" not in reg[1] and isinstance(reg[0], (int, float)):
+    # "13% ESTANDAR" (2026-10-12) es el 13% que se le pone a quien no se
+    # pudo confirmar: el plugin lo propone y pregunta, como sin tabla.
+    if reg and "NO CONFIRMADO" not in reg[1] and not reg[1].startswith("13% ESTANDAR") \
+            and isinstance(reg[0], (int, float)):
         propone = round(reg[0] * 100, 2)
         fuente = "tabla de regimen"
     else:

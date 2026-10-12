@@ -173,8 +173,8 @@ proveedor se recalcula. Ejemplos de hoy:
 - **Hanwha:** su lista trae el MSRP y una casilla para que cada
   distribuidor reste su descuento. Desde el 2026-09-28 lleva los
   descuentos medidos en las cotizaciones reales, uno general y uno por
-  tipo de equipo, con estado `MEDIDO: FALTA CONFIRMAR` hasta que preventa
-  los confirme (decisión de Fabián: aplicarlos tal cual lo medido).
+  tipo de equipo, con estado `MEDIDO` (decisión de Fabián: aplicarlos
+  tal cual lo medido; desde el 2026-10-12 no esperan confirmación).
 - **ISTC, Seguritronic y Security Doctors:** `0%`, porque su precio de lista ya es
   el de compra (medido en las cotizaciones reales, mediana 1,00).
 - **Axis por Anixter:** medido en una cotización de 2024. Todavía no hay
@@ -238,9 +238,10 @@ Valor) que usa la fórmula. Reglas:
   usa el precio de lista tal cual.
 - Si escriben `30` en vez de `30%`, se entiende como 30% (el mismo
   criterio que el impuesto en el machote).
-- **Estado:** `CONFIRMADO POR PREVENTA`, `MEDIDO: FALTA CONFIRMAR`,
-  `PENDIENTE` o `NO APLICA`. La cotización avisa todo lo que no esté
-  confirmado.
+- **Estado:** `CONFIRMADO POR PREVENTA`, `MEDIDO`, `PENDIENTE` o
+  `NO APLICA`. `MEDIDO` (antes `MEDIDO: FALTA CONFIRMAR`) se aplica tal
+  cual, sin esperar confirmación (Fabián, 2026-10-12); la cotización
+  solo avisa lo `PENDIENTE` o lo que no tiene fila.
 - Es una tabla de Excel: una fila nueva hereda sola las fórmulas técnicas.
 
 **`Proveedores`** dice a quién se le compra, qué vende, si se le compra
@@ -391,6 +392,15 @@ Reglas de formato a mantener:
   `Namespace(carpeta).ParseName(archivo).ExtendedProperty("System.StorageProviderState")`
   da `2` cuando está sincronizado y `4` mientras falta subirlo (tarda
   unos segundos).
+
+  **Si a los dos minutos sigue en `4`** (visto el 2026-10-12: 26 minutos
+  trabado), el guardado quedó en la caché de Office esperando, casi
+  siempre porque alguien tiene el catálogo abierto en la nube. **No
+  reiniciar OneDrive**: el 2026-10-06 eso hizo que la versión de la nube
+  pisara la local. Lo que lo destraba es lo que haría una persona: abrir
+  el catálogo en Excel (también sirve por COM) y cerrarlo sin guardar;
+  Office termina la subida y el estado pasa a `2`. Y antes de escribir
+  otra vez, esperar a que esté en `2`.
 - Anchos de columna pensados para lectura rápida: Nombre y Descripción
   anchas, Archivo de origen ancha (los nombres de archivo reales son
   largos), campos de código (HTS/ECCN/EAN) angostos.
@@ -491,23 +501,26 @@ ahí quedate con una sola fila.
 ## Pestaña "Compatibilidad de Accesorios" (agregado 2026-09-01)
 
 Después de cargar o reemplazar un catálogo de proveedor grande (ej. un
-pricelist completo nuevo), corré también
-`scripts/generar_matriz_accesorios.py "<ruta al Catalogo de productos
-por proveedor.xlsx>"` para refrescar la pestaña **`Compatibilidad de
-Accesorios`** dentro del mismo Excel (agrega/reemplaza esa pestaña
-puntual, no toca `Catalogo` ni `Tipo de Cambio`). La consume
-[`buscar-equipo`](../buscar-equipo/SKILL.md) para saber qué bases/
-soportes/lentes son compatibles con cada modelo de cámara. Combina tres
-fuentes (columna "Fuente" de la pestaña): compatibilidad que el propio
-fabricante escribe en el catálogo, match por categoría genérica dentro
-del mismo catálogo, y un puñado de pares verificados a mano en una
-cotización real (estos últimos viven como lista literal dentro del
-script — regenerar no los borra, pero tampoco los descubre solos). Ver
-el detalle completo en `buscar-equipo/SKILL.md`, sección "Cómo se
-construye la pestaña Compatibilidad de Accesorios". No es un paso
-bloqueante del proceso de arriba — si no se regenera, `buscar-equipo`
-simplemente no va a poder sugerir accesorios para los productos más
-nuevos hasta que se corra.
+pricelist completo nuevo), refrescá también la pestaña
+**`Compatibilidad de Accesorios`**. La consume
+[`buscar-equipo`](../buscar-equipo/SKILL.md) para saber qué bases,
+soportes, lentes y cubiertas sirven para cada equipo. Son dos pasos:
+
+```
+python scripts/generar_matriz_accesorios.py "<catalogo.xlsx>" "<pares.json>"
+powershell -File scripts/escribir_matriz_accesorios.ps1 -Ruta "<catalogo.xlsx>" -Datos "<pares.json>"            (prueba)
+powershell -File scripts/escribir_matriz_accesorios.ps1 -Ruta "<catalogo.xlsx>" -Datos "<pares.json>" -Guardar
+```
+
+El primero solo lee y calcula los pares: **solo entra lo que el
+fabricante documenta**, y cada par lleva en `Notas` la frase que lo
+respalda. El segundo los escribe por Excel (COM), reemplazando solo las
+filas de la tabla y la sección de la `Guia de columnas`. Desde el
+2026-10-12 ya no se usa openpyxl para esto (borraba los desplegables).
+El detalle, y lo que se sacó y por qué, está en `buscar-equipo/SKILL.md`,
+sección "Cómo se construye la pestaña Compatibilidad de Accesorios". No
+es un paso bloqueante: si no se regenera, `buscar-equipo` no va a poder
+sugerir accesorios para los productos más nuevos hasta que se corra.
 
 ## Estado real de la columna "Precio especial GV" (corregido 2026-09-18)
 
@@ -748,11 +761,12 @@ Si agregás una subcategoría nueva: primero a `scripts/taxonomia.py`,
 después regenerás `_listas!E` y ampliás el rango de la validación. Si se
 hace al revés, `buscar-equipo` no la va a encontrar.
 
-⚠️ **El generador de la matriz de accesorios borra los desplegables.**
-`generar_matriz_accesorios.py` guarda con `openpyxl`, que no soporta la
-extensión x14 de la validación con rango en otra hoja, y la **elimina sin
-avisar**. Se comprobó el 2026-09-23: después de correrlo, las dos
-validaciones quedaron en cero. **Siempre después de correrlo:**
+⚠️ **Guardar el catálogo con `openpyxl` borra los desplegables.** No
+soporta la extensión x14 de la validación con rango en otra hoja y la
+**elimina sin avisar** (comprobado el 2026-09-23 con el generador viejo
+de la matriz de accesorios, que desde el 2026-10-12 ya escribe por COM).
+Si algo llegara a guardar el catálogo con `openpyxl`, después hay que
+correr:
 
 ```
 powershell -File scripts/reparar-desplegables.ps1

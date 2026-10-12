@@ -1,408 +1,399 @@
-"""Genera/actualiza la pestana "Compatibilidad de Accesorios" dentro del
-propio Catalogo de productos por proveedor.xlsx, a partir de las filas de
-categoria "accesorio" del catalogo.
+"""Calcula los pares de la pestana "Compatibilidad de Accesorios" del
+Catalogo de productos por proveedor.xlsx y los deja en un JSON.
 
 Uso:
-    python generar_matriz_accesorios.py "<ruta al Catalogo de productos por proveedor.xlsx>"
+    python generar_matriz_accesorios.py "<catalogo.xlsx>" "<salida.json>"
 
-Escribe sobre el MISMO archivo (agrega/reemplaza la pestana, no toca
-las demas). No lee ninguna cotizacion de cliente: toda la compatibilidad
-de esta fuente sale del campo Descripcion que el propio fabricante (hoy,
-Hanwha) ya escribe en su catalogo/pricelist (ej. "Wall mount compatible
-with XNP-6120HW"). Pares que vengan de cotizaciones reales o de
-investigacion web se agregan aparte (ver notas del skill buscar-equipo)
-y se identifican por la columna "Fuente".
+SOLO LEE el catalogo. La pestana la escribe despues, por Excel (COM),
+escribir_matriz_accesorios.ps1 -- nunca openpyxl, que al guardar borra los
+desplegables de Categoria y Subcategoria (medido el 2026-09-23).
+
+Regla de fondo (rehecho el 2026-10-12): un par solo entra si un documento
+del fabricante lo dice. Cada par lleva en "Notas" la frase exacta que lo
+respalda, para que cualquiera pueda revisarlo sin abrir la lista de precios.
+
+Tres fuentes, columna "Fuente":
+1. El texto del fabricante nombra el modelo exacto (Hanwha, InVid y 2N por
+   numero de parte; Axis por nombre de modelo, porque su numero de parte
+   es otro: "Hard coated smoked dome for AXIS Q6124-E, Q6128-E").
+2. El fabricante dice la familia, no el modelo ("Wall Mount for Paramont
+   PTZ Cameras"): solo los casos de FAMILIAS_VERIFICADAS, revisados a mano
+   contra el PDF de origen. Nunca se infiere una familia sola: la version
+   anterior lo hacia por palabras sueltas y emparejaba, por ejemplo, un
+   soporte de techo para un solo modelo con todas las PTZ de la marca.
+3. Pares vistos en cotizaciones reales: PARES_DE_COTIZACIONES, hoy vacia
+   (ver la nota ahi).
+
+Que lado del par es el accesorio lo decide la Categoria del catalogo, no
+palabras sueltas del nombre. Si los dos lados son accesorios (un soporte de
+esquina que va con un soporte de pared) o ninguno lo es, el par no entra.
 """
-import sys
+import collections
+import json
 import re
-from collections import Counter
-
-# =========================================================================
-# AVISO (medido 2026-09-23): ESTE SCRIPT BORRA LOS DESPLEGABLES
-#
-# Guarda con openpyxl, que no soporta la extension x14 que usa la validacion
-# de datos con rango en otra hoja. Al guardar la elimina SIN AVISAR: el
-# archivo queda sano, los datos intactos, y los desplegables de Categoria y
-# Subcategoria simplemente dejan de existir.
-#
-# Se comprobo: correr este script dejo las dos validaciones en cero.
-#
-# DESPUES DE CORRERLO, siempre:
-#     powershell -File scripts/reparar-desplegables.ps1
-# =========================================================================
+import sys
+import warnings
 
 import openpyxl
-from openpyxl.worksheet.table import Table, TableStyleInfo
-from openpyxl.styles import Font, Alignment
 
-ACC_CATS = {
-    'Accessory', 'Accesorios / Power Supply', 'Explosion Proof - Accessory',
-    'Accessories', 'Power Supply', 'Monitor Stand',
+warnings.filterwarnings("ignore")
+
+SHEET_NAME = "Compatibilidad de Accesorios"
+HEADERS = [
+    "Modelo Camara", "Nombre Camara", "Marca Camara",
+    "Modelo Accesorio", "Nombre Accesorio", "Tipo Accesorio", "Marca Accesorio",
+    "Proveedor", "Fuente", "Notas",
+]
+FUENTE_EXACTA = "Fabricante: nombra el modelo exacto"
+FUENTE_FAMILIA = "Fabricante: nombra la familia, no el modelo - verificar antes de cotizar"
+FUENTE_COTIZACION = "Cotizacion real (no lo documenta el fabricante) - verificar antes de usar"
+
+# Lado "accesorio" y lado "equipo", segun la taxonomia del catalogo.
+SUB_ACCESORIO = {"Lente", "Fuente de poder", "Inyector PoE", "Cableado"}
+CAT_EQUIPO = {"Camara", "Control de acceso", "Audio", "Grabacion y video",
+              "Alarma e intrusion", "Deteccion de incendio", "Monitor y visualizacion"}
+# Fuera de las camaras, algunas piezas quedaron con la categoria del equipo
+# al que acompanan ("White Cover for Video Intercom TID-600" esta como
+# Intercomunicador). Si el nombre dice que es una pieza de montaje, cuenta
+# como accesorio. No se aplica a camaras: "Wall Mount Panoramic Camera" es
+# una camara.
+PIEZA = re.compile(r"\b(cover|back\s?box|backbox|flush box|surface box|junction box|mount|bracket|"
+                   r"housing|adapter|adaptor|frame|chassis|chassi|plate|gooseneck|spacer)\b", re.I)
+# Los iluminadores son equipos (llevan soporte propio) aunque el catalogo
+# los tenga entre los accesorios.
+ILUMINADOR = re.compile(r"\billuminator\b", re.I)
+
+# Frases con las que el fabricante dice "esto sirve para":
+TRIGGERS = [
+    re.compile(r"[Cc]ompatible with:?\s+(.+?)(?:\s--\s|\n|\.\s|\.$|$)"),
+    re.compile(r"[Ff]or(?: [Tt]he)?\s*\(([^)]+)\)"),
+    re.compile(r"[Ff]or [Tt]he\s+([^.\n]+?)(?:\s--\s|\.\s|\.$|\n|$)"),
+    re.compile(r"\b[Ff][Oo][Rr]\s+([A-Za-z0-9][A-Za-z0-9\-/:, &.]*?)(?:\s--\s|\.\s|\.$|\n|$)"),
+    re.compile(r"[Ss]upported cameras?\s*\(([^)]+)\)"),
+    re.compile(r"[Uu]sed with\s+(.+?)(?:\s--\s|\.\s|\.$|\n|$)"),
+    re.compile(r"[Ff]its\s+(.+?)(?:\s--\s|\.\s|\.$|\n|$)"),
+    re.compile(r"[Ss]uitable for\s+(.+?)(?:\s--\s|\.\s|\.$|\n|$)"),
+    re.compile(r"[Dd]esigned for\s+(.+?)(?:\s--\s|\.\s|\.$|\n|$)"),
+    re.compile(r"[Ii]ntended for\s+(.+?)(?:\s--\s|\.\s|\.$|\n|$)"),
+    re.compile(r"[Aa]ccessor(?:y|ies) for\s+(.+?)(?:\s--\s|\.\s|\.$|\n|$)"),
+]
+
+# Familias que el fabricante nombra sin modelo, verificadas a mano contra
+# el documento de origen. (sku_accesorio, regla para elegir los equipos,
+# frase y pagina del documento). Si una frase no alcanza para decidir a
+# que modelos aplica, NO se agrega aca.
+FAMILIAS_VERIFICADAS = [
+    # LISTA DE PRECIOS INVID-MILESIGH.pdf, pag. 21. La misma pagina trae
+    # soporte propio para las mini PTZ 2.8-12mm (IPM-TXWM2) y la PTZ
+    # bullet es otro formato: la familia son las PTZ domo con zoom optico.
+    ("IPM-PTZWALL1", {"marca": "Paramont", "nombre": [r"Outdoor PTZ", r"\d+x (?:Optical )?Zoom"], "no": [r"Bullet", r"2\.8-12mm"]},
+     'Lista de InVid, pag. 21: "Wall Mount for Paramont PTZ Cameras"'),
+    ("IPM-PTZCORNER", {"marca": "Paramont", "nombre": [r"Outdoor PTZ", r"\d+x (?:Optical )?Zoom"], "no": [r"Bullet", r"2\.8-12mm"]},
+     'Lista de InVid, pag. 21: "Corner Mount for Paramont PTZ Cameras"'),
+]
+
+# Pares vistos en cotizaciones reales del equipo. Vacia desde el
+# 2026-10-12: los 10 que habia salian de una cotizacion que se armo copiando
+# la version i-PRO del mismo proyecto y cambiando solo las camaras; los
+# soportes i-PRO y la base Hanwha quedaron debajo de las Paramont de
+# arrastre, no porque sirvan. Antes de agregar uno, confirmar en la ficha
+# del fabricante o con el proveedor. (sku_equipo, sku_accesorio, nota)
+PARES_DE_COTIZACIONES = []
+
+TIPOS = [
+    (r"\blens\b|\blente\b", "Lente"),
+    (r"recessed|flush|in-ceiling", "Mount empotrado (flush)"),
+    (r"pendant", "Mount pendant"),
+    (r"corner", "Mount de esquina"),
+    (r"parapet", "Mount de parapeto"),
+    (r"wall\s*(?:&|and|/)\s*pole|pole\s*(?:&|and|/)\s*wall", "Mount pared/poste"),
+    (r"pole", "Mount de poste"),
+    (r"wall", "Mount de pared"),
+    (r"ceiling", "Mount de cielo"),
+    (r"back\s?box|backbox|conduit box", "Back box"),
+    (r"junction|j-box|gang\s?box|gangbox|gangplate", "Caja de conexiones"),
+    (r"dome cover|smoked dome|clear dome|bubble|\bdome\b.*\bcover|top cover|tinted", "Cubierta / domo"),
+    (r"\bcover\b|skin|weathershield|weather cap|hood|face plate", "Cubierta / carcasa"),
+    (r"housing|casing|enclosure", "Housing/carcasa"),
+    (r"cap adapter", "Adaptador tipo cap"),
+    (r"power supply|psu|power adapter", "Fuente de poder"),
+    (r"\bcables?\b|patch", "Cableado"),
+    (r"midspan|injector|\bpoe\b", "Inyector/convertidor PoE"),
+    (r"adapter|adaptor|converter|coupler", "Adaptador / conversor"),
+    (r"bracket|mount|stand|arm\b|plate", "Mount (otro)"),
+]
+
+
+def tipo_accesorio(nombre, subcategoria):
+    n = (nombre or "").lower()
+    for patron, tipo in TIPOS:
+        if re.search(patron, n):
+            return tipo
+    return subcategoria or "Otro"
+
+
+def es_iluminador(r):
+    return bool(ILUMINADOR.search(r["nombre"])) and not PIEZA.search(r["nombre"])
+
+
+ES_CAMARA = re.compile(r"\bcamera\b|megapixel|\b\d+\s?MP\b", re.I)
+PIEZA_PARA = re.compile(r"\b(plate|mount|bracket|box|backbox|adapter|adaptor|housing|cover)\b[^.]*?\bfor\b", re.I)
+
+
+def es_accesorio(r):
+    if es_iluminador(r):
+        return False
+    if r["categoria"] == "Accesorio de instalacion" or r["subcategoria"] in SUB_ACCESORIO:
+        return True
+    if ES_CAMARA.search(r["nombre"]):
+        return False
+    # Del PDF de InVid quedaron soportes con categoria Camara ("Plate for
+    # Dome to Attach to IVM-PM1"). En una camara solo cuenta si el nombre es
+    # "<pieza> for ...": "4K IR Flush Mount Dome" es una camara.
+    if r["categoria"] == "Camara":
+        return bool(PIEZA_PARA.search(r["nombre"]))
+    return bool(PIEZA.search(r["nombre"]))
+
+
+def es_equipo(r):
+    return (r["categoria"] in CAT_EQUIPO or es_iluminador(r)) and not es_accesorio(r)
+
+
+# ---- Modelos de Axis: el numero de parte (02939-001) no aparece en los
+# textos; aparece el nombre del modelo (Q6124-E). Se indexa el nombre de
+# cada equipo Axis y se leen las menciones con sus abreviaturas.
+AXIS_NOMBRE = re.compile(r"\bAXIS\s+([A-Z]{1,2}\d{3,4}[A-Z]?(?:-[A-Z0-9]+)?)(?:\s+(MK\s?I{1,3}|MKI{1,3}))?", re.I)
+MK = re.compile(r"^\s*(?:MK\s?(I{1,3})\b)", re.I)
+
+
+def mk_de(s):
+    m = re.search(r"MK\s?(I{1,3})\b", s or "", re.I)
+    return len(m.group(1)) if m else 0
+
+
+def modelo_axis(nombre):
+    m = AXIS_NOMBRE.search(nombre or "")
+    if not m:
+        return None, 0
+    return m.group(1).upper(), mk_de(nombre)
+
+
+MENCION = re.compile(
+    r"\b([A-Z]{1,2})(\d{3,4})([A-Z]?)"            # P1355, Q3626, M3905
+    r"((?:/\d{1,4})*)"                             # /8, /19, /6020
+    r"((?:/?-[A-Z0-9]+)*)"                         # -E, /-E, -PLE, -R
+    r"(?:\s(VE|LVE|PLE|PLVE|E|LE|R|V|LV)\b)?"      # "Q3626/8 VE"
+    r"(?:\s?(MK\s?I{1,3}|MkI{1,3}|Mk\s?I{1,3}))?", re.I)
+
+
+def menciones_axis(texto):
+    """Devuelve [(modelo, mk, inicio, fin)]: cada modelo Axis que nombra el
+    texto, con las abreviaturas expandidas ("Q3626/8 VE" -> Q3626-VE y
+    Q3628-VE; "P1355/-E" -> P1355 y P1355-E)."""
+    out = []
+    encontradas = list(MENCION.finditer(texto or ""))
+    for i, m in enumerate(encontradas):
+        serie, num, letra, barras, sufijos, sufijo_esp, mk = m.groups()
+        # "M4317/M4318-PLVE": el primero hereda el sufijo del siguiente.
+        if not sufijos and not sufijo_esp and i + 1 < len(encontradas) and texto[m.end():m.end() + 1] == "/" \
+                and encontradas[i + 1].start() == m.end() + 1:
+            sufijos = encontradas[i + 1].group(5) or ""
+        bases = [num + (letra or "")]
+        for b in [x for x in (barras or "").split("/") if x]:
+            bases.append(num[: len(num) - len(b)] + b)
+        sufs = [s for s in re.findall(r"/?-([A-Z0-9]+)", sufijos or "", re.I)]
+        con_barra = "/-" in (sufijos or "")
+        if sufijo_esp:
+            sufs.append(sufijo_esp)
+        variantes = []
+        for b in bases:
+            nombre = (serie + b).upper()
+            if not sufs:
+                variantes.append(nombre)
+            else:
+                if con_barra:
+                    variantes.append(nombre)
+                for s in sufs:
+                    variantes.append(nombre + "-" + s.upper())
+        for v in dict.fromkeys(variantes):
+            out.append((v, mk_de(mk or ""), m.start(), m.end()))
+    return out
+
+
+# ---- Numeros de parte (Hanwha, InVid, 2N): "XND-6010/6020R/8020R" hereda
+# el prefijo de letras al numero siguiente.
+PREFIJO = re.compile(r"^([A-Z]{2,}-)")
+SKU_EMBEBIDO = re.compile(r"\b[A-Z0-9]{2,}(?:-[A-Z0-9]+)+\b")
+
+
+def skus_en(frase, skus):
+    encontrados, prefijo = [], None
+    for trozo in re.split(r",| and |;", frase):
+        for sub in trozo.split("/"):
+            sub = sub.strip(" ()")
+            if not sub:
+                continue
+            pm = PREFIJO.match(sub)
+            if pm:
+                prefijo, cand = pm.group(1), sub
+            elif prefijo and re.match(r"^[A-Z0-9]+$", sub):
+                cand = prefijo + sub
+            else:
+                cand = sub
+            if cand.upper() in skus:
+                encontrados.append(cand.upper())
+    if not encontrados:
+        encontrados = [t.upper() for t in SKU_EMBEBIDO.findall(frase) if t.upper() in skus]
+    return list(dict.fromkeys(encontrados))
+
+
+def frases(texto):
+    return [(m.group(1), m.start(1)) for pat in TRIGGERS for m in pat.finditer(texto or "")]
+
+
+def evidencia(texto, inicio, fin, ancho=70):
+    a, b = max(0, inicio - ancho), min(len(texto), fin + ancho)
+    s = texto[a:b].replace("\n", " ").strip()
+    return ("..." if a > 0 else "") + s + ("..." if b < len(texto) else "")
+
+
+def leer_catalogo(ruta):
+    wb = openpyxl.load_workbook(ruta, read_only=True, data_only=True)
+    filas = list(wb["Catalogo"].iter_rows(values_only=True))
+    wb.close()
+    I = {h: i for i, h in enumerate(filas[0])}
+    out = []
+    for r in filas[1:]:
+        sku = r[I["Modelo / SKU"]]
+        if not sku:
+            continue
+        out.append({
+            "sku": str(sku).strip(), "nombre": str(r[I["Nombre de equipo/producto"]] or "").strip(),
+            "marca": r[I["Marca"]] or "", "proveedor": r[I["Proveedor"]] or "",
+            "categoria": r[I["Categoria"]] or "", "subcategoria": r[I["Subcategoria"]] or "",
+            "descripcion": str(r[I["Descripcion"]] or ""),
+        })
+    return out
+
+
+def construir(cat):
+    por_sku = {}
+    for r in cat:
+        por_sku.setdefault(r["sku"].upper(), r)
+    axis_por_modelo = collections.defaultdict(list)
+    for r in cat:
+        if r["marca"] == "Axis" and es_equipo(r):
+            mod, mk = modelo_axis(r["nombre"])
+            if mod:
+                axis_por_modelo[mod].append((r, mk))
+
+    pares = {}
+
+    def agregar(equipo, acc, fuente, nota):
+        if equipo["sku"].upper() == acc["sku"].upper():
+            return
+        clave = (equipo["sku"].upper(), acc["sku"].upper())
+        if clave in pares:
+            return
+        pares[clave] = [equipo["sku"], equipo["nombre"], equipo["marca"],
+                        acc["sku"], acc["nombre"], tipo_accesorio(acc["nombre"], acc["subcategoria"]), acc["marca"],
+                        acc["proveedor"], fuente, nota]
+
+    for r in cat:
+        textos = [("nombre", r["nombre"]), ("descripcion", r["descripcion"])]
+        lado_acc, lado_eq = es_accesorio(r), es_equipo(r)
+        if not (lado_acc or lado_eq):
+            continue
+        for campo, texto in textos:
+            if not texto:
+                continue
+            # 1a. numeros de parte dentro de las frases "for/compatible with"
+            for frase, ini in frases(texto):
+                for otro_sku in skus_en(frase, por_sku):
+                    otro = por_sku[otro_sku]
+                    pos = texto.upper().find(otro_sku, ini)
+                    pos = pos if pos >= 0 else ini
+                    nota = 'El %s de %s dice: "%s"' % (campo, r["sku"], evidencia(texto, pos, pos + len(otro_sku)))
+                    if lado_acc and es_equipo(otro):
+                        agregar(otro, r, FUENTE_EXACTA, nota)
+                    elif lado_eq and es_accesorio(otro):
+                        agregar(r, otro, FUENTE_EXACTA, nota)
+            # 1b. modelos de Axis por nombre (solo desde el lado accesorio)
+            if lado_acc and r["marca"] == "Axis":
+                for mod, mk, a, b in menciones_axis(texto):
+                    if not any(ini <= a <= ini + len(fr) + 1 for fr, ini in frases(texto)):
+                        continue
+                    # "...A1214 Network Door Controller Kit. AXIS TA1601 Mounting
+                    # Plate is included in...": ya viene adentro, no se ofrece.
+                    if re.search(r"is included in|included with", texto[b:b + 90], re.I):
+                        continue
+                    # "I7010-VE Safety" e "I7010-VE" son dos intercomunicadores
+                    # con placas distintas: la palabra tiene que coincidir.
+                    safety = bool(re.match(r"\s*Safety\b", texto[b:b + 12], re.I))
+                    for equipo, mk_eq in axis_por_modelo.get(mod, []):
+                        if mk and mk_eq != mk:
+                            continue
+                        if safety != bool(re.search(r"\bSafety\b", equipo["nombre"], re.I)):
+                            continue
+                        nota = 'El %s de %s dice: "%s"' % (campo, r["sku"], evidencia(texto, a, b))
+                        if mk_eq and not mk:
+                            nota += " (no dice si es Mk; el equipo es Mk %s)" % ("I" * mk_eq)
+                        agregar(equipo, r, FUENTE_EXACTA, nota)
+
+    # 2. familias revisadas a mano
+    for acc_sku, regla, cita in FAMILIAS_VERIFICADAS:
+        acc = por_sku.get(acc_sku.upper())
+        if not acc:
+            continue
+        for r in cat:
+            if r["marca"] != regla["marca"] or not es_equipo(r):
+                continue
+            if all(re.search(p, r["nombre"], re.I) for p in regla["nombre"]) and not any(re.search(p, r["nombre"], re.I) for p in regla["no"]):
+                agregar(r, acc, FUENTE_FAMILIA, cita)
+
+    # 3. cotizaciones reales (vacia, ver la nota)
+    for eq_sku, acc_sku, nota in PARES_DE_COTIZACIONES:
+        eq, acc = por_sku.get(eq_sku.upper()), por_sku.get(acc_sku.upper())
+        if eq and acc:
+            agregar(eq, acc, FUENTE_COTIZACION, nota)
+
+    filas = sorted(pares.values(), key=lambda f: (str(f[2]), str(f[0]), str(f[5]), str(f[3])))
+    return filas
+
+
+# Lo que dice la "Guia de columnas" sobre esta pestana (lo escribe tambien
+# escribir_matriz_accesorios.ps1, para que la guia no quede describiendo
+# fuentes que ya no existen).
+GUIA = {
+    "descripcion": "Qué montura, base, lente o cubierta sirve para cada equipo (cámaras, intercomunicadores, "
+                   "monitores). Una fila por par equipo–accesorio. La genera un script leyendo lo que el fabricante "
+                   "escribe en su lista de precios: cada par trae en Notas la frase que lo respalda.",
+    "Marca Accesorio": ["Marca del accesorio.",
+                        "Casi siempre es la misma marca del equipo: los soportes rara vez sirven entre marcas."],
+    "Fuente": ["De dónde salió el par: el fabricante nombra el modelo exacto, o nombra solo la familia "
+               "(\"for Paramont PTZ Cameras\").",
+               "DICE CUÁNTO CONFIAR. Si dice que nombra la familia, confirmá el encaje con el proveedor antes de cotizar."],
+    "Notas": ["La frase del fabricante que respalda el par, y avisos (por ejemplo, si no dice la versión Mk).",
+              "Para revisar el par sin abrir la lista de precios."],
 }
 
-PREFIX_RE = re.compile(r'^([A-Z]{2,}-)')
 
-TRIGGER_PATTERNS = [
-    re.compile(r'[Cc]ompatible with:?\s+(.+?)(?:\s--\s|\n|\.\s|\.$|$)'),
-    re.compile(r'[Ff]or(?: [Tt]he)?\s*\(([^)]+)\)'),
-    re.compile(r'[Ff]or [Tt]he\s+([^.\n]+?)(?:\s--\s|\.\s|\.$|\n|$)'),
-    # "for" suelto sin parentesis ni "the" (ej. "Ceiling Mount for PAR-ALLDRXIRBD",
-    # o en mayusculas "JUNCTION BOX FOR SEC-P8DRXIR28NH")
-    re.compile(r'\b[Ff][Oo][Rr]\s+([A-Za-z][A-Za-z0-9\-/:, &]*?)(?:\s--\s|\.\s|\.$|\n|$)'),
-    re.compile(r'[Ss]upported cameras?\s*\(([^)]+)\)'),
-    re.compile(r'[Uu]sed with\s+(.+?)(?:\s--\s|\.\s|\.$|\n|$)'),
-    re.compile(r'[Cc]an be used with\s+(.+?)(?:\s--\s|\.\s|\.$|\n|$)'),
-]
-
-TIPO_KEYWORDS = [
-    ('lens', 'Lente'),
-    ('flush mount', 'Mount empotrado (flush)'),
-    ('wall & pole mount', 'Mount pared/poste'),
-    ('wall and pole mount', 'Mount pared/poste'),
-    ('wall mount', 'Mount de pared'),
-    ('pole mount', 'Mount de poste'),
-    ('corner mount', 'Mount de esquina'),
-    ('ceiling mount', 'Mount de cielo'),
-    ('pendant mount', 'Mount pendant'),
-    ('pendant back box', 'Back box (pendant)'),
-    ('back box', 'Back box'),
-    ('gangbox', 'Gangbox / caja de conexiones'),
-    ('cap adapter', 'Adaptador tipo cap'),
-    ('mounting converter', 'Convertidor de montaje'),
-    ('mounting bracket', 'Bracket de montaje'),
-    ('mounting hole cover', 'Tapa/placa de montaje'),
-    ('mounting accessory', 'Accesorio de montaje'),
-    ('mount plate', 'Placa de montaje'),
-    ('junction box', 'Caja de conexiones'),
-    ('protection kit', 'Kit de proteccion'),
-    ('housing', 'Housing/carcasa'),
-    ('power supply', 'Fuente de poder'),
-    ('poe', 'Inyector/convertidor PoE'),
-    ('converter', 'Convertidor'),
-    ('nvr', 'NVR'),
-    ('solar light', 'Iluminacion solar'),
-    ('mount', 'Mount (generico)'),
-]
-
-# Pares confirmados a mano revisando cotizaciones reales (2026-09-01,
-# autorizado por el usuario para este analisis puntual -- ver notas-proceso.md).
-# No se re-generan solos corriendo este script: si se encuentra un caso nuevo
-# util revisando otra cotizacion, agregarlo aca a mano. Cada tupla:
-# (sku_camara, sku_accesorio, nombre_accesorio, marca_accesorio, nota).
-PARES_VERIFICADOS_MANUALMENTE = [
-    ('PAR-P8PTZXIR32NH-AI', 'WV-QWL502-W', 'i-PRO Wall or Pole Mount Bracket', 'Panasonic i-PRO',
-     'Visto en una cotizacion real de un proyecto municipal de ciudad segura (2026) -- Paramont no tenia mount propio para esta PTZ, se uso un bracket universal de Panasonic i-PRO. No esta en nuestro catalogo de proveedores todavia, hay que cotizarlo aparte.'),
-    ('PAR-P8PTZXIR32NH-AI', 'WV-QPL500-W', 'i-PRO Pole Mount Bracket', 'Panasonic i-PRO',
-     'Visto en una cotizacion real de ese mismo proyecto (2026) -- mismo caso que WV-QWL502-W, no esta en nuestro catalogo todavia.'),
-    ('PAR-P8PTZXIR32NH-AI', 'WV-QSR503-W', 'i-PRO Shroud Bracket (4 holes)', 'Panasonic i-PRO',
-     'Visto en una cotizacion real de ese mismo proyecto (2026). No esta en nuestro catalogo todavia.'),
-    ('PAR-P8PTZXIR32NH-AI', 'WV-QWL501-W', 'i-PRO Wall Mount Bracket, White', 'Panasonic i-PRO',
-     'Visto en una cotizacion real de ese mismo proyecto (2026). No esta en nuestro catalogo todavia.'),
-    ('PAR-P8PTZXIR32NH-AI', 'SBD-180PMW', 'Pole Mount', 'Hanwha',
-     'Visto en una cotizacion real de ese mismo proyecto (2026) -- OJO: la ficha de Hanwha de este mount NO lista modelos Paramont como compatibles, el equipo lo uso igual en la practica. Verificar que encaje fisicamente antes de repetirlo.'),
-    ('PAR-P6BIRA2812-LC3', 'WV-QWL502-W', 'i-PRO Wall or Pole Mount Bracket', 'Panasonic i-PRO',
-     'Visto en una cotizacion real de ese mismo proyecto (2026). No esta en nuestro catalogo todavia.'),
-    ('PAR-P6BIRA2812-LC3', 'WV-QPL500-W', 'i-PRO Pole Mount Bracket', 'Panasonic i-PRO',
-     'Visto en una cotizacion real de ese mismo proyecto (2026). No esta en nuestro catalogo todavia.'),
-    ('PAR-P6BIRA2812-LC3', 'WV-QSR503-W', 'i-PRO Shroud Bracket (4 holes)', 'Panasonic i-PRO',
-     'Visto en una cotizacion real de ese mismo proyecto (2026). No esta en nuestro catalogo todavia.'),
-    ('PAR-P6BIRA2812-LC3', 'WV-QWL501-W', 'i-PRO Wall Mount Bracket, White', 'Panasonic i-PRO',
-     'Visto en una cotizacion real de ese mismo proyecto (2026). No esta en nuestro catalogo todavia.'),
-    ('PAR-P6BIRA2812-LC3', 'SBD-180PMW', 'Pole Mount', 'Hanwha',
-     'Visto en una cotizacion real de ese mismo proyecto (2026) -- OJO: la ficha de Hanwha de este mount NO lista modelos Paramont como compatibles, el equipo lo uso igual en la practica. Verificar que encaje fisicamente antes de repetirlo.'),
-]
-FUENTE_COTIZACION_REAL = 'Cotizacion real (patron usado por el equipo, no documentado por el fabricante) - verificar antes de usar'
-
-SHEET_NAME = 'Compatibilidad de Accesorios'
-HEADERS = [
-    'Modelo Camara', 'Nombre Camara', 'Marca Camara',
-    'Modelo Accesorio', 'Nombre Accesorio', 'Tipo Accesorio', 'Marca Accesorio',
-    'Proveedor', 'Fuente', 'Notas',
-]
+def main(ruta, salida):
+    cat = leer_catalogo(ruta)
+    filas = construir(cat)
+    json.dump({"encabezados": HEADERS, "filas": filas, "guia": GUIA}, open(salida, "w", encoding="utf-8"), ensure_ascii=False)
+    print("filas del catalogo: %d" % len(cat))
+    print("pares: %d | equipos distintos: %d | accesorios distintos: %d" % (
+        len(filas), len({f[0] for f in filas}), len({f[3] for f in filas})))
+    for clave, n in collections.Counter(f[8] for f in filas).most_common():
+        print("  %5d  %s" % (n, clave))
+    print("por marca del equipo:", dict(collections.Counter(f[2] for f in filas).most_common()))
+    print("tipos:", dict(collections.Counter(f[5] for f in filas).most_common()))
+    print("escrito: %s" % salida)
 
 
-def classify_tipo(nombre):
-    n = (nombre or '').lower()
-    for kw, tipo in TIPO_KEYWORDS:
-        if kw in n:
-            return tipo
-    return 'Otro / sin clasificar'
-
-
-# Palabras que indican que un producto ES el accesorio de instalacion (no la
-# camara/equipo principal). Deliberadamente mas chico que TIPO_KEYWORDS: no
-# incluye "nvr" (es equipo principal, no accesorio) para no confundir dirección.
-ACCESSORY_HINT_WORDS = [
-    'mount', 'bracket', 'adapter', 'adaptor', 'housing', 'cap adapter',
-    'back box', 'backbox', 'junction box', 'gangbox', 'cover', 'protection kit',
-    'converter', 'poe injector', 'lens', 'imager', 'extension cable',
-    'wall&pole', 'pendant', 'flush', 'parapet', 'power supply',
-    'bubble', 'smoked', 'tinted', 'gangplate', 'wall arm', 'mounting arm',
-    'clamp', 'strap',
-]
-
-
-def looks_like_accessory(nombre):
-    n = (nombre or '').lower()
-    # "plate" solo (Cap Adapter Plate, Mount Plate, "Plate for Dome...") es
-    # accesorio; "License Plate" (camaras LPR) no lo es -- se descarta ese caso
-    # puntual en vez de sumar "plate" a la lista general.
-    if 'plate' in n and 'license plate' not in n:
-        return True
-    return any(w in n for w in ACCESSORY_HINT_WORDS)
-
-
-def split_group(text):
-    return [p.strip(' ()') for p in re.split(r',| and ', text) if p.strip(' ()')]
-
-
-EMBEDDED_SKU_RE = re.compile(r'\b[A-Z0-9]{2,}(?:-[A-Z0-9]+)+\b')
-
-
-def build_expand_and_validate(real_skus):
-    def expand_and_validate(group_text):
-        # Hanwha agrupa familias como "XND-6010/6020R/8020R": el prefijo de
-        # letras se hereda al siguiente token que sea solo numero/letra suelta.
-        found = []
-        last_prefix = None
-        for chunk in split_group(group_text):
-            for sub in chunk.split('/'):
-                sub = sub.strip()
-                if not sub:
-                    continue
-                pm = PREFIX_RE.match(sub)
-                if pm:
-                    last_prefix = pm.group(1)
-                    candidate = sub
-                elif last_prefix and re.match(r'^[A-Z0-9]+$', sub):
-                    candidate = last_prefix + sub
-                else:
-                    candidate = sub
-                if candidate.upper() in real_skus:
-                    found.append(real_skus[candidate.upper()])
-        if not found:
-            # Rescate: frases como "Wall Mount for Paramont Series:
-            # PAR-P4PTZXIR2812NH-AIWL" no se separan por coma/slash, pero el
-            # SKU real igual esta ahi adentro -- se busca directo en el texto
-            # crudo en vez de asumir que ocupa el chunk completo.
-            for tok in EMBEDDED_SKU_RE.findall(group_text):
-                if tok.upper() in real_skus and real_skus[tok.upper()] not in found:
-                    found.append(real_skus[tok.upper()])
-        return found
-    return expand_and_validate
-
-
-def extract_raw_phrases(text):
-    if not text:
-        return []
-    return [m.group(1) for pat in TRIGGER_PATTERNS for m in pat.finditer(text)]
-
-
-def extract_compatible_models(text, expand_and_validate):
-    found = []
-    for phrase in extract_raw_phrases(text):
-        found += expand_and_validate(phrase)
-    seen = []
-    for f in found:
-        if f not in seen:
-            seen.append(f)
-    return seen
-
-
-# Palabras que, encontradas en una frase "for X"/"compatible with X" sin
-# ningun SKU real detectable, alcanzan para intentar un match por categoria
-# generica en vez de por modelo exacto (ver build_category_matches).
-CATEGORY_KEYWORDS = [
-    'vandal', 'ptz', 'thermal', 'explosion proof', 'panoramic', 'fisheye',
-    'turret', 'intercom', 'body camera', 'box camera', 'bullet', 'dome',
-    'mini dome', 'mini bullet', 'bodycam', 'elevator',
-]
-
-
-def find_category_hint(phrase, marcas_reales):
-    """Si la frase nombra una marca real del catalogo mas una palabra de
-    categoria reconocible (ej. "Paramont PTZ Cameras"), devuelve (marca,
-    [keywords]). Si solo nombra la marca sin nada distintivo (ej. "Paramont
-    Series Cameras", "Paramont Cameras") devuelve (None, []) -- no alcanza
-    para acotar un match razonable, mejor no inventar uno."""
-    phrase_l = phrase.lower()
-    brand = next((b for b in marcas_reales if b and b.lower() in phrase_l), None)
-    if not brand:
-        return None, []
-    keywords = [k for k in CATEGORY_KEYWORDS if k in phrase_l]
-    return (brand, keywords) if keywords else (None, [])
-
-
-def build_rows_from_catalog(catalog_rows, idx):
-    real_skus = {}
-    nombre_marca_by_sku = {}
-    marcas_reales = set()
-    camera_candidates = []
-    for r in catalog_rows:
-        sku = r[idx['Modelo / SKU']]
-        nombre_r = r[idx['Nombre de equipo/producto']]
-        marca_r = r[idx['Marca']]
-        if sku:
-            key = str(sku).strip().upper()
-            real_skus[key] = str(sku).strip()
-            nombre_marca_by_sku[key] = (nombre_r, marca_r)
-        if marca_r:
-            marcas_reales.add(marca_r)
-        if sku and not looks_like_accessory(nombre_r):
-            searchable = ((nombre_r or '') + ' ' + (r[idx['Descripcion']] or '')).lower()
-            camera_candidates.append((str(sku).strip(), nombre_r, marca_r, searchable))
-    expand_and_validate = build_expand_and_validate(real_skus)
-
-    # No confiar en "Categoria / tipo" para decidir que es un accesorio: se
-    # confirmo que varias filas de Paramont/Vision quedaron categorizadas como
-    # "CAMERAS..." (heredado del encabezado de seccion del PDF de origen) aun
-    # siendo mounts reales con la compatibilidad escrita en el propio Nombre
-    # (ej. "Ceiling Mount for PAR-ALLDRXIRBD"). Se escanean TODAS las filas,
-    # tanto Nombre como Descripcion, y se descarta cualquier fila cuyo unico
-    # "match" sea su propio SKU (autorreferencia, no es un accesorio real).
-    out_rows = []
-    considered = 0
-    for r in catalog_rows:
-        nombre = r[idx['Nombre de equipo/producto']]
-        modelo = r[idx['Modelo / SKU']]
-        if not modelo:
-            continue
-        marca = r[idx['Marca']]
-        proveedor = r[idx['Proveedor']]
-        desc = r[idx['Descripcion']]
-        own_sku = str(modelo).strip().upper()
-        compatibles = extract_compatible_models(nombre or '', expand_and_validate)
-        compatibles += extract_compatible_models(desc or '', expand_and_validate)
-        seen = []
-        for c in compatibles:
-            if c.upper() != own_sku and c not in seen:
-                seen.append(c)
-        compatibles = seen
-        if not compatibles:
-            # Sin SKU exacto: si la fila es claramente un accesorio, intentar
-            # un match por categoria generica (ej. "Corner Mount for Paramont
-            # PTZ Cameras" -> todas las camaras PTZ reales de Paramont), pero
-            # solo cuando el texto nombra marca + una palabra distintiva --
-            # "Junction Box for Paramont Series Cameras" no alcanza (no dice
-            # cual serie) y se deja sin match en vez de inventar un alcance.
-            if looks_like_accessory(nombre):
-                ya_agregado = set()
-                for phrase in extract_raw_phrases(nombre or '') + extract_raw_phrases(desc or ''):
-                    brand, keywords = find_category_hint(phrase, marcas_reales)
-                    if not brand:
-                        continue
-                    for cam_sku, cam_nombre, cam_marca, cam_text in camera_candidates:
-                        if cam_marca != brand or cam_sku in ya_agregado:
-                            continue
-                        if all(kw in cam_text for kw in keywords):
-                            ya_agregado.add(cam_sku)
-                            out_rows.append([
-                                cam_sku, cam_nombre, cam_marca,
-                                modelo, nombre, classify_tipo(nombre), marca,
-                                proveedor,
-                                'Match por categoria generica (no por SKU exacto) - verificar antes de cotizar',
-                                f'Coincide por: {", ".join(keywords)}',
-                            ])
-            continue
-        considered += 1
-        scanned_is_acc = looks_like_accessory(nombre)
-        for other_sku in compatibles:
-            other_nombre, other_marca = nombre_marca_by_sku.get(other_sku.upper(), ('', ''))
-            other_is_acc = looks_like_accessory(other_nombre)
-            # Solo se acepta el par si UN lado es claramente el accesorio y el
-            # otro no lo es -- si los dos lo son (dos accesorios que se acoplan
-            # entre si) o ninguno lo es (dos equipos principales relacionados,
-            # ej. decoder+servidor) se descarta: no hay forma confiable de
-            # decidir cual va en "Modelo Camara" sin inventar.
-            if scanned_is_acc == other_is_acc:
-                continue
-            if scanned_is_acc:
-                cam_sku, cam_nombre, cam_marca = other_sku, other_nombre, other_marca
-                acc_sku, acc_nombre, acc_marca = modelo, nombre, marca
-            else:
-                cam_sku, cam_nombre, cam_marca = modelo, nombre, marca
-                acc_sku, acc_nombre, acc_marca = other_sku, other_nombre, other_marca
-            out_rows.append([
-                cam_sku, cam_nombre, cam_marca,
-                acc_sku, acc_nombre, classify_tipo(acc_nombre), acc_marca,
-                proveedor, 'Catalogo de proveedor (descripcion/nombre del fabricante)', '',
-            ])
-
-    ya_en_out = {(r[0].upper(), r[3].upper()) for r in out_rows}
-    for cam_sku, acc_sku, acc_nombre, acc_marca, nota in PARES_VERIFICADOS_MANUALMENTE:
-        if (cam_sku.upper(), acc_sku.upper()) in ya_en_out:
-            continue
-        cam_nombre, cam_marca = nombre_marca_by_sku.get(cam_sku.upper(), (None, None))
-        if cam_nombre is None:
-            continue  # la camara ya no existe en el catalogo actual, no agregar el par
-        out_rows.append([
-            cam_sku, cam_nombre, cam_marca,
-            acc_sku, acc_nombre, classify_tipo(acc_nombre), acc_marca,
-            '', FUENTE_COTIZACION_REAL, nota,
-        ])
-    return out_rows, considered
-
-
-def write_sheet(wb, rows):
-    if SHEET_NAME in wb.sheetnames:
-        del wb[SHEET_NAME]
-    # Insertarla justo despues de "Catalogo" si existe, si no al final.
-    idx_pos = wb.sheetnames.index('Catalogo') + 1 if 'Catalogo' in wb.sheetnames else len(wb.sheetnames)
-    ws = wb.create_sheet(SHEET_NAME, idx_pos)
-
-    ws.append(HEADERS)
-    for row in rows:
-        ws.append(row)
-
-    for cell in ws[1]:
-        cell.font = Font(bold=True)
-        cell.alignment = Alignment(wrap_text=False)
-
-    last_row = len(rows) + 1
-    last_col_letter = ws.cell(row=1, column=len(HEADERS)).column_letter
-    ref = f'A1:{last_col_letter}{last_row}'
-    if last_row > 1:
-        table = Table(displayName='TablaCompatibilidadAccesorios', ref=ref)
-        table.tableStyleInfo = TableStyleInfo(
-            name='TableStyleMedium2', showFirstColumn=False,
-            showLastColumn=False, showRowStripes=True, showColumnStripes=False,
-        )
-        ws.add_table(table)
-
-    ws.freeze_panes = 'A2'
-    widths = [16, 34, 16, 16, 34, 22, 16, 22, 34, 30]
-    for i, w in enumerate(widths, start=1):
-        ws.column_dimensions[ws.cell(row=1, column=i).column_letter].width = w
-    for row_dim in ws.row_dimensions.values():
-        row_dim.height = 18
-
-
-def main(catalogo_path):
-    wb = openpyxl.load_workbook(catalogo_path)
-    ws_cat = wb['Catalogo']
-    headers = [c.value for c in next(ws_cat.iter_rows(min_row=1, max_row=1))]
-    idx = {h: i for i, h in enumerate(headers)}
-    catalog_rows = [tuple(c.value for c in row) for row in ws_cat.iter_rows(min_row=2)]
-
-    rows, con_match = build_rows_from_catalog(catalog_rows, idx)
-    write_sheet(wb, rows)
-    wb.save(catalogo_path)
-
-    exactos = [r for r in rows if r[8].startswith('Catalogo de proveedor')]
-    categoria = [r for r in rows if r[8].startswith('Match por categoria')]
-    reales = [r for r in rows if r[8].startswith('Cotizacion real')]
-    print(f'Total de filas del catalogo escaneadas: {len(catalog_rows)}')
-    print(f'Filas con al menos una compatibilidad detectada: {con_match}')
-    print(f'Pares camara-accesorio escritos: {len(rows)} (exactos por SKU: {len(exactos)}, por categoria generica: {len(categoria)}, de cotizacion real verificada a mano: {len(reales)})')
-    print(f'Camaras distintas cubiertas: {len(set(r[0] for r in rows))}')
-    print('Tipos de accesorio en los pares escritos:')
-    for tipo, n in Counter(r[5] for r in rows).most_common():
-        print(f'  {n:4d}  {tipo}')
-    print(f'Pestana "{SHEET_NAME}" escrita en: {catalogo_path}')
-
-
-if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print('Uso: python generar_matriz_accesorios.py <catalogo.xlsx>')
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print('Uso: python generar_matriz_accesorios.py "<catalogo.xlsx>" "<salida.json>"')
         sys.exit(1)
-    main(sys.argv[1])
+    main(sys.argv[1], sys.argv[2])

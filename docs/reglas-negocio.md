@@ -19,17 +19,19 @@
 
 ## Índice: todas las reglas de un vistazo
 
-Actualizado el 2026-09-28. **De dónde sale** dice si la regla la dijo
+Actualizado el 2026-10-12. **De dónde sale** dice si la regla la dijo
 preventa, si sale de medir las cotizaciones reales, o si la decidió
-Fabián. Las que salen de medir están pendientes de que preventa las
-apruebe.
+Fabián. **Las que salen de medir se aplican tal cual se midieron**
+(decisión de Fabián, 2026-10-12: *"si las reglas salieron de medir las
+cotizaciones existentes, entonces hay que aplicarlas de esa manera"*);
+ya no esperan aprobación de preventa.
 
 | | Regla, en una línea | De dónde sale | Estado |
 |---|---|---|---|
 | R1 | `IMPORTADO` = a quién se le compra, no dónde se fabrica. Con `no`, transporte y DAI quedan en cero | preventa; verificado en cotizaciones | vigente |
 | R1.1 | Una línea de flete va como `no` importada | medido: 728 líneas, el 91% así | vigente |
-| R2 | Hay dos IVA: el de línea (un costo nuestro) y el impuesto al cliente | preventa | vigente |
-| R3 | El impuesto al cliente depende del cliente: se pregunta, con 13% recomendado | preventa; medido: 873 cotizaciones, 29% exentas | vigente, tabla de 46 clientes |
+| R2 | Hay dos IVA: el de línea (un costo nuestro) y el impuesto al cliente. Si el IVA de las compras locales se acredita no se sabe: se replica lo que hace el equipo (`Equipos` 0%, `MATERIALES` 13%) | preventa; lo de contabilidad, Fabián (2026-10-12) | vigente |
+| R3 | El impuesto al cliente depende del cliente: se pregunta, con 13% recomendado | preventa; medido: 873 cotizaciones, 29% exentas | vigente, pestaña `Clientes` (247); el que no se pudo confirmar va al 13% |
 | R4 | El costo recomendado es el **precio de compra de GV** (dealer, o lista menos el descuento del proveedor), no el MSRP. Se pregunta una vez por cotización con cuál se arma | medido: 94 de 134 líneas, ninguna con MSRP; la pregunta, Fabián | vigente |
 | R5 | Sin registro de proyecto no aplica el descuento mayor | preventa | concepto vigente, falta el mecanismo |
 | R6 | No hay tabla de porcentajes; los del machote son los más usados, y el margen se mueve según el tipo | preventa; medido: 499 matrices | vigente |
@@ -48,8 +50,8 @@ apruebe.
 | R19 | Los accesorios que nadie pide se sugieren con su %, nunca se agregan solos | medido: 666 cotizaciones | vigente |
 | R20 | La ruta de la carpeta compartida se resuelve por el registro, nunca se asume | incidente del 2026-09-18 | vigente |
 
-Lo que se le está pidiendo a preventa y a contabilidad está en
-[`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
+Lo que quedaba abierto con preventa y contabilidad, y cómo lo cerró
+Fabián, está en [`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
 cada regla está en [`pruebas-validacion.md`](pruebas-validacion.md).
 
 ---
@@ -343,11 +345,17 @@ mayúsculas) más la comprobación de que la financiada respeta la
 exención. Si alguien vuelve a quemar un porcentaje, el smoke test falla.
 
 ⚠️ **Lo que esto NO resuelve:** la pestaña `Clientes` tiene 247
-clientes, casi todos con el impuesto derivado de las cotizaciones (82
-con una sola cotización, sin confirmar, y 31 sin el dato), pero un
-cliente nuevo no está, y 38 cambian de tasa según el proyecto. La
+clientes, casi todos con el impuesto derivado de las cotizaciones, pero
+un cliente nuevo no está, y 38 cambian de tasa según el proyecto. La
 fórmula garantiza que *si se escribe, se respeta* — no que alguien lo
 sepa. Por eso el impuesto se pregunta siempre.
+
+**Los que no se pueden confirmar van al 13% (Fabián, 2026-10-12).** Eran
+113: 82 con una sola cotización y 31 sin ninguna con el impuesto. No hay
+forma de confirmar un régimen sin preguntarle al cliente, así que quedan
+en el estándar, con la nota `13% ESTANDAR`. La nota conserva lo que se
+vio: en 14 de ellos la única cotización iba exenta, y la nota lo avisa
+para que el asesor pregunte.
 
 ### La pestaña Clientes (2026-10-06)
 
@@ -474,10 +482,12 @@ proveedor`. Se midió proveedor por proveedor:
 - **Hanwha:** su lista trae solo el MSRP y una casilla para que cada
   distribuidor reste su descuento. El descuento se midió en las
   cotizaciones reales y en las de Anixter, por tipo de equipo, y se
-  aplica desde el 2026-09-28 con estado `MEDIDO: FALTA CONFIRMAR`
-  (decisión de Fabián: *"apliquémoslos tal cual la data que
-  recolectamos"*). Los porcentajes viven en la pestaña, no acá: son una
-  condición comercial.
+  aplica desde el 2026-09-28 (decisión de Fabián: *"apliquémoslos tal
+  cual la data que recolectamos"*). Hasta el 2026-10-12 su estado decía
+  `MEDIDO: FALTA CONFIRMAR`; ese día Fabián cerró la confirmación (lo
+  medido se aplica tal cual, aunque venga de una o dos cotizaciones) y
+  el estado pasó a `MEDIDO`. Los porcentajes viven en la pestaña, no
+  acá: son una condición comercial.
 - **El resto** no tiene fila todavía: se cotiza con su precio tal cual y
   la cotización avisa que no se sabe si ya trae descuento.
 
@@ -1547,14 +1557,14 @@ publique:**
 
 Pregunta **una vez por cotización** si arma con el precio de compra de GV
 (recomendado) o con el de lista, mostrando los descuentos que aplican y
-su estado (R4). Y en la entrega marca, línea por línea, lo que no esté
-confirmado:
+su estado (R4). Y en la entrega dice, línea por línea, de dónde salió
+cada número:
 
 | El descuento de la fila… | Qué se dice |
 |---|---|
 | viene del precio dealer | nada |
 | está `CONFIRMADO POR PREVENTA` | nada |
-| es `MEDIDO: FALTA CONFIRMAR` | que es medido y falta que preventa lo confirme |
+| es `MEDIDO` | que salió de medir las cotizaciones reales (y en cuántas, que dice la columna de al lado). **No se pide confirmación**: se aplica tal cual (Fabián, 2026-10-12) |
 | dice `PENDIENTE` o está vacío | que el costo es el precio de lista tal cual y el real puede ser menor |
 
 ⚠️ **El descuento es lo que se resta, no lo que se paga.** El

@@ -32,47 +32,55 @@ estado en el Excel.
 
 ## Tono y formato
 
-- **Formalidad siempre por delante.** No hay una plantilla de casa fija
-  todavía, pero el registro es formal (de "usted"), profesional, cordial.
-- **Genérico en estructura, pero que no se sienta genérico.** Evitá
-  frases de relleno tipo plantilla robótica — adaptá el texto a lo que
-  se sabe del proyecto/cliente en esta conversación (nombre del
-  contacto, qué se cotizó, en qué quedó la conversación previa) en vez
-  de repetir el mismo texto para cualquier caso.
-- **Nunca incluir número de oferta ni monto en el cuerpo del correo** —
-  esos datos van únicamente en el PDF adjunto, no se repiten en el
-  texto.
-- El correo **asume que ya existe el PDF final de la cotización** para
-  adjuntar (ver [`generar-pdf-cotizacion`](../generar-pdf-cotizacion/SKILL.md)
-  abajo) — si todavía no existe, decilo explícitamente en vez de
-  redactar como si ya estuviera listo para enviar.
+**No hay correos reales de la empresa que copiar** (confirmado por
+Fabián el 2026-10-12): los modelos de abajo los escribimos nosotros, y
+el criterio es que **se lean muy profesionales**. Eso significa:
 
-## Ejemplo — cotización terminada, se envía por primera vez ("Enviada")
+- **De "usted", siempre.** Cordial, sin confianzas ni diminutivos, sin
+  emojis, sin signos de exclamación de más.
+- **Corto y con un propósito por correo.** Saludo, para qué se escribe,
+  qué se necesita del cliente (si algo), cierre. Tres o cuatro párrafos
+  breves como máximo.
+- **Concreto, no genérico.** Adaptá cada borrador a lo que se sabe en la
+  conversación: nombre del contacto, qué se cotizó, en qué quedó la
+  última conversación, plazos que el cliente mencionó. Una frase concreta
+  vale más que tres de cortesía.
+- **Nunca número de oferta ni monto en el cuerpo del correo.** Van
+  únicamente en el PDF adjunto.
+- **Nunca presionar.** Ni "le recordamos que la oferta vence", ni
+  "quedamos a la espera de su orden de compra". Si hay una fecha real
+  (vigencia, cierre de una licitación), se menciona como dato útil para
+  el cliente, no como urgencia.
+- **El asunto dice de qué se trata** en pocas palabras, con el nombre
+  del proyecto.
+- **El correo asume que ya existe el PDF final** para adjuntar (lo arma
+  [`generar-pdf-cotizacion`](../generar-pdf-cotizacion/SKILL.md)). Si
+  todavía no existe, decilo en vez de redactar como si estuviera listo.
 
-Modelo base para cuando la cotización queda lista y se manda al cliente
-por primera vez. Los corchetes son lo que el asesor completa antes de
-enviar — **todavía faltan ejemplos reales de los otros estados** (en
-espera/sin respuesta, cambios solicitados, descartada); el usuario va a
-compartir más ejemplos reales para ajustar el tono exacto — no inventar
-esos otros borradores todavía sin esos ejemplos.
+Los corchetes son lo que el asesor completa o el plugin rellena con lo
+que ya se sabe. Si un dato no se sabe, se deja el corchete: **nunca se
+inventa** un nombre, una fecha o un compromiso.
+
+## Modelos, uno por situación
+
+### Cotización lista, se envía por primera vez ("Enviada")
 
 ```
-Asunto: Cotización — [nombre del proyecto o cliente]
+Asunto: Cotización — [nombre del proyecto]
 
-Estimado(a) [nombre del contacto],
+Estimado(a) [nombre del contacto]:
 
 Reciba un cordial saludo de parte de Grupo Visión.
 
-Adjunto a este correo encontrará la cotización correspondiente a
-[breve descripción del proyecto/solicitud], preparada de acuerdo con
-los requerimientos que nos compartió.
+Adjunto encontrará la cotización correspondiente a [breve descripción
+del proyecto o solicitud], preparada de acuerdo con los requerimientos
+que nos compartió.
 
-Quedamos atentos a cualquier consulta, ajuste o aclaración que necesite
-sobre la propuesta. Será un gusto conversar para resolver cualquier duda
-y acompañarle en lo que necesite para avanzar con el proyecto.
+Quedamos a su disposición para cualquier consulta, ajuste o aclaración
+sobre la propuesta. Con gusto podemos coordinar una reunión para
+revisarla juntos si le resulta útil.
 
-Agradecemos la oportunidad de participar en este proceso y quedamos a la
-espera de sus comentarios.
+Agradecemos la oportunidad de participar en este proceso.
 
 Saludos cordiales,
 
@@ -81,10 +89,129 @@ Grupo Visión CR
 [Teléfono / correo del asesor]
 ```
 
-## Relacionado: `generar-pdf-cotizacion` (todavía no existe)
+### Seguimiento cuando no hay respuesta ("En espera")
 
-Este skill depende de que ya exista el PDF final de la cotización para
-adjuntar. Hoy ese PDF lo genera el asesor a mano desde Excel. Se propuso
-(2026-09-09) un skill nuevo para esto — ver
-[`generar-pdf-cotizacion`](../generar-pdf-cotizacion/SKILL.md)
-(placeholder, todavía sin lógica real).
+Usarlo una vez, con al menos una semana desde el envío (o lo que el
+asesor indique). Si el cliente ya respondió algo, no es este modelo.
+
+```
+Asunto: Seguimiento a la cotización — [nombre del proyecto]
+
+Estimado(a) [nombre del contacto]:
+
+Reciba un cordial saludo.
+
+Le escribo para dar seguimiento a la cotización de [breve descripción]
+que le enviamos el [fecha de envío]. Quisiera saber si tuvo oportunidad
+de revisarla y si le surgió alguna consulta o necesita algún ajuste en
+el alcance.
+
+Si le resulta más sencillo, con gusto coordinamos una llamada breve para
+revisar los detalles.
+
+Saludos cordiales,
+
+[Nombre del asesor]
+Grupo Visión CR
+[Teléfono / correo del asesor]
+```
+
+### Se envía una versión revisada (el cliente pidió cambios)
+
+```
+Asunto: Cotización actualizada — [nombre del proyecto]
+
+Estimado(a) [nombre del contacto]:
+
+Reciba un cordial saludo.
+
+Conforme a lo conversado, adjunto la versión actualizada de la
+cotización de [breve descripción]. Incorpora los cambios solicitados:
+[resumen breve de los cambios, sin montos — por ejemplo: "se ajustó la
+cantidad de cámaras exteriores y se incluyó el almacenamiento para 30
+días"].
+
+Quedamos atentos a sus comentarios.
+
+Saludos cordiales,
+
+[Nombre del asesor]
+Grupo Visión CR
+[Teléfono / correo del asesor]
+```
+
+### Confirmación de entrega formal ("Entregada")
+
+Para cuando la oferta se entregó por un canal formal (una licitación,
+una plataforma de compras, una entrega física) y conviene dejar
+constancia por correo.
+
+```
+Asunto: Entrega de oferta — [nombre del proyecto o número de concurso]
+
+Estimado(a) [nombre del contacto]:
+
+Reciba un cordial saludo de parte de Grupo Visión.
+
+Le confirmamos que el [fecha] entregamos nuestra oferta para [nombre del
+proyecto o concurso] por medio de [canal: la plataforma, en sus
+oficinas, etc.].
+
+Quedamos a su disposición para cualquier aclaración que requiera
+durante el proceso de evaluación.
+
+Saludos cordiales,
+
+[Nombre del asesor]
+Grupo Visión CR
+[Teléfono / correo del asesor]
+```
+
+### Hace falta información del cliente para terminar ("Pendiente")
+
+```
+Asunto: Información para completar la cotización — [nombre del proyecto]
+
+Estimado(a) [nombre del contacto]:
+
+Reciba un cordial saludo.
+
+Estamos preparando la cotización de [breve descripción] y, para que
+refleje con precisión lo que necesita, le agradeceríamos confirmarnos:
+
+- [dato que falta — por ejemplo: cantidad de puntos de cámara por zona]
+- [dato que falta — por ejemplo: días de grabación que requieren]
+
+Con esa información le enviamos la propuesta a la mayor brevedad.
+
+Saludos cordiales,
+
+[Nombre del asesor]
+Grupo Visión CR
+[Teléfono / correo del asesor]
+```
+
+### El cliente avisó que no sigue ("Descartada")
+
+Cierre cordial: agradecer, no insistir, dejar la puerta abierta. La
+pregunta por retroalimentación es opcional; el asesor decide si va.
+
+```
+Asunto: Re: [asunto del correo del cliente]
+
+Estimado(a) [nombre del contacto]:
+
+Muchas gracias por informarnos su decisión y por habernos tomado en
+cuenta para [nombre del proyecto].
+
+[Opcional:] Si en algún momento puede compartirnos qué aspectos pesaron
+en la decisión, nos ayudaría a mejorar nuestras propuestas.
+
+Quedamos a su disposición para futuros proyectos.
+
+Saludos cordiales,
+
+[Nombre del asesor]
+Grupo Visión CR
+[Teléfono / correo del asesor]
+```

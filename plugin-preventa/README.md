@@ -5,14 +5,14 @@ preventa de Grupo Visión (cotizaciones de sistemas de seguridad/cámaras).
 
 ## Qué hace
 
-| Skill | Qué hace | Estado (2026-09-25) |
+| Skill | Qué hace | Estado (2026-10-12) |
 |---|---|---|
 | `nueva-cotizacion` | **El punto de entrada.** Recibe el pedido tal como te llegó, pregunta solo lo que falta —tipo de cotización, impuesto del cliente, si va la marca exacta o se acepta un equivalente, financiamiento, tipo de cambio, y si se cotiza con el precio con descuento de GV o el de lista— y encadena los demás skills en orden. | Funcional. Probado en corridas de prueba; **falta que lo use el equipo** |
-| `buscar-equipo` | Busca en el catálogo el equipo que cumple la especificación. Muestra el **precio de lista** y el **precio con descuento de GV** de cada línea, pregunta una vez con cuál se arma y avisa qué descuentos no están confirmados; tolera variantes del modelo (prefijo de marca, sufijos) y **sugiere** los accesorios que suelen hacer falta, con su frecuencia. | Funcional. Limitado por lo que hay en el catálogo (ver línea base) |
+| `buscar-equipo` | Busca en el catálogo el equipo que cumple la especificación. Muestra el **precio de lista** y el **precio con descuento de GV** de cada línea, pregunta una vez con cuál se arma y dice de dónde sale cada descuento; tolera variantes del modelo (prefijo de marca, sufijos), **sugiere** los accesorios que suelen hacer falta, con su frecuencia, y muestra los soportes y cubiertas compatibles que documenta el fabricante. | Funcional. Limitado por lo que hay en el catálogo (ver línea base). Compatibilidad: 1.247 pares con la frase del fabricante (2026-10-12) |
 | `armar-cotizacion` | Crea la carpeta de la cotización, copia el machote, llena `Equipos` (descripción, IMPORTADO, cantidad, costo) y registra la oferta en los dos Excels de control. | Funcional, probado de punta a punta |
 | `generar-pdf-cotizacion` | Exporta a PDF **solo** la pestaña de cotización que ve el cliente, después de revisar errores, impuesto y total, y de confirmar nombre y ruta. | Funcional desde 2026-09-25; falta usarlo con una cotización real |
-| `seguimiento-correo` | Redacta (nunca envía) el borrador del correo de seguimiento al cliente. | Funcional; faltan ejemplos reales de algunos estados |
-| `actualizar-catalogo` | Carga las listas de precios de los proveedores al catálogo tal cual vienen: el precio de lista y, si la lista lo trae, el dealer. El `Precio de compra GV` lo calcula el catálogo solo, con el dealer o con el descuento del proveedor. | Funcional. Catálogo: 4.091 productos (desde el 2026-09-30 con Axis, 2N, APC y Aruba), 28 columnas, 7 chequeos automáticos |
+| `seguimiento-correo` | Redacta (nunca envía) el borrador del correo de seguimiento al cliente, con un modelo por situación (envío, seguimiento, versión revisada, entrega formal, información pendiente, cierre). | Funcional. No hay correos reales que copiar: los modelos son propios, de tono muy profesional |
+| `actualizar-catalogo` | Carga las listas de precios de los proveedores al catálogo tal cual vienen: el precio de lista y, si la lista lo trae, el dealer. El `Precio de compra GV` lo calcula el catálogo solo, con el dealer o con el descuento del proveedor. | Funcional. Catálogo: 4.149 productos (Axis, 2N, APC y Aruba desde el 2026-09-30; lo que había quedado afuera, el 2026-10-12), 28 columnas, 7 chequeos automáticos |
 | `verificar-entorno` | Revisa qué accesos están listos y explica la instalación a quien empieza. | Funcional |
 | `sync-bitrix` | Actualiza la tarjeta del Kanban de Bitrix24 al cerrar una cotización. | En espera: falta que Operaciones genere el webhook |
 

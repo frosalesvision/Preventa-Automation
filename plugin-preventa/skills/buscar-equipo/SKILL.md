@@ -135,7 +135,7 @@ arriba:
 |---|---|---|
 | `Precio dealer` (col. 11) | el dealer | nada especial. Si el tipo (col. 28) dice `COSTO DE UNA COTIZACION REAL`, que es el costo de esa cotización: mostrá los días |
 | un porcentaje, estado `CONFIRMADO POR PREVENTA` | lista menos ese descuento | nada especial |
-| un porcentaje, estado `MEDIDO: FALTA CONFIRMAR` | lista menos ese descuento | que el descuento sale de medir las cotizaciones reales y **falta que preventa lo confirme**. Es el caso de Hanwha desde el 2026-09-28 |
+| un porcentaje, estado `MEDIDO` | lista menos ese descuento | que el descuento sale de medir las cotizaciones reales, y en cuántas (columna `Medido en cotizaciones reales`). **No pidas confirmación**: lo medido se aplica tal cual (Fabián, 2026-10-12). Es el caso de Hanwha y Axis |
 | `0%` | el precio de lista, que ya es el de compra | nada especial (ISTC, Seguritronic, Security Doctors) |
 | `PENDIENTE` | **el precio de lista tal cual** | que el proveedor está anotado pero su descuento todavía no tiene número: el costo real es menor |
 | vacío | el precio de lista tal cual | que ese proveedor no está en `Descuentos por proveedor`: no se sabe si su precio ya trae descuento |
@@ -153,8 +153,9 @@ proyecto está registrado y el proveedor mandó precios con descuento—,
 **usá el suyo** y decí en cuáles líneas.
 
 **Una cotización mezclada no es un error**, pero al mostrar la lista
-marcá las líneas cuyo descuento no está confirmado (medido, `PENDIENTE`
-o vacío), y por qué.
+marcá las líneas cuyo costo puede ser menor (descuento `PENDIENTE` o
+proveedor sin fila), y por qué. Las de descuento `MEDIDO` no se marcan
+como dudosas: se dice de dónde salió el número y nada más.
 
 ### Lo que había contestado preventa, que no coincide
 
@@ -312,8 +313,11 @@ Si el asesor confirma que sí necesita accesorios de montaje:
 1. **Buscá el modelo elegido** en la pestaña **`Compatibilidad de
    Accesorios`** del mismo `Catalogo de productos por proveedor.xlsx`
    (columna "Modelo Camara") — ver "Cómo se construye esta pestaña"
-   abajo. Cada fila es un par cámara↔accesorio ya validado (Modelo/
-   Nombre/Marca del accesorio, tipo, proveedor, fuente).
+   abajo. Cada fila es un par cámara↔accesorio que el fabricante
+   documenta (Modelo/Nombre/Marca del accesorio, tipo, proveedor,
+   fuente), y en `Notas` trae la frase del fabricante que lo respalda.
+   Si la fuente dice que el fabricante nombró solo la familia, avisalo
+   al mostrarlo.
 2. **Si el modelo no aparece en esa pestaña** (va a pasar seguido con
    InVid/Milesight/Paramont/Vision/Secure — ver limitación de cobertura
    abajo): **no digas simplemente "no hay match" y ahí lo dejes.**
@@ -382,149 +386,90 @@ no 1:1, candidato que no cumple al 100%, descuento sin confirmar).
 
 ## Cómo se construye la pestaña "Compatibilidad de Accesorios" (nota técnica)
 
-Vive **dentro del mismo** `Catalogo de productos por proveedor.xlsx`
-(no un archivo aparte — se probó primero como `.json` independiente,
-pero se decidió con el usuario moverlo a una pestaña más porque el
-equipo ya sabe filtrar/editar Excel y no un JSON, y es más fácil de
-auditar a ojo). Columnas: Modelo Camara, Nombre Camara, Marca Camara,
-Modelo Accesorio, Nombre Accesorio, Tipo Accesorio, Marca Accesorio,
-Proveedor, Fuente, Notas — una fila por cada par cámara↔accesorio (una
-misma cámara puede aparecer en varias filas si tiene varios accesorios
-compatibles, ej. distintos tipos de mount).
+Vive **dentro del mismo** `Catalogo de productos por proveedor.xlsx` (no
+en un archivo aparte: el equipo ya sabe filtrar Excel). Una fila por par
+equipo↔accesorio. Las columnas dicen "Camara" por historia; el equipo
+también puede ser un intercomunicador, un monitor o un iluminador.
+Columnas: Modelo Camara, Nombre Camara, Marca Camara, Modelo Accesorio,
+Nombre Accesorio, Tipo Accesorio, Marca Accesorio, Proveedor, Fuente,
+Notas.
 
-**Tres fuentes, distinguidas por la columna "Fuente" (cada una con su
-propio nivel de confianza):**
+**Regla de fondo (rehecha el 2026-10-12): un par solo entra si un
+documento del fabricante lo dice.** Cada fila trae en `Notas` la frase
+exacta que lo respalda (*"El descripcion de 02939-001 dice: '...smoked
+dome for AXIS Q6124-E, Q6128-E...'"*), para que cualquiera pueda
+revisarlo sin abrir la lista de precios. Si el asesor duda, mostrale esa
+frase.
 
-1. **`Catalogo de proveedor (descripcion/nombre del fabricante)`** — la
-   principal y más confiable. Sale de leer el propio campo Nombre/
-   Descripción de las filas del catálogo de proveedores, donde el
-   fabricante ya escribe la compatibilidad en texto libre (ej. *"Wall
-   mount compatible with XNP-6120HW"*, *"Ceiling Mount for
-   PAR-ALLDRXIRBD"*). Generada automáticamente por el script, se puede
-   regenerar cuando haga falta.
-2. **`Match por categoria generica (no por SKU exacto) - verificar
-   antes de cotizar`** — cuando el accesorio nombra una marca +
-   categoría reconocible pero no un SKU exacto (ej. "Corner Mount for
-   Paramont PTZ Cameras"), se empareja con **todas** las cámaras reales
-   de esa marca+categoría en nuestro propio catálogo (nunca con datos
-   de internet — el catálogo ya trae "PTZ", "Vandal", "Dome", etc. en
-   la descripción de cada cámara). Si la frase solo dice algo genérico
-   sin categoría clara (ej. "Junction Box for Paramont Series
-   Cameras"), se descarta en vez de matchear contra toda la marca —
-   sería un alcance inventado. También generada por el script.
-3. **`Cotizacion real (patron usado por el equipo, no documentado por
-   el fabricante) - verificar antes de usar`** — pares confirmados a
-   mano revisando cotizaciones reales (autorizado 2026-09-01, ver
-   `docs/notas-proceso.md`). Estos **no se regeneran solos** corriendo
-   el script — viven como una lista literal (`PARES_VERIFICADOS_
-   MANUALMENTE`) dentro del mismo script, para agregar a mano cuando
-   se encuentre un caso útil revisando otra cotización.
+**Dos fuentes, columna `Fuente`:**
 
-Script: [`../actualizar-catalogo/scripts/generar_matriz_accesorios.py`](../actualizar-catalogo/scripts/generar_matriz_accesorios.py).
-Uso (escribe sobre el mismo archivo, agrega/reemplaza solo esa
-pestaña):
+1. **`Fabricante: nombra el modelo exacto`** — casi todos. El nombre o
+   la descripción del fabricante en su lista nombra el modelo: Hanwha,
+   InVid y 2N por número de parte; **Axis por nombre de modelo**, porque
+   su número de parte (`02939-001`) no aparece en los textos y el
+   modelo sí (`AXIS Q6124-E`). El script expande las abreviaturas de
+   Axis ("Q3626/8 VE" son Q3626-VE y Q3628-VE; "P1355/-E" son P1355 y
+   P1355-E; "M4317/M4318-PLVE"), exige que coincida la versión Mk si el
+   texto la dice, distingue "I7010-VE" de "I7010-VE Safety" (llevan
+   placas distintas) y no ofrece una pieza que el fabricante dice que
+   ya viene incluida en el equipo.
+2. **`Fabricante: nombra la familia, no el modelo - verificar antes de
+   cotizar`** — solo los casos de `FAMILIAS_VERIFICADAS`, revisados a
+   mano contra el PDF de origen. Hoy: los soportes de pared y de esquina
+   de InVid *"for Paramont PTZ Cameras"*, aplicados a las PTZ domo con
+   zoom óptico (las mini PTZ 2.8-12 mm tienen su propio soporte, IPM-TXWM2,
+   y la PTZ bullet es otro formato). Nunca se infiere una familia sola.
+
+Qué lado del par es el accesorio lo decide la **Categoría del catálogo**,
+no palabras sueltas del nombre: accesorio de instalación, lente, fuente,
+inyector o cable de un lado; cámara, control de acceso, audio,
+grabación, alarma, incendio o monitor del otro. Si los dos lados son
+accesorios (una caja con su soporte de pared) el par no entra. Dos
+excepciones medidas: una pieza que quedó con la categoría del equipo al
+que acompaña ("White Cover for Video Intercom TID-600" está como
+Intercomunicador) cuenta como accesorio por su nombre, y los
+iluminadores IR cuentan como equipo.
+
+**Lo que se sacó el 2026-10-12, y por qué (no reponer sin una razón
+nueva):**
+
+- **Los 10 pares "de cotización real"** (cámaras Paramont con soportes
+  i-PRO y con la base de poste Hanwha SBD-180PMW). Al verificarlos
+  contra la matriz de origen, esa cotización se armó **copiando la
+  versión i-PRO del mismo proyecto y cambiando solo las cámaras**: los
+  soportes quedaron debajo de las Paramont de arrastre, no porque
+  sirvan. Ninguna ficha del fabricante los respalda. Lección: una
+  cotización vieja no prueba compatibilidad; una ficha sí.
+- **El emparejamiento automático "por categoría genérica"**. Con la
+  lista de Axis cargada producía 832 pares por palabras sueltas como
+  "dome" (un sensor emparejado con un soporte empotrado de otro
+  modelo), y en InVid aplicaba a todas las PTZ un soporte de techo que
+  el PDF dice que es para un solo modelo.
+- **17 pares entre dos accesorios** que la versión anterior ponía uno
+  como si fuera "la cámara".
+
+**Cuándo y cómo regenerarla:** después de cada carga grande de
+proveedor (si no, `buscar-equipo` va a decir "no tengo accesorio
+documentado" para productos nuevos que sí lo tienen escrito). Son dos
+pasos, en `../actualizar-catalogo/scripts/`:
 
 ```
-python generar_matriz_accesorios.py "<Catalogo de productos por proveedor.xlsx>"
+python generar_matriz_accesorios.py "<catalogo.xlsx>" "<pares.json>"
+powershell -File escribir_matriz_accesorios.ps1 -Ruta "<catalogo.xlsx>" -Datos "<pares.json>"
+powershell -File escribir_matriz_accesorios.ps1 -Ruta "<catalogo.xlsx>" -Datos "<pares.json>" -Guardar
 ```
 
-**Lógica de las fuentes 1 y 2**: escanea **todas** las filas del
-catálogo (no solo las categorizadas como "accesorio" — se confirmó que
-varias filas de Paramont/Vision quedaron categorizadas como
-"CAMERAS..." por herencia del encabezado de sección del PDF de origen,
-aun siendo mounts reales con la compatibilidad escrita en su propio
-Nombre), buscando patrones como "compatible with", "for (...)", "for
-the ...", "for X" suelto (mayúsculas o minúsculas), "supported cameras
-(...)", "used with ...". Cada SKU mencionado se valida contra los SKU
-reales del catálogo (para no confundir texto como "IP66" o "VESA" con
-un modelo real), incluyendo un rescate para SKU que quedan enterrados
-en texto descriptivo (ej. "Wall Mount for Paramont Series:
-PAR-P4PTZXIR2812NH-AIWL"). Si ningún SKU exacto valida, se intenta la
-fuente 2 (categoría genérica). Para decidir **cuál lado del par es la
-cámara y cuál el accesorio**, se clasifica el Nombre de ambos lados
-contra una lista de palabras típicas de accesorio (mount, bracket,
-adapter, housing, lens, cap adapter, back box, junction box, plate,
-power supply, etc. — con cuidado de no confundir "license plate" de
-una cámara LPR con un accesorio tipo "plate"): si exactamente un lado
-"suena a accesorio", ese va en las columnas de Accesorio y el otro en
-las de Cámara; si **los dos** lados suenan a accesorio (ej. un cap
-adapter que se acopla a otro adaptador base) o **ninguno** (dos equipos
-principales relacionados, ej. un decoder y el servidor que lo usa), el
-par se descarta — no hay forma confiable de decidir la dirección sin
-inventar, mejor no escribir nada a escribir algo probablemente al
-revés.
+El primero solo lee el catálogo. El segundo escribe por Excel (COM),
+nunca con openpyxl (que borra los desplegables): saca respaldo, apaga el
+Autoguardado, no corre si OneDrive no está corriendo o el archivo no
+está sincronizado, reemplaza solo las filas de la tabla y la sección de
+la `Guia de columnas`, y no guarda si cambió algo fuera de esa pestaña.
+Sin `-Guardar` es una prueba.
 
-**Sobre la fuente 3 (cotizaciones reales) — qué se intentó y qué
-funcionó, y qué no (2026-09-01)**: el usuario autorizó explícitamente
-leer cotizaciones reales para este análisis (ver `docs/notas-proceso.md`,
-sección de la matriz de Excel) y detectar por cuenta propia cuáles
-tenían equipos InVid/Milesight — un escaneo ligero (solo nombres de
-archivo + texto compartido del `.xlsx`, sin leer celda por celda) sobre
-las ~287 carpetas de `CLIENTES` corrió dos veces (tardó ~10-40 min según
-el momento) y encontró consistentemente 71 cotizaciones reales con
-equipos de esta familia. Se probaron **dos estrategias de extracción**:
-
-1. **Por estructura de hoja** (secciones "Cámaras"/"Accesorios" en
-   celdas separadas): de las 15 cotizaciones más densas, **solo 1**
-   (un proyecto municipal de ciudad segura) tenía esa
-   estructura parseable automáticamente — las otras 14 organizan sus
-   hojas de forma distinta (consistente con `notas-proceso.md`: "cada
-   quien lo hace distinto", no hay convención única).
-2. **Por texto de línea, sin depender de estructura** (reusando la
-   misma extracción "compatible with X"/"for X" del catálogo, aplicada
-   directamente a la descripción de cada línea de las 71 cotizaciones):
-   corrida completa sobre las 71, con un bug real encontrado y corregido
-   en el camino (el patrón de "for X" cortaba la captura justo en el
-   ":", perdiendo la lista de SKU en frases tipo "for Paramont Series
-   Cameras: PAR-P3BIR, PAR-P4BIR..." — corregido, y de paso mejoró el
-   match dentro del propio catálogo). Aun así, **no aparecieron pares
-   nuevos más allá de los de esa cotización**: se investigó un caso
-   prometedor (otra cotización, con "Junction Box for Paramont Series
-   Cameras: PAR-P3BIR, PAR-P4BIR, PAR-P8BIR...") y los SKU que menciona
-   **no existen tal cual en nuestro catálogo actual** — son nombres
-   cortos/abreviados del proveedor en una cotización más vieja, no los
-   SKU completos que usamos hoy. No es un problema de la lógica de
-   extracción, es un desajuste real de nomenclatura entre lo que
-   escribió el proveedor en ese momento y el catálogo actual.
-
-De la única cotización que sí funcionó salieron 10 pares
-verificados, con dos hallazgos genuinamente útiles: (a) para la PTZ
-`PAR-P8PTZXIR32NH-AI` y la bullet `PAR-P6BIRA2812-LC3`, el equipo usó
-brackets **Panasonic i-PRO** (marca que ni siquiera está en nuestro
-catálogo) porque Paramont no tenía mount propio — dato que no se
-podría haber sacado de ningún catálogo de proveedor nuestro; (b)
-también usaron el `SBD-180PMW` (pole mount de **Hanwha**) para estas
-mismas cámaras Paramont, aunque la ficha oficial de ese mount **no**
-lista modelos Paramont como compatibles — un caso real de
-"funciona en la práctica aunque no está documentado", marcado con nota
-de advertencia explícita para que se verifique el encaje físico antes
-de repetirlo.
-
-**Conclusión (no reabrir sin una razón nueva):** con dos intentos
-completos (estructura de hoja, y texto de línea sin depender de
-estructura) sobre las 71 cotizaciones disponibles, el rendimiento de
-seguir mirando cotizaciones viejas es bajo — el cuello de botella real
-ya no es la lógica de extracción, es que muchas usan nomenclatura de
-SKU que quedó obsoleta. Si en el futuro Fabián tiene en mente un
-proyecto puntual reciente que sepa que usó InVid/Milesight con
-accesorios documentados, vale la pena revisarlo a mano — pero no seguir
-invirtiendo en automatizar esto contra el histórico completo.
-
-**Cuándo regenerar la pestaña:** cada vez que `actualizar-catalogo`
-agregue o reemplace un catálogo de proveedor grande, volvé a correr el
-script — refresca las fuentes 1 y 2 automáticamente y conserva los
-pares de la fuente 3 (siempre que la cámara siga existiendo en el
-catálogo). Si no se regenera, `buscar-equipo` va a decir "no tengo
-accesorio documentado" para productos nuevos que en realidad sí lo
-tienen escrito.
-
-**Cobertura real (medida 2026-09-01, sobre el catálogo de 2,358
-productos):** 793 pares cámara-accesorio, cubriendo 264 modelos de
-cámara distintos — 749 por SKU exacto (fuente 1), 34 por categoría
-genérica (fuente 2), 10 de cotización real verificada a mano (fuente
-3). Por marca de cámara: Hanwha es ampliamente mayoritario; Paramont e
-InVid tienen cobertura chica pero real; Milesight, Vision y Secure
-siguen con cobertura mínima o nula por SKU exacto.
+**Cobertura (2026-10-12, catálogo de 4.091 productos):** 1.247 pares,
+445 equipos distintos. Por marca del equipo: Hanwha 832, Axis 350, 2N
+39, Paramont 22, InVid 2, Vision 2. 1.235 nombran el modelo exacto y 12
+la familia.
 
 ⚠️ **Por qué Milesight/Secure quedan casi sin cobertura por SKU exacto
 (investigado 2026-09-01, no es un bug pendiente de arreglar)**: se
@@ -558,13 +503,11 @@ cámara modular que menciona su lente compatible, quedaban invertidos:
 el accesorio aparecía como si fuera "la cámara") — corregido
 clasificando ambos lados de cada par por nombre antes de decidir cuál
 va en qué columna; (2) después se sumaron el match por categoría
-genérica y los pares verificados de una cotización real (ver arriba),
-subiendo la cobertura final a **793 pares, 264 cámaras**, con tres
-niveles de confianza distinguidos por la columna "Fuente". Se investigó
-a fondo ampliar la fuente 3 a más cotizaciones (dos estrategias
-distintas sobre las 71 cotizaciones reales disponibles) sin encontrar
-pares nuevos aprovechables — ver "Sobre la fuente 3" arriba para el
-detalle de por qué, y no reabrir ese punto sin una razón nueva.
+genérica y 10 pares de una cotización real (793 pares, 264 cámaras).
+**Rehecha el 2026-10-12** con la regla de que solo entra lo que el
+fabricante documenta: se sacaron el match por categoría y los pares de
+cotización (ver "Lo que se sacó"), se agregaron Axis y 2N, y cada par
+lleva su evidencia. Quedó en 1.247 pares y 445 equipos.
 
 **Todavía no probado en una conversación real** con el equipo de
 preventa (una búsqueda por especificación de punta a punta, con y sin

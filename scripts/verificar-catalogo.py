@@ -94,11 +94,25 @@ def precio_efectivo(r):
     return r[COL_PRECIO] if es_numero(r[COL_PRECIO]) else None
 
 
+def sin_vacias_al_final(filas):
+    """Quita las filas totalmente vacias del final de la hoja.
+
+    Al borrar una fila de la tabla, Excel corre la tabla pero deja la fila
+    de abajo con su alto propio, y el modo de solo lectura de openpyxl la
+    recorre como si fuera un producto sin codigo, sin precio y sin
+    proveedor (2026-10-12). Solo se quitan las del final: una fila vacia
+    en medio de la tabla si es un problema y se sigue viendo.
+    """
+    while filas and all(v in (None, "") for v in filas[-1]):
+        filas.pop()
+    return filas
+
+
 def cargar(ruta):
     wb = openpyxl.load_workbook(ruta, read_only=True, data_only=True)
     if "Catalogo" not in wb.sheetnames:
         sys.exit("El archivo no tiene una pestana 'Catalogo'.")
-    filas = list(wb["Catalogo"].iter_rows(min_row=2, values_only=True))
+    filas = sin_vacias_al_final(list(wb["Catalogo"].iter_rows(min_row=2, values_only=True)))
     wb.close()
     return filas
 
@@ -108,7 +122,7 @@ def cargar_formulas(ruta):
     wb = openpyxl.load_workbook(ruta, read_only=True)
     hoja = wb["Catalogo"]
     out = []
-    for n, f in enumerate(hoja.iter_rows(min_row=2, values_only=True), start=2):
+    for n, f in enumerate(sin_vacias_al_final(list(hoja.iter_rows(min_row=2, values_only=True))), start=2):
         def col(i):
             return f[i] if len(f) > i else None
         out.append((n, col(COL_CRC), col(COL_COMPRA_CRC), col(COL_COMPRA_USD), col(COL_DESCUENTO)))
