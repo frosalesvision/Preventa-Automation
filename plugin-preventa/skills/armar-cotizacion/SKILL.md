@@ -231,6 +231,29 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    (bases, mounts, lentes, etc. — ver `buscar-equipo`), esos van como
    filas adicionales en la misma pestaña, con la misma lógica.
 
+   ⚠️ **La mano de obra que tiene que verla el cliente va como línea de
+   `Equipos`** (encontrado en el primer caso real, 2026-10-15). La
+   pestaña `COTIZACIÓN ` solo espeja las filas 6 a 55 de `Equipos`, y su
+   SUBTOTAL suma solo esas. `MANO DE OBRA` alimenta `OPEX GV`, y `OPEX GV`
+   **no llega** a la cotización: su total aparece en `K74`, fuera del área
+   de impresión. Lo que se cargue solo ahí no se cobra.
+
+   Cuando la instalación tiene **precio cerrado** ("la instalación se
+   cobra $100"), va como una línea de `Equipos`: descripción *"Mano de
+   obra: instalación de …"*, `IMPORTADO = "no"`, cantidad 1. El monto que
+   dan es lo que **paga el cliente**, así que el `Costo Unit` se despeja
+   para que el margen no lo infle:
+
+   ```
+   Costo Unit = precio al cliente × (1 − margen) / ((1 + imprevistos) × (1 + administración))
+   ```
+
+   Con los porcentajes del machote (27,4%, 3%, 3%) es el precio ÷
+   1,461301: $100 → $68,43, y el cliente ve $100,00. Si dicen que el monto
+   es el costo, va tal cual y el cliente ve más. Ante la duda, preguntá
+   cuál de los dos es. Cómo lo hace hoy preventa a mano todavía no está
+   confirmado.
+
    **Los porcentajes (Transporte, Imprevistos, IVA, DAI, Administración,
    Margen) varían por proyecto y por etapa comercial** — ver la regla R6
    en [`docs/reglas-negocio.md`](../../../docs/reglas-negocio.md) para el

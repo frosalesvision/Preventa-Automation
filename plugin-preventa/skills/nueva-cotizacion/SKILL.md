@@ -240,6 +240,12 @@ por especificación, mostrando todos los candidatos razonables y sus
 brechas si no hay match perfecto) y Paso 2 (accesorios de instalación, si
 correspondía según el Paso 2 de acá).
 
+**Productos pequeños** (baterías, cerraduras, botones de salida y los
+demás de la regla R21): si el catálogo no tiene uno que cumpla, o sus
+precios tienen más de 2 meses, buscá también en tiendas de Costa Rica,
+como dice `buscar-equipo` en "Productos pequeños". Lo que no esté en el
+catálogo no se descarta sin buscar.
+
 **Si el presupuesto no alcanza** para la cantidad/calidad pedida con
 candidatos reales del catálogo, decilo con números concretos (ej.
 "15 unidades del modelo X a $180 c/u = $2,700, más NVR e instalación

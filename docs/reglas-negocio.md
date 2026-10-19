@@ -19,7 +19,7 @@
 
 ## Índice: todas las reglas de un vistazo
 
-Actualizado el 2026-10-12. **De dónde sale** dice si la regla la dijo
+Actualizado el 2026-10-15. **De dónde sale** dice si la regla la dijo
 preventa, si sale de medir las cotizaciones reales, o si la decidió
 Fabián. **Las que salen de medir se aplican tal cual se midieron**
 (decisión de Fabián, 2026-10-12: *"si las reglas salieron de medir las
@@ -49,6 +49,7 @@ ya no esperan aprobación de preventa.
 | R18 | Marca exacta o equivalente: lo decide el asesor | Fabián; caso patrón #5 | vigente |
 | R19 | Los accesorios que nadie pide se sugieren con su %, nunca se agregan solos | medido: 666 cotizaciones | vigente |
 | R20 | La ruta de la carpeta compartida se resuelve por el registro, nunca se asume | incidente del 2026-09-18 | vigente |
+| R21 | Productos pequeños: si el catálogo no tiene uno que cumpla o su precio pasa de 2 meses, se buscan opciones en tiendas de Costa Rica y elige quien cotiza | preventa y Fabián (2026-10-15); medido sobre el catálogo | vigente |
 
 Lo que quedaba abierto con preventa y contabilidad, y cómo lo cerró
 Fabián, está en [`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
@@ -1003,6 +1004,23 @@ precio por día, días, personas, y un bloque de viáticos
 `Imprevistos` de `OPEX GV` traen **100** como valor de relleno del
 machote. No es un precio real.
 
+### `MANO DE OBRA` no llega a la cotización del cliente (2026-10-15)
+
+Encontrado al armar el primer caso real (dos baterías con instalación a
+precio cerrado). La pestaña `COTIZACIÓN ` solo espeja las filas de
+`Equipos`, y su SUBTOTAL (`J74`) suma solo esas. El total de `OPEX GV`
+—adonde va `MANO DE OBRA`— aparece en `K74`, **fuera del área de
+impresión** (`B1:J92`), y `RESUMEN` lo trae en 0. O sea que la mano de
+obra cargada solo en su pestaña **no se le cobra al cliente**.
+
+Mientras no se resuelva en el machote, una instalación que el cliente
+tiene que ver va como **línea de `Equipos`** ("Mano de obra: instalación
+de …", importado `no`). Si el monto que dan es el precio al cliente, el
+costo se despeja para que el margen no lo infle; la fórmula está en
+`armar-cotizacion`. **Pendiente:** preguntarle a preventa cómo lo hacen
+hoy a mano —si escriben la línea en `Equipos` o la suman en otro lado—
+antes de cambiar el machote.
+
 ~~**Pestaña `Tarifario Mano de Obra`** en el Excel del catálogo.~~
 **Eliminada el 2026-09-28.** Se había creado vacía el 2026-09-18 para que
 el equipo la llenara. Nunca se llenó, y dejó de tener sentido cuando los
@@ -1717,6 +1735,110 @@ distingue. Por eso:
 3. **Tiene que estar en el catálogo para poder sugerirse.** Gabinetes y
    racks no están: no existe la subcategoría, y son el acompañante más
    común de las cámaras.
+
+---
+
+## R21 — Productos pequeños: catálogo primero, después tiendas de Costa Rica
+
+**Estado: vigente desde el 2026-10-15.** Lo pidió preventa y lo decidió
+Fabián:
+
+> *"Por lo general buscamos baterías, las cerraduras, ciertos botones de
+> salida sin contacto, etc. [...] si no hay o los precios no están
+> actualizados busques en internet ÚNICAMENTE DE TIENDAS EN COSTA RICA y
+> proveedores de acá del país."*
+
+Salió del primer caso real armado con el plugin: dos baterías de 12 V
+9 Ah. El catálogo salta de 8 a 10 Ah, y las tiendas de Costa Rica sí
+publican la de 9 Ah.
+
+**Cómo se aplica:** primero el catálogo; si no hay un candidato que
+cumpla, o todos tienen el precio de más de 2 meses (R12), se buscan
+opciones en tiendas y proveedores con presencia en Costa Rica, se
+muestran con tienda, precio en colones, IVA, disponibilidad, enlace y
+fecha, y **elige quien cotiza**. El procedimiento está en `buscar-equipo`,
+"Productos pequeños".
+
+**Por qué solo Costa Rica:** un precio de Amazon o de una tienda
+mexicana no se puede comprar acá al mismo precio: le faltan el envío, el
+DAI y el tiempo. Compararlo con uno local engaña.
+
+**Sobre la moneda (R16):** las tiendas publican en colones. Se muestra el
+precio tal cual y su equivalente en dólares con el tipo de cambio que se
+confirmó para esa cotización (R7); a la matriz va el dólar que acepte
+quien cotiza. No es una tasa metida en el plugin: es la de la ficha.
+
+### A qué productos aplica
+
+Medido sobre el catálogo el 2026-10-15: subcategorías de producto de
+poco valor y genérico, con pocas filas o con muchos precios viejos.
+
+| Grupo | Subcategoría | Filas | Precio de más de 2 meses |
+|---|---|---|---|
+| Energía | Batería | 33 | 45% |
+| Energía | Fuente de poder | 61 | 49% |
+| Energía | Protección eléctrica | 5 | 60% |
+| Energía | UPS (las pequeñas) | 31 | 81% |
+| Control de acceso | Cerradura / electroimán | 7 | 43% |
+| Control de acceso | Botón de salida | 11 | 55% |
+| Control de acceso | Credencial / tarjeta | 20 | 60% |
+| Alarma | Contacto magnético | 4 | 75% |
+| Alarma | Sirena | 7 | 86% |
+| Alarma | Botón de pánico | 3 | 67% |
+| Red | Accesorio de red (patch cords, conectores) | 53 | 94% |
+| Red | Inyector PoE | 25 | 68% |
+| Red | Switch PoE (los pequeños, no administrables) | 36 | 50% |
+| Almacenamiento | Disco duro | 24 | 38% |
+| Almacenamiento | Tarjeta de memoria | 12 | 67% |
+| Materiales | Cableado | 97 | 66% |
+| Materiales | Canalización y tubería | 28 | 14% |
+| Materiales | Material eléctrico y ferretería | 4 | 0% |
+| Incendio | Detector | 19 | 32% |
+| Incendio | Notificación (sirenas, estrobos) | 17 | 29% |
+| Incendio | Accesorio (bases, módulos, estaciones) | 15 | 27% |
+| Incendio | Panel | 11 | 45% |
+| — | **Gabinetes y racks pequeños** | **0** | no están en el catálogo (R19) |
+
+Incendio se agregó el 2026-10-19 (Fabián: *"lo de incendio sí debería
+aplicar"*). La primera versión lo dejaba afuera por compatibilidad; la
+regla que quedó es más precisa: **lo que tiene que ser compatible con un
+panel o una marca se busca de esa marca y familia**, nunca un
+equivalente. Un detector direccionable solo habla con los paneles de su
+fabricante.
+
+**No aplica** a cámaras, grabadores, servidores, licencias, controladoras
+ni intercomunicadores: son equipos con registro de proyecto o precio de
+distribuidor. Tampoco a una licitación con marca amarrada.
+
+**Cómo se muestra cada opción** (Fabián, 2026-10-19):
+
+- **Lo agotado no se muestra.** "Por pedido" sí, dicho así.
+- **El IVA siempre explícito:** "IVA incluido" si la página lo dice, o
+  "el IVA no está aplicado a este monto" si dice que no o no dice nada.
+
+**Lo que queda pendiente:** cómo se carga al catálogo un precio de
+tienda cuando lo eligen (qué valor lleva `Tipo de precio cargado`).
+
+### Portales de proveedor con login (2026-10-19)
+
+Preventa saca precios también de portales con usuario y contraseña:
+Intcomex, Syscom, Sekunet y Tectel. Tienen mucha información, pero
+**las credenciales nunca se escriben en el plugin, en el repositorio ni
+en un chat**: el repositorio lo pueden leer otras personas, y una
+contraseña escrita en un archivo o en una conversación ya no es secreta.
+El asistente tampoco inicia sesión por nadie.
+
+**Decisión de Fabián (2026-10-19): la lista de precios periódica, para
+todos.** Y que el asistente la levante del portal: abre el navegador
+con las páginas de los proveedores, **la persona inicia sesión**, y el
+asistente lee lo que muestran para actualizar y agregar productos al
+catálogo con `actualizar-catalogo`. Las vías que se evaluaron:
+
+| Vía | Cómo funciona | Para quién |
+|---|---|---|
+| **API del proveedor** | El proveedor da una llave de acceso; un script consulta precio y existencias por modelo. La llave vive en el administrador de credenciales de Windows de cada máquina, nunca en un archivo del repo | Syscom tiene API para clientes (la usan integraciones de terceros). Intcomex no publica una: hay que preguntarle al ejecutivo de cuenta |
+| **Lista de precios periódica** | El proveedor manda su lista en Excel o PDF y se carga al catálogo con `actualizar-catalogo`, como ya se hace con `Precios Proveedores` | Cualquiera. Es lo que ya funciona |
+| **Sesión abierta por la persona** | Quien cotiza entra al portal con su usuario en su navegador; con la sesión abierta, el asistente lee la página de resultados | Para consultas puntuales. Nadie le pasa la contraseña al asistente |
 
 ---
 

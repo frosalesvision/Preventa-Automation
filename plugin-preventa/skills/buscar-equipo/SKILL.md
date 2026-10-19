@@ -48,7 +48,22 @@ Esto se queda sin resolver hoy y genera trabajo manual repetido.
 4. Si **ninguno** cumple al 100%, decilo explícitamente y mostrá el más
    cercano con la brecha específica (ej. "el más cercano es IP66, se
    pide IP67") — nunca digas que algo cumple si no cumple.
-5. **Mostrá siempre cuántos días tiene el precio.** Calculá los días
+
+   **Cuando el número pedido no existe, recomendá el inmediato superior,
+   no uno holgado** (Fabián, 2026-10-15). Si piden una batería de 12 V
+   9 Ah y el catálogo salta de 8 a 10 Ah, la recomendada es la de 10 Ah,
+   no la de 12 Ah: más capacidad suele ser un equipo más grande, y una
+   batería de reposición va dentro de un gabinete, un panel o una UPS
+   donde puede no caber. Lo de abajo (menos capacidad, menos resolución)
+   no cumple y solo se muestra como brecha. Si el cliente no dijo para
+   qué es, preguntalo; si nadie sabe, igual va el inmediato superior.
+5. **Si dos o más candidatos cumplen lo mismo, preguntá cuál usar, con
+   la antigüedad del precio de cada uno a la vista** (Fabián,
+   2026-10-15). La antigüedad suele decidir —un precio de un mes le gana
+   a uno de un año y medio—, pero la elección es del asesor: puede
+   preferir otra marca o un proveedor local. Recomendá el de precio más
+   reciente y preguntá; no lo elijas en silencio.
+6. **Mostrá siempre cuántos días tiene el precio.** Calculá los días
    desde la "Fecha de última actualización" del candidato y decilos
    **aunque el dato sea reciente** (regla R12, actualizada 2026-09-18) —
    es información para que el asesor decida si conviene reconfirmar con
@@ -260,6 +275,72 @@ se confirme.** Un sufijo puede ser una variante real y distinta
 (`QNO-6012R` y `QNO-6012R1` son dos modelos, uno sin audio). Mostralo
 como "probablemente es este", con las dos descripciones lado a lado, y
 que el asesor decida.
+
+### Productos pequeños: si el catálogo no alcanza, tiendas de Costa Rica (R21)
+
+Pedido por preventa y decidido por Fabián el 2026-10-15. Baterías,
+cerraduras, botones de salida y productos parecidos se cotizan seguido,
+pero el catálogo tiene pocas filas de cada uno y muchos precios viejos.
+Para esos:
+
+1. **Primero el catálogo**, como siempre: candidatos con la antigüedad de
+   cada precio.
+2. **Si no hay ninguno que cumpla, o todos tienen el precio de más de 2
+   meses (R12), buscá en internet, solo en tiendas y proveedores de
+   Costa Rica**: negocios con dirección o teléfono en el país y precio
+   en colones. Nunca Amazon, Mercado Libre ni tiendas de otro país,
+   aunque salgan más baratas: el precio tiene que ser comprable acá.
+3. **Mostrá 3 a 5 opciones en una tabla**: marca y modelo, tienda,
+   precio publicado en colones, IVA, disponibilidad, el enlace y la
+   fecha de consulta. Al lado, el equivalente en dólares con el tipo de
+   cambio de esa cotización (R7) y lo que vería el cliente. Que elija
+   quien cotiza; vos recomendás.
+4. **Lo agotado no se muestra** (Fabián, 2026-10-19). Si la página dice
+   agotado o no disponible, esa opción no entra en la tabla. "Por
+   pedido" sí entra, dicho así; si la página no dice nada de
+   existencias, también, con "no indica disponibilidad".
+5. **El IVA, siempre explícito** (Fabián, 2026-10-19). En cada precio
+   va una de dos: **"IVA incluido"**, si la página lo dice, o **"el IVA
+   no está aplicado a este monto"**, si la página dice que no lo incluye
+   o no dice nada. Nunca un precio sin esa aclaración.
+6. **Qué recomendar.** Primero las marcas que el equipo ya compra (las
+   que están en el catálogo), después marcas reconocidas con ficha
+   técnica (para baterías: AGM/VRLA, certificación UL, medidas y
+   terminal). Marcá las que no traen marca.
+7. **Lo que no sabés, decilo.** Si el título y la ficha no coinciden
+   (una batería "9 Ah" cuya ficha dice 900 mAh), mostralo así. Si el
+   enlace redirige a otro dominio, no lo sigas: anotá esa tienda como
+   no verificada.
+8. Una compra en una tienda local va con `IMPORTADO = "no"` (R1). El
+   precio de tienda es precio al público: un distribuidor puede dar uno
+   mejor, y vale la pena avisarlo.
+9. Si eligen una, ofrecé cargarla al catálogo con `actualizar-catalogo`,
+   con la tienda y la fecha como fuente, para que la próxima vez esté.
+
+Nunca comprás, ni llenás formularios, ni iniciás sesión en una tienda:
+solo leés precios publicados. Los portales de proveedor con usuario y
+contraseña (Intcomex, Syscom, Sekunet, Tectel) no entran en esta
+búsqueda: ver "Portales de proveedor con login" en R21.
+
+**A qué productos aplica** (medido sobre el catálogo el 2026-10-15; el
+detalle está en R21 de [`docs/reglas-negocio.md`](../../../docs/reglas-negocio.md)):
+baterías, fuentes de poder, protección eléctrica y UPS pequeñas;
+cerraduras y electroimanes, botones de salida y tarjetas; contactos
+magnéticos, sirenas y botones de pánico; **detección de incendio**
+(detectores, bases, estaciones manuales, sirenas y estrobos, módulos);
+accesorios de red, inyectores PoE y switches PoE pequeños; discos duros
+y tarjetas de memoria; cable, tubería y material eléctrico; y gabinetes
+pequeños, que no están en el catálogo.
+
+⚠️ **Lo que tiene que ser compatible con un panel o una marca se busca
+de esa marca y familia, y de ninguna otra.** Un detector direccionable
+solo habla con los paneles de su fabricante; un detector inalámbrico de
+alarma, solo con su panel. Para esos, en la tienda se busca el mismo
+modelo o uno de la misma familia que el panel, nunca un "equivalente".
+
+**A qué no aplica**: cámaras, grabadores, servidores, licencias,
+controladoras e intercomunicadores. Tampoco cuando la licitación amarra
+la marca. Eso se cotiza con el distribuidor.
 
 ### Formatos de entrada que debés soportar
 
