@@ -142,14 +142,20 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
      prefijo se usó más recientemente para ese cliente (o en general si
      es cliente nuevo) y proponé ese prefijo + el siguiente consecutivo
      de 7 dígitos disponible para el año actual.
-   - **Pista medida el 2026-10-19, todavía sin confirmar con preventa:**
-     los 7 dígitos no parecen un consecutivo de la empresa —en el control
-     de octubre aparecen T5-0000001, T5-0000031 y T5-0000007 en ese
-     orden—, sino **el número de cotización del cliente**. En un cliente,
-     4 de 4 coinciden con su carpeta: `Cotización #14` ↔
-     `T5-0000014-26`, #16 ↔ …16, #17 ↔ …17, #19 ↔ `T4-0000019-26`. Si
-     se confirma, el número sale de la carpeta: `Cotización #20` →
-     `T?-0000020-26`. Mientras tanto, proponelo así y decí de dónde sale.
+   - **Cómo se arma, medido el 2026-10-19 en `Control de cotizaciones
+     2026`** (falta que preventa lo confirme en palabras, pero los datos
+     son claros):
+     - **Los 7 dígitos son el número de cotización del cliente**, el de su
+       carpeta `Cotización #N`: no es un consecutivo de la empresa. El
+       mismo `…0000020-26` aparece en tres clientes distintos, y en un
+       cliente 5 de 5 coinciden con su carpeta.
+     - **El prefijo es el asesor de preventa: `T4` Katherine, `T5`
+       Alessandro.** De 136 ofertas de 2026 de Katherine, 134 son T4; de
+       102 de Alessandro, 94 son T5.
+
+     Así que se propone `T<prefijo del asesor>-<N con 7 dígitos>-<año>`, y
+     se dice de dónde sale cada parte. El primer caso real lo confirmó:
+     se propuso `T4-0000020-26` y así se envió.
    - Mostrale la propuesta completa al asesor y **esperá que la
      confirme o la corrija** — nunca lo uses para nombrar un archivo sin
      esa confirmación explícita.
@@ -243,8 +249,10 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    (bases, mounts, lentes, etc. — ver `buscar-equipo`), esos van como
    filas adicionales en la misma pestaña, con la misma lógica.
 
-   ⚠️ **La mano de obra que tiene que verla el cliente va como línea de
-   `Equipos`** (encontrado en el primer caso real, 2026-10-15). La
+   ⚠️ **La mano de obra va como línea de `Equipos`, nunca en `OPEX`**
+   (encontrado en el primer caso real, 2026-10-15; **confirmado por
+   preventa el 2026-10-19**: *"todo lo que sea mano de obra va donde dice
+   equipos, ahí es donde van todos los equipos en general"*). La
    pestaña `COTIZACIÓN ` solo espeja las filas 6 a 55 de `Equipos`, y su
    SUBTOTAL suma solo esas. `MANO DE OBRA` alimenta `OPEX GV`, y `OPEX GV`
    **no llega** a la cotización: su total aparece en `K74`, fuera del área
@@ -263,8 +271,15 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    Con los porcentajes del machote (27,4%, 3%, 3%) es el precio ÷
    1,461301: $100 → $68,43, y el cliente ve $100,00. Si dicen que el monto
    es el costo, va tal cual y el cliente ve más. Ante la duda, preguntá
-   cuál de los dos es. Cómo lo hace hoy preventa a mano todavía no está
-   confirmado.
+   cuál de los dos es.
+
+   ⚠️ **Un precio cerrado no va redondo** (preventa, 2026-10-19, regla
+   R23): *"siempre tratamos de poner números con coma… que no sea un 30
+   ahí cerrado"*. Si el monto que dan es redondo ($30, $100), decíselo al
+   asesor y proponé uno con decimales cercano y algo menor (por ejemplo
+   $29,25 o $27,50); que él elija. En el primer caso real se cotizó $30, y
+   preventa lo cambió antes de enviarla: puso $20 de costo, y el cliente
+   vio $29,23.
 
    **Los porcentajes (Transporte, Imprevistos, IVA, DAI, Administración,
    Margen) varían por proyecto y por etapa comercial** — ver la regla R6
@@ -626,7 +641,8 @@ confirmación del asesor).
 [`docs/notas-proceso.md`](../../../docs/notas-proceso.md)):
 `Machote Matriz y oferta.xlsx`.
 
-**Estructura vigente desde el 2026-09-22: 33 pestañas, 17 visibles.**
+**Estructura vigente desde el 2026-09-22: 33 pestañas, 17 visibles**
+(la cuenta del 2026-10-19, ya sin `Guia de skills`; ver abajo).
 Antes eran 40. Se quitaron 10 que contenían la matriz de costo de un
 proyecto real anterior (equipo, precios de compra y el nombre del
 cliente en la fila 1) más una tabla de cantidades fijas de material de
@@ -649,6 +665,42 @@ están solo para quien llega nuevo al equipo:
   precio de venta y no sobre el costo (27,40% de margen equivale a
   37,74% sobre el costo), y los vínculos cruzados que sorprenden
   (`OPEX GV` ← `Equipos`, `OPEX GV` ← `MANO DE OBRA` ← `Transporte`).
+
+Hubo una cuarta, `Guia de skills` (cómo pedirle cada cosa a la IA). El
+2026-10-19 **pasó al catálogo** (Fabián: no tiene que viajar en cada
+cotización), con un renglón en su `LEEME`. El machote quedó en 33
+pestañas.
+
+### Cómo se ve la matriz (pedido de Fabián, 2026-10-19)
+
+Antes, una cotización de dos líneas mostraba 48 filas de ceros en las
+dos hojas de cotización, 45 líneas vacías en `Equipos`, las pestañas de
+financiamiento aunque no llevara, y cuadros de `Financiamiento` sin
+formato y con los nombres cortados. Quedó así:
+
+| Qué | Dónde se resuelve |
+|---|---|
+| **Un cero se ve en blanco** en las líneas 22-71 de `COTIZACIÓN ` y `COTIZACION (Financ)` | En el machote (formato de número con la sección del cero vacía; no cambia ninguna fórmula) |
+| **`Financiamiento`**: cada cuadro con título de color, borde, moneda y porcentaje, editables en amarillo, columnas anchas y encabezado por bloque | En el machote |
+| **`PTMO`**: si el importe es 0 la tabla queda vacía (antes, 48 filas de ceros); formatos y estilo | En el machote (la columna A pide además `N($D$5)>0`) |
+| **`Equipos`: las líneas usadas + 3 libres**; el resto oculto | En cada cotización: [`scripts/ajustar_vista.ps1`](scripts/ajustar_vista.ps1), que corre solo al final de `llenar_matriz.ps1` |
+| **Las dos cotizaciones: solo las líneas usadas, sin un renglón en blanco** (preventa, 2026-10-19: *"abajo habían otras dos líneas en blanco… para que quede la oferta bien presentable"*) | En cada cotización, el mismo script |
+| **Aviso rojo en `L74`** (fuera del área de impresión) si una fila oculta tiene monto: suma en el total pero no aparece escrita | En el machote |
+| **Sin financiamiento** (ficha `B42 = no`): `Financiamiento`, `PTMO` y `COTIZACION (Financ)` ocultas; con `si`, visibles | En cada cotización, el mismo script |
+
+Las mejoras del machote las aplica
+[`scripts/mejorar_diseno_matriz.ps1`](scripts/mejorar_diseno_matriz.ps1),
+que también pone al día una matriz armada con el machote anterior. Se
+verificó con `smoke-machote.ps1` y `prueba-cotizacion.ps1`: todas las
+pruebas pasan, mismos números al centavo.
+
+⚠️ **Si el asesor agrega una línea a mano** en una de las 3 libres de
+`Equipos`, su fila en `COTIZACIÓN ` está oculta (la línea *n* de
+`Equipos` es la fila *n + 16* de la cotización): hay que mostrarla, o
+volver a correr `ajustar_vista.ps1`, que lo hace solo. Si no, la línea
+suma en el total pero no aparece escrita, y el aviso rojo de `L74` lo
+dice. `generar-pdf-cotizacion` igual oculta, al exportar, toda fila con
+cantidad cero.
 
 Si agregás o quitás pestañas, actualizá esas guías: son documentación,
 se desactualizan solas. Cualquier otro catálogo, tabla de

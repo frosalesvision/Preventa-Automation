@@ -56,3 +56,5 @@ finally {
     $excel.Quit()
     [System.Runtime.InteropServices.Marshal]::ReleaseComObject($excel) | Out-Null
 }
+# Lo que se ve: lineas usadas + 3 y, si no lleva financiamiento, sus pestanas ocultas.
+& (Join-Path $PSScriptRoot "ajustar_vista.ps1") -Ruta $Destino

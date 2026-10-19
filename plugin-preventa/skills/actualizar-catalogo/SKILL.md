@@ -365,6 +365,12 @@ ahí está mal, se corrige en el catálogo y se le avisa a preventa.
 ⚠️ Estos contactos son datos de personas: viven en el catálogo y en la
 base, que son internos, y **nunca se copian a ningún archivo del repo**.
 
+**`Guia de skills`** (en el catálogo desde el 2026-10-19; antes viajaba
+en cada matriz): qué hace cada skill y un ejemplo de cómo pedírselo a la
+IA. Es texto fijo, con su renglón en el `LEEME`. **Si se agrega un skill
+o cambia cómo se pide algo, se actualiza acá** (por Excel, con las mismas
+precauciones de cualquier escritura en el catálogo).
+
 No hay una pestaña de historial de precios — el archivo vive en
 SharePoint/OneDrive, que ya guarda automáticamente el historial de
 versiones del archivo completo (el asesor puede ver "Historial de

@@ -101,7 +101,7 @@ try {
 
     Write-Output ""
     Write-Output "--- 4. Las guias viajan con la copia ---"
-    foreach ($g in @("LEEME", "Guia de pestanas", "Guia de formulas", "Guia de skills")) {
+    foreach ($g in @("LEEME", "Guia de pestanas", "Guia de formulas")) {   # la Guia de skills vive en el catalogo desde el 2026-10-19
         $existe = $false
         foreach ($w in $wb.Worksheets) { if ($w.Name -eq $g) { $existe = $true } }
         Chequear $existe ("la pestana '{0}' esta en la copia" -f $g)

@@ -51,6 +51,7 @@ ya no esperan aprobación de preventa.
 | R20 | La ruta de la carpeta compartida se resuelve por el registro, nunca se asume | incidente del 2026-09-18 | vigente |
 | R21 | Productos pequeños: si el catálogo no tiene uno que cumpla o su precio pasa de 2 meses, se buscan opciones en tiendas de Costa Rica y elige quien cotiza | preventa y Fabián (2026-10-15); medido sobre el catálogo | vigente |
 | R22 | Si el producto exacto es importado, se le dice al asesor y elige importado o del país; si en el país no está el mismo, se le recomiendan similares del país | Fabián (2026-10-19) | vigente |
+| R23 | Un precio cerrado al cliente no va redondo ($29,25, no $30); y la cotización que ve el cliente, sin renglones en blanco | preventa (2026-10-19), primer caso real | vigente |
 
 Lo que quedaba abierto con preventa y contabilidad, y cómo lo cerró
 Fabián, está en [`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
@@ -1014,13 +1015,15 @@ precio cerrado). La pestaña `COTIZACIÓN ` solo espeja las filas de
 impresión** (`B1:J92`), y `RESUMEN` lo trae en 0. O sea que la mano de
 obra cargada solo en su pestaña **no se le cobra al cliente**.
 
-Mientras no se resuelva en el machote, una instalación que el cliente
-tiene que ver va como **línea de `Equipos`** ("Mano de obra: instalación
-de …", importado `no`). Si el monto que dan es el precio al cliente, el
-costo se despeja para que el margen no lo infle; la fórmula está en
-`armar-cotizacion`. **Pendiente:** preguntarle a preventa cómo lo hacen
-hoy a mano —si escriben la línea en `Equipos` o la suman en otro lado—
-antes de cambiar el machote.
+Una instalación que el cliente tiene que ver va como **línea de
+`Equipos`** ("Mano de obra: instalación de …", importado `no`). Si el
+monto que dan es el precio al cliente, el costo se despeja para que el
+margen no lo infle; la fórmula está en `armar-cotizacion`.
+
+**Confirmado por preventa el 2026-10-19**, al revisar el primer caso
+real: *"todo lo que sea mano de obra va donde dice cámaras o equipos, ahí
+es donde van todos los equipos en general"*. No va en `OPEX`. El machote
+no cambia: la regla es dónde se escribe.
 
 ~~**Pestaña `Tarifario Mano de Obra`** en el Excel del catálogo.~~
 **Eliminada el 2026-09-28.** Se había creado vacía el 2026-09-18 para que
@@ -1876,6 +1879,31 @@ veces** el de una del país. Y el importado tarda más en llegar.
    producto pequeño, también tiendas de Costa Rica (R21).
 4. El asistente no elige entre importado y del país, aunque uno sea más
    barato: el plazo y la disponibilidad pesan, y eso lo sabe el asesor.
+
+---
+
+## R23 — Lo que ve el cliente: sin números cerrados ni renglones en blanco
+
+**Estado: vigente desde el 2026-10-19.** Lo dijo preventa al revisar el
+primer caso real armado con el plugin, que ya se había enviado:
+
+> *"le pusiera la instalación como 27,5 o algo, no un número cerrado como
+> 30. Siempre tratamos de poner números con coma… que no sea como un 30 ahí
+> cerrado."*
+>
+> *"abajo habían otras dos líneas en blanco. Sería bueno ver si se pueden
+> eliminar esas dos líneas para que quede la oferta bien presentable."*
+
+1. **Un precio cerrado no va redondo.** Las líneas que salen del costo
+   ya tienen decimales por los porcentajes; el riesgo son los montos que
+   da el asesor (una instalación, un servicio). Si es redondo, se le
+   avisa y se le propone uno con decimales, cercano y algo menor; elige
+   él. En ese caso preventa puso $20 de costo y el cliente vio $29,23.
+2. **La cotización que ve el cliente lleva solo las líneas usadas.** Las
+   3 líneas libres quedan en `Equipos`, para agregar algo a mano; en
+   `COTIZACIÓN ` y `COTIZACION (Financ)` se ocultan. Un aviso fuera del
+   área de impresión avisa si una fila oculta tiene monto. Lo hace
+   `ajustar_vista.ps1` (`armar-cotizacion`).
 
 ---
 
