@@ -85,13 +85,13 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    El cálculo, para ese cliente concreto:
 
    1. Armá las dos rutas más profundas que va a tener la cotización: el
-      machote en `…/Matriz-Oferta/Matriz y oferta <desc>.xlsx` y la
-      carpeta `…/Implementacion/Documentación del proyecto`.
-   2. Ojo: **la descripción aparece dos veces** en la primera (en el
-      nombre de la carpeta y en el del archivo), así que cada carácter
-      que agregues cuesta dos.
-   3. `caracteres disponibles = 259 − (todo lo fijo)`, y
-      `máximo de la descripción = disponibles ÷ 2`.
+      machote en `…/Matriz-Oferta/Matriz <Cliente> <DD-MM-AAAA>.xlsx` y
+      la carpeta `…/Implementacion/Documentación del proyecto`.
+   2. Desde el 2026-10-19 la descripción aparece **una sola vez** (en la
+      carpeta); el nombre del archivo lleva el del cliente, que también
+      cuenta como fijo.
+   3. `máximo de la descripción = 259 − (todo lo fijo)`, con la más
+      larga de las dos rutas.
    4. Decíselo así: *"para este cliente la descripción puede tener hasta
       N caracteres"*. Si N es muy chico, proponé vos dos o tres opciones
       que quepan en vez de hacerlo adivinar.
@@ -120,9 +120,13 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    ```
    Todas vacías, **excepto `Matriz-Oferta/`**: ahí copiá
    `references/Machote Matriz y oferta.xlsx` (nunca lo edites en
-   `references/`, es la copia maestra), renombrado como `Matriz y
-   oferta <descripción corta>.xlsx` dentro de la nueva carpeta
-   `Matriz-Oferta/`.
+   `references/`, es la copia maestra), renombrado como **`Matriz
+   <Cliente> <DD-MM-AAAA>.xlsx`** dentro de la nueva carpeta
+   `Matriz-Oferta/` (Fabián, 2026-10-19: *"que los nombres tengan el
+   nombre de la empresa que se le va a cotizar y fecha"*). Ejemplo:
+   `Matriz Empresa Ejemplo 19-10-2026.xlsx`; una versión nueva agrega ` V2`.
+   La fecha es la del día en que se arma. Antes era `Matriz y oferta
+   <descripción>.xlsx`: las cotizaciones viejas quedan como están.
 
    (Hubo un segundo machote, `MCV_PLANTILLA_v8.xlsx`, para proyectos
    grandes multi-sitio — se descartó porque su último uso real
@@ -138,6 +142,14 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
      prefijo se usó más recientemente para ese cliente (o en general si
      es cliente nuevo) y proponé ese prefijo + el siguiente consecutivo
      de 7 dígitos disponible para el año actual.
+   - **Pista medida el 2026-10-19, todavía sin confirmar con preventa:**
+     los 7 dígitos no parecen un consecutivo de la empresa —en el control
+     de octubre aparecen T5-0000001, T5-0000031 y T5-0000007 en ese
+     orden—, sino **el número de cotización del cliente**. En un cliente,
+     4 de 4 coinciden con su carpeta: `Cotización #14` ↔
+     `T5-0000014-26`, #16 ↔ …16, #17 ↔ …17, #19 ↔ `T4-0000019-26`. Si
+     se confirma, el número sale de la carpeta: `Cotización #20` →
+     `T?-0000020-26`. Mientras tanto, proponelo así y decí de dónde sale.
    - Mostrale la propuesta completa al asesor y **esperá que la
      confirme o la corrija** — nunca lo uses para nombrar un archivo sin
      esa confirmación explícita.

@@ -50,6 +50,7 @@ ya no esperan aprobación de preventa.
 | R19 | Los accesorios que nadie pide se sugieren con su %, nunca se agregan solos | medido: 666 cotizaciones | vigente |
 | R20 | La ruta de la carpeta compartida se resuelve por el registro, nunca se asume | incidente del 2026-09-18 | vigente |
 | R21 | Productos pequeños: si el catálogo no tiene uno que cumpla o su precio pasa de 2 meses, se buscan opciones en tiendas de Costa Rica y elige quien cotiza | preventa y Fabián (2026-10-15); medido sobre el catálogo | vigente |
+| R22 | Si el producto exacto es importado, se le dice al asesor y elige importado o del país; si en el país no está el mismo, se le recomiendan similares del país | Fabián (2026-10-19) | vigente |
 
 Lo que quedaba abierto con preventa y contabilidad, y cómo lo cerró
 Fabián, está en [`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
@@ -1842,6 +1843,39 @@ coincide con el que GV ya tenía. Las vías que se evaluaron:
 | **API del proveedor** | El proveedor da una llave de acceso; un script consulta precio y existencias por modelo. La llave vive en el administrador de credenciales de Windows de cada máquina, nunca en un archivo del repo | Syscom tiene API para clientes (la usan integraciones de terceros). Intcomex no publica una: hay que preguntarle al ejecutivo de cuenta |
 | **Lista de precios periódica** | El proveedor manda su lista en Excel o PDF y se carga al catálogo con `actualizar-catalogo`, como ya se hace con `Precios Proveedores` | Cualquiera. Es lo que ya funciona |
 | **Sesión abierta por la persona** | Quien cotiza entra al portal con su usuario en su navegador; con la sesión abierta, el asistente lee la página de resultados | Para consultas puntuales. Nadie le pasa la contraseña al asistente |
+
+---
+
+## R22 — Importado o del país: lo elige el asesor
+
+**Estado: vigente desde el 2026-10-19.** Decidido por Fabián:
+
+> *"en caso de que sí existan los productos directos que necesitamos pero
+> son importados debe mencionárselo al asesor de preventa, para que él
+> elija si desea el importado o el del país, pero si el del país no está
+> el mismo producto que se necesita, debes recomendarle productos
+> similares para que el asesor tome una decisión."*
+
+Salió del primer caso real: la batería exacta (12 V 9 Ah) solo estaba en
+Syscom, que es de México.
+
+**Por qué importa:** con `IMPORTADO = "si"` la matriz le suma 10% de
+transporte y 15% de DAI (R1). Sobre los porcentajes del machote, el
+cliente ve **1,85 veces el costo** de una línea importada contra **1,46
+veces** el de una del país. Y el importado tarda más en llegar.
+
+**Cómo se aplica:**
+
+1. Si el producto exacto existe pero es de un proveedor de afuera
+   (pestaña `Proveedores`, `¿Se le compra afuera?`), se dice.
+2. Si un proveedor del país tiene el mismo producto, se muestran los dos
+   con el precio al cliente de cada uno, y elige el asesor.
+3. Si en el país no está el mismo, se recomiendan **similares del país**:
+   el inmediato superior en la especificación, de marcas que el equipo ya
+   compra, con existencias si se saben. Primero el catálogo; si es un
+   producto pequeño, también tiendas de Costa Rica (R21).
+4. El asistente no elige entre importado y del país, aunque uno sea más
+   barato: el plazo y la disponibilidad pesan, y eso lo sabe el asesor.
 
 ---
 

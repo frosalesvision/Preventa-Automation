@@ -179,6 +179,14 @@ carpeta cuyo nombre contenga **"COMERCIAL 2024"**. Adentro, confirmá
 que existan los dos archivos de arriba (con su ruta relativa: uno en la
 raíz, el otro dentro de `PREVENTA 2026/Cotizaciones pendientes 2026/`).
 
+⚠️ **No te confundas con los `.url`** (visto el 2026-10-19). En la raíz
+del OneDrive quedaron `Control de cotizaciones 2026.xlsx.url` y
+`Cotizaciones en Preventa.xlsx.url`: son los accesos viejos a los
+archivos sueltos, punteros web que no sirven. Los archivos de verdad
+están en `Archivos de Info Costa Rica - COMERCIAL 2024`, también en la
+raíz del OneDrive, **no dentro de `Accesos directos`**. Buscar solo en
+`Accesos directos` hizo creer que la carpeta faltaba.
+
 Esta misma carpeta `COMERCIAL 2024` también trae `PREVENTA 2026/Base
 datos de proveedores/BD Proveedores - Clientes.xltm` (la agenda de
 proveedores y clientes de preventa: **solo lectura**, nunca se escribe)

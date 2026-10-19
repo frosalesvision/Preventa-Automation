@@ -246,6 +246,11 @@ por especificación, mostrando todos los candidatos razonables y sus
 brechas si no hay match perfecto) y Paso 2 (accesorios de instalación, si
 correspondía según el Paso 2 de acá).
 
+**Si el producto exacto es importado** (de un proveedor de afuera, como
+Syscom o ISTC), decíselo al asesor y que elija importado o del país; si
+en el país no está el mismo, recomendale similares del país (R22, ver
+`buscar-equipo`, Paso 1, punto 6).
+
 **Productos pequeños** (baterías, cerraduras, botones de salida y los
 demás de la regla R21): si el catálogo no tiene uno que cumpla, o sus
 precios tienen más de 2 meses, buscá también en tiendas de Costa Rica,

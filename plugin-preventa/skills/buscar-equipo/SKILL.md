@@ -63,7 +63,25 @@ Esto se queda sin resolver hoy y genera trabajo manual repetido.
    a uno de un año y medio—, pero la elección es del asesor: puede
    preferir otra marca o un proveedor local. Recomendá el de precio más
    reciente y preguntá; no lo elijas en silencio.
-6. **Mostrá siempre cuántos días tiene el precio.** Calculá los días
+6. **Si el producto exacto existe pero es importado, decilo y que elija
+   el asesor: importado o del país** (Fabián, 2026-10-19, regla R22).
+   Importado = se le compra a un proveedor de afuera (columna `¿Se le
+   compra afuera?` de la pestaña `Proveedores`: Syscom, ISTC…). Mostrá
+   los dos lados con lo que vería el cliente, porque el importado carga
+   10% de transporte y 15% de DAI (R1) y tarda más en llegar:
+   - **Si un proveedor del país tiene el mismo producto**, ponelos lado a
+     lado y que elija.
+   - **Si en el país no está el mismo**, recomendá los **similares** del
+     país: el inmediato superior en la especificación (punto 4), de
+     marcas que el equipo ya compra, con existencias si se saben. Buscá
+     primero en el catálogo (Tectel, Sekunet, Intcomex y los demás
+     locales) y, si es un producto pequeño, en tiendas de Costa Rica
+     (R21).
+
+   Nunca elijas vos entre importado y del país, aunque uno sea más
+   barato: el plazo de entrega y la disponibilidad pesan, y eso lo sabe
+   el asesor.
+7. **Mostrá siempre cuántos días tiene el precio.** Calculá los días
    desde la "Fecha de última actualización" del candidato y decilos
    **aunque el dato sea reciente** (regla R12, actualizada 2026-09-18) —
    es información para que el asesor decida si conviene reconfirmar con
