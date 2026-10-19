@@ -111,6 +111,12 @@ peor que decir "no lo tengo".
 
 ### Cómo leer la pestaña `Clientes`
 
+Para buscar uno: `python -I scripts/buscar_cliente.py "<nombre>"`
+([`scripts/buscar_cliente.py`](scripts/buscar_cliente.py)) muestra su
+fila y el tipo de cambio de la pestaña `Tipo de Cambio`. Son datos de
+personas: se muestran en el chat para confirmarlos, nunca se copian al
+repo.
+
 Hasta el 2026-10-06 se llamaba `Regimen Fiscal Clientes` y solo traía el
 impuesto. Ahora es **un renglón por cliente** (247, los que tienen
 cotizaciones desde 2024): las columnas A a F son las del impuesto, igual

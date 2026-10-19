@@ -71,6 +71,8 @@ TIPOS_PRECIO = {
     "COSTO DE UNA COTIZACION REAL": True,
     "UN SOLO PRECIO EN LA LISTA": None,
     "SOLO PRECIO PUBLICO (MSRP)": False,
+    # el precio que ve la cuenta de GV en el portal del proveedor (2026-10-19)
+    "PRECIO DEL PORTAL DEL PROVEEDOR": True,
 }
 
 

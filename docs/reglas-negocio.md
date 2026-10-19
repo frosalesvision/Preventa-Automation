@@ -1832,7 +1832,10 @@ El asistente tampoco inicia sesión por nadie.
 todos.** Y que el asistente la levante del portal: abre el navegador
 con las páginas de los proveedores, **la persona inicia sesión**, y el
 asistente lee lo que muestran para actualizar y agregar productos al
-catálogo con `actualizar-catalogo`. Las vías que se evaluaron:
+catálogo con `actualizar-catalogo`. **Probado el mismo día** con los
+cuatro portales (ver `actualizar-catalogo`, "Portales de proveedor con
+sesión"): en los cuatro la sesión hace falta, y el precio con sesión
+coincide con el que GV ya tenía. Las vías que se evaluaron:
 
 | Vía | Cómo funciona | Para quién |
 |---|---|---|

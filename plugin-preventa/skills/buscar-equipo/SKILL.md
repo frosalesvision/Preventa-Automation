@@ -148,7 +148,7 @@ arriba:
 
 | Si la fila tiene… | El precio de compra es… | Qué decirle al asesor |
 |---|---|---|
-| `Precio dealer` (col. 11) | el dealer | nada especial. Si el tipo (col. 28) dice `COSTO DE UNA COTIZACION REAL`, que es el costo de esa cotización: mostrá los días |
+| `Precio dealer` (col. 11) | el dealer | nada especial. Si el tipo (col. 28) dice `COSTO DE UNA COTIZACION REAL`, que es el costo de esa cotización: mostrá los días. Si dice `PRECIO DEL PORTAL DEL PROVEEDOR` o el origen es un portal, es el precio que ve la cuenta de GV, sin IVA; las existencias de ese día están al final de la Descripción, y lo agotado no se ofrece |
 | un porcentaje, estado `CONFIRMADO POR PREVENTA` | lista menos ese descuento | nada especial |
 | un porcentaje, estado `MEDIDO` | lista menos ese descuento | que el descuento sale de medir las cotizaciones reales, y en cuántas (columna `Medido en cotizaciones reales`). **No pidas confirmación**: lo medido se aplica tal cual (Fabián, 2026-10-12). Es el caso de Hanwha y Axis |
 | `0%` | el precio de lista, que ya es el de compra | nada especial (ISTC, Seguritronic, Security Doctors) |
@@ -219,7 +219,11 @@ categoría es **`Camara`**, no "Camaras".
 | `Equipo de computo` | 1 | Computadora / workstation |
 
 **2. Buscá el texto en `Nombre de equipo/producto` (col. 1) y
-`Descripcion` (col. 16).** Nada más.
+`Descripcion` (col. 16).** Nada más. El script
+[`scripts/buscar_catalogo.py`](scripts/buscar_catalogo.py) lo hace sin
+gastar tokens: `python -I scripts/buscar_catalogo.py 12v 9ah --sub
+bateria` devuelve una línea por candidato, con precio de compra, de
+lista, días del precio y existencias del portal si las tiene.
 
 ⚠️ **No busques en `Especificaciones tecnicas clave`.** Una versión
 anterior de este skill mandaba comparar contra esa columna: **está

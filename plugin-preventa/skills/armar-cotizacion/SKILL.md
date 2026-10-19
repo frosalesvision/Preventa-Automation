@@ -324,6 +324,14 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    tocar el archivo, y esperá confirmación — igual que con cualquier
    otro dato que se escribe en `CLIENTES/`.
 
+   **Para escribir:** [`scripts/llenar_matriz.ps1`](scripts/llenar_matriz.ps1)
+   copia el machote y escribe las celdas de un JSON (`Equipos`, `Datos
+   del proyecto`, el encabezado de `COTIZACIÓN `), por Excel. No escribe
+   en una celda con fórmula, recalcula, lee los totales y cuenta las
+   celdas con error. Se probó el 2026-10-15 con el primer caso real: un
+   borrador fuera de `CLIENTES`, cero errores, totales iguales a los
+   calculados a mano.
+
 ## Registrar la cotización en los Excels de control (agregado 2026-09-01, ruta confirmada 2026-09-07)
 
 Además de la carpeta y la matriz, cada cotización nueva (o cambio de

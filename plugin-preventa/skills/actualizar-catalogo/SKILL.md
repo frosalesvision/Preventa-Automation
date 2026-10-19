@@ -1,6 +1,6 @@
 ---
 name: actualizar-catalogo
-description: Mantiene actualizado el catálogo único de equipos y precios de proveedores en CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/Catalogo de productos por proveedor.xlsx, ya sea leyendo los PDFs (catálogos, listas de precios, cotizaciones) que el equipo agrega en CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/Catalogos Proveedor/<Proveedor>/, o a partir de datos de producto/precio que el usuario pegue directo en el chat sin ningún documento. Usar cuando el usuario agrega/actualiza un PDF de un proveedor, pega precios o specs de un producto para cargarlos, pregunta si el catálogo está al día, o necesita agregar/actualizar precios de productos.
+description: Mantiene actualizado el catálogo único de equipos y precios de proveedores en CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/Catalogo de productos por proveedor.xlsx, ya sea leyendo los PDFs (catálogos, listas de precios, cotizaciones) que el equipo agrega en CLIENTES/00_IA_PREVENTAS/Preventas/Catalogo/Catalogos Proveedor/<Proveedor>/, a partir de datos de producto/precio que el usuario pegue directo en el chat, o leyendo los portales web de los proveedores (Tectel, Sekunet, Intcomex, Syscom) con la sesión que abre la persona. Usar cuando el usuario agrega/actualiza un PDF de un proveedor, pega precios o specs de un producto para cargarlos, pregunta si el catálogo está al día, necesita agregar/actualizar precios de productos, o pide "actualizá los precios de los proveedores de la web", "de los portales", "de los proveedores con login", "traé los precios de Tectel / Sekunet / Intcomex / Syscom" o algo parecido.
 ---
 
 # Actualizar catálogo
@@ -107,6 +107,104 @@ Los scripts de esa carga (lector de PDF y escritura por COM) no están en
 el repo: llevan rutas y nombres de archivos de clientes. Lo que se
 aprendió está en esta sección y en `docs/pruebas-validacion.md`.
 
+### Portales de proveedor con sesión (probado 2026-10-19)
+
+Decisión de Fabián (2026-10-19): la lista de precios periódica de cada
+proveedor se levanta de su portal. Se activa con pedidos como
+*"actualizá los precios de los proveedores de la web"*, *"de los
+portales"*, *"de los proveedores con login"* o *"traé los precios de
+Tectel"*.
+
+**La sesión hace falta en los cuatro.** Sin ella no hay precio o hay uno
+que no es el de GV (medido el 2026-10-19):
+
+| Portal | Sin sesión | Con la sesión de GV |
+|---|---|---|
+| Tectel `tectelcr.com` | "Debe estar registrado para ver los precios" (la API deja ver uno, pero es 7-49% más caro) | precio de GV y de lista, sin IVA (`+iva`) |
+| Sekunet `sekunet.com` | "Inicie sesión para ver precios" | precio de GV `$ … + IVA` y existencias por sucursal |
+| Intcomex `myservices.intcomex.com` | el precio viene vacío | precio de GV y existencias en Costa Rica |
+| Syscom `syscom.mx` | "Acceder a mi cuenta" | lista, especial y precio de GV, `+ IVA` |
+
+La prueba de que es el precio correcto: en las 18 filas que ya estaban en
+el catálogo, el precio con sesión coincide con el que teníamos (varias al
+centavo).
+
+**Pasos:**
+
+1. **Abrir solo los portales que se pidieron** (Fabián, 2026-10-19), en
+   el navegador integrado, una pestaña por proveedor:
+
+   | Si la persona dice… | Se abre |
+   |---|---|
+   | "cargame todas las de web", "actualizá los proveedores con login" | los cuatro |
+   | "recargá el catálogo de Tectel" | solo Tectel |
+   | "traé Sekunet y Syscom" | esos dos |
+
+   Si no queda claro cuáles, se pregunta. Las direcciones:
+   `tectelcr.com/mi-cuenta`, `sekunet.com/web/login`,
+   `myservices.intcomex.com/es/XCR/store`, `syscom.mx`. **La persona
+   inicia sesión**; el asistente nunca escribe usuarios ni contraseñas,
+   ni los guarda en ningún lado. Después se carga solo lo de esos
+   portales: `preparar_portales.py` lee todos los `*_productos.json` de la
+   carpeta, así que en ella van solo los de esta vez.
+2. **Extraer** con [`scripts/portales/extraer.js`](scripts/portales/extraer.js):
+   se pega en cada pestaña y se llama `gvTectel()`, `gvSekunet()`,
+   `gvIntcomex()` o `gvSyscom()`. Usa la misma consulta que usa la página
+   y corre en segundo plano (avance en `window.__job`; Sekunet tarda
+   unos minutos). Así no se gasta un token por producto.
+3. **Bajar el archivo**: al terminar aparece un botón rojo *"GV: bajar
+   datos"*, y **un clic real** en él baja `<portal>_productos.json`. El
+   navegador no deja descargar sin un clic (`a.click()` desde el script
+   no hace nada, y el portapapeles tampoco se deja escribir). En la PC de
+   Fabián las descargas van al **Escritorio**: se mueven a una carpeta de
+   trabajo.
+4. **Preparar**: `python -I scripts/preparar_portales.py "<catálogo>"
+   "<carpeta con los json>" "<carga.json>"`. Solo lee. Por cada producto:
+   si el proveedor ya tiene ese código en el catálogo, es una
+   actualización; si no, una fila nueva. Clasifica con `taxonomia.py`, con
+   la sección del portal como respaldo, y omite lo que queda fuera de las
+   16 categorías (teléfonos IP, NAS, focos inteligentes…), lo obsoleto,
+   lo repetido y lo que no trae código o precio. Marca los saltos de
+   precio de más de +50% o menos de -40%.
+5. **Probar sobre una copia**: copiar el catálogo a una carpeta temporal,
+   correr `scripts/cargar_portales.ps1 -Ruta <copia> -Datos <carga.json>
+   -Guardar`, y pasarle `python scripts/verificar-catalogo.py <copia>`.
+6. **Mostrar el resumen** (nuevas por proveedor y categoría, las
+   actualizaciones con precio viejo y nuevo, los saltos) y **esperar el
+   OK**.
+7. **Cargar el real** con `cargar_portales.ps1` (primero sin `-Guardar`,
+   después con `-Guardar`). El script comprueba que OneDrive esté
+   corriendo y el archivo sincronizado, saca respaldo, apaga el
+   Autoguardado, no toca una fila que cambió desde que se preparó, y no
+   guarda si algo no cuadra. Después espera a que OneDrive lo suba.
+8. **Verificar** con `verificar-catalogo.py` y regenerar la pestaña de
+   compatibilidad solo si `generar_matriz_accesorios.py` da otro número de
+   pares.
+
+**Cómo queda cada fila:**
+
+- El precio de GV va a `Precio dealer` (col. 11), siempre **sin IVA**.
+  Si el portal muestra también la lista (Tectel, Syscom), va a la col. 7
+  y el tipo es `LISTA Y DEALER`; si muestra solo el de GV (Sekunet,
+  Intcomex), la col. 7 queda vacía y el tipo es `PRECIO DEL PORTAL DEL
+  PROVEEDOR`.
+- La fecha es la de la consulta. El `Archivo de origen` dice *"Portal de
+  <proveedor> (<dominio>) con la sesión de GV, consultado el <fecha>"*.
+- **Las existencias de ese día van al final de la Descripción**, para que
+  `buscar-equipo` no ofrezca lo agotado (R21).
+- Syscom es México: se le compra afuera (`IMPORTADO = "si"`).
+
+**Alcance de la carga del 2026-10-19:** Tectel y Sekunet completos;
+Intcomex solo Seguridad, Redes, UPS, Almacenamiento y Monitores (el resto
+es cómputo, oficina y gaming); Syscom solo búsquedas de productos
+pequeños (R21), porque su catálogo tiene decenas de miles de productos.
+Intcomex Costa Rica **no vende Axis en su tienda**: la lista de Axis del
+catálogo viene aparte y no se actualiza desde el portal.
+
+⚠️ Al extraer, **no se copia nada de la cuenta**: las páginas traen datos
+de la cuenta de GV (vendedor asignado, correos, identificadores). Los
+scripts solo toman campos de producto.
+
 ## Columnas del catálogo (26, orden fijo por prioridad — actualizado 2026-09-28)
 
 El orden de columnas **no es alfabético ni de conveniencia técnica**:
@@ -144,7 +242,7 @@ ubicarla dentro del grupo que le corresponda (ver grupos abajo).
 | 25 | Archivo de origen | Nombre del documento dentro de `Catalogos Proveedor/<Proveedor>/` que sustenta esta fila. Si el dato vino pegado directo en el chat (sin documento), anotar algo como "Dato dado por <asesor> en chat, DD/MM/AAAA" en vez de dejarlo vacío — la trazabilidad importa igual |
 | 26 | Pestaña / Hoja de origen | Si la fuente es un Excel: nombre exacto de la pestaña de donde vino esta fila (ej. "HVA Pricelist"), para poder rastrear el dato si algo se pierde o se ve raro. Vacío si el origen fue un PDF o un dato pegado en el chat (no aplica) |
 | 27 | Categoría original del proveedor | El texto de categoría tal cual venía en el documento fuente, antes de normalizar (agregada 2026-09-18). Sirve para auditar una clasificación que se vea rara y para volver a normalizar si cambian las reglas |
-| 28 | Tipo de precio cargado | Qué trae la fuente de esta fila (agregada 2026-09-24, simplificada 2026-09-28). Cuatro valores: `LISTA Y DEALER` (los dos precios; el dealer va en la col. 11), `UN SOLO PRECIO EN LA LISTA`, `SOLO PRECIO PUBLICO (MSRP)` (la lista trae solo el precio público: Hanwha) y `COSTO DE UNA COTIZACION REAL` (el costo que se usó en una cotización real, en la col. 11, con la fecha de esa cotización). Si un precio único ya es el de compra o le falta un descuento **no se dice acá**: lo dice la pestaña `Descuentos por proveedor`. **Al cargar un proveedor nuevo hay que llenarla** |
+| 28 | Tipo de precio cargado | Qué trae la fuente de esta fila (agregada 2026-09-24, simplificada 2026-09-28). Cinco valores: `LISTA Y DEALER` (los dos precios; el dealer va en la col. 11), `UN SOLO PRECIO EN LA LISTA`, `SOLO PRECIO PUBLICO (MSRP)` (la lista trae solo el precio público: Hanwha), `COSTO DE UNA COTIZACION REAL` (el costo que se usó en una cotización real, en la col. 11, con la fecha de esa cotización) y `PRECIO DEL PORTAL DEL PROVEEDOR` (el precio que ve la cuenta de GV en el portal, en la col. 11, con la fecha de la consulta; agregado el 2026-10-19). Si un precio único ya es el de compra o le falta un descuento **no se dice acá**: lo dice la pestaña `Descuentos por proveedor`. **Al cargar un proveedor nuevo hay que llenarla** |
 
 ### Dónde va el precio de un proveedor nuevo (R15)
 
@@ -718,7 +816,7 @@ Revisa siete cosas:
    colones, Precio de compra GV y Descuento del proveedor. Detecta el
    desfase que deja `openpyxl` al borrar filas y, desde el 2026-09-28,
    un número escrito encima de la fórmula del precio de compra.
-7. Que el `Tipo de precio cargado` sea uno de los cuatro valores y
+7. Que el `Tipo de precio cargado` sea uno de los cinco valores y
    cuadre con el Precio dealer.
 
 ## Los tipos de dato importan, no solo los valores (corregido 2026-09-22)
