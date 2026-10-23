@@ -2,7 +2,8 @@
 # entrada que trae $Datos, un JSON en UTF-8:
 #   {"celdas": [{"hoja": "Equipos", "celda": "B6", "valor": "..."}, ...],
 #    "leer":   [["<hoja>", "J76"], ...]}
-# Nunca escribe en una celda con formula. Recalcula, lee las celdas de "leer"
+#   Una celda con formula no se escribe, salvo que traiga "reemplaza_formula": true.
+# Recalcula, lee las celdas de "leer"
 # (valor y texto como lo muestra Excel), cuenta las celdas con error de las
 # hojas visibles y guarda. Excel por COM, nunca openpyxl (borra imagenes).
 #   powershell -File llenar_matriz.ps1 -Machote "<references/Machote...xlsx>" -Destino "<.../Matriz y oferta X.xlsx>" -Datos "<celdas.json>"
@@ -30,7 +31,11 @@ try {
     foreach ($c in $d.celdas) {
         if (-not $hojas.ContainsKey($c.hoja)) { throw "no existe la hoja [$($c.hoja)]" }
         $cel = $hojas[$c.hoja].Range($c.celda)
-        if ($cel.HasFormula) { throw "$($c.hoja)!$($c.celda) tiene formula, no se escribe" }
+        # Una formula no se pisa, salvo que el dato diga "reemplaza_formula": true. Es para
+        # las pocas entradas que el machote trae calculadas y preventa pone a mano
+        # (ej. MANO DE OBRA!I5, combustible por dia, que viene de Transporte).
+        if ($cel.HasFormula -and -not $c.reemplaza_formula) { throw "$($c.hoja)!$($c.celda) tiene formula, no se escribe" }
+        if ($cel.HasFormula) { Write-Output ("REEMPLAZA FORMULA {0}!{1}: [{2}]" -f $c.hoja, $c.celda, $cel.Formula) }
         $antes = $cel.Value2
         $v = $c.valor
         if ($v -is [int] -or $v -is [long]) { $v = [double]$v }

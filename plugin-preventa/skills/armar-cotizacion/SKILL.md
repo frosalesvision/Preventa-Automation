@@ -249,20 +249,42 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    (bases, mounts, lentes, etc. — ver `buscar-equipo`), esos van como
    filas adicionales en la misma pestaña, con la misma lógica.
 
-   ⚠️ **La mano de obra va como línea de `Equipos`, nunca en `OPEX`**
-   (encontrado en el primer caso real, 2026-10-15; **confirmado por
-   preventa el 2026-10-19**: *"todo lo que sea mano de obra va donde dice
-   equipos, ahí es donde van todos los equipos en general"*). La
-   pestaña `COTIZACIÓN ` solo espeja las filas 6 a 55 de `Equipos`, y su
-   SUBTOTAL suma solo esas. `MANO DE OBRA` alimenta `OPEX GV`, y `OPEX GV`
-   **no llega** a la cotización: su total aparece en `K74`, fuera del área
-   de impresión. Lo que se cargue solo ahí no se cobra.
+   ⚠️ **La mano de obra va en `OPEX GV`, nunca en `Equipos`** (preventa,
+   2026-10-21: *"OPEX, así se llama la hoja de la mano de obra en la
+   matriz"*). En `Equipos` van solo los equipos. **Corrección:** del
+   2026-10-15 al 2026-10-21 este skill decía lo contrario, por un mensaje
+   de voz mal entendido; el primer caso real se armó así y preventa lo
+   señaló.
+
+   Cómo se carga, como lo hace el equipo (4 de 4 matrices de un cliente,
+   medido el 2026-10-21):
+
+   - **Las personas y los días** van en `MANO DE OBRA ` (fila del
+     Configurador: días en `E5`, personas en `F5`, alimentación `H5`,
+     combustible por día `I5`, hospedaje `J5`). Su total llega solo a
+     `OPEX GV!D6`, y en `OPEX GV!C6` va cantidad **1** para que cuente. El
+     combustible del machote es una fórmula que sale de `Transporte`; si
+     preventa da un monto por día, se escribe encima
+     (`"reemplaza_formula": true` en `llenar_matriz.ps1`).
+   - **Los materiales de la instalación** (cable, tubería, "materiales
+     varios") van como filas de `OPEX GV` (desde la 10): descripción en
+     `A`, cantidad en `C`, costo unitario en `D`. Las cantidades las da
+     preventa: nunca se estiman (R10).
+   - **En la cotización** el total de `OPEX GV` (`O17`) aparece en la
+     **fila 72** de `COTIZACIÓN `: *"Instalación, configuración y puesta en
+     marcha de los equipos ofertados"*, cantidad 1. Está en el machote
+     desde el 2026-10-21 y `ajustar_vista.ps1` la oculta si OPEX da cero.
+     El texto se puede cambiar. `K74` (Equipos + OPEX) tiene que dar igual
+     al SUBTOTAL; si no, avisa `L75`.
+
+   Antes del 2026-10-21 el machote no tenía esa fila: lo cargado en OPEX
+   no llegaba a la cotización, y por eso se terminó escribiendo la
+   instalación en `Equipos`. Ya no hace falta.
 
    Cuando la instalación tiene **precio cerrado** ("la instalación se
-   cobra $100"), va como una línea de `Equipos`: descripción *"Mano de
-   obra: instalación de …"*, `IMPORTADO = "no"`, cantidad 1. El monto que
-   dan es lo que **paga el cliente**, así que el `Costo Unit` se despeja
-   para que el margen no lo infle:
+   cobra $100"), va en `OPEX GV` con cantidad 1. El monto que dan es lo
+   que **paga el cliente**, así que el costo unitario se despeja para que
+   el margen no lo infle (`OPEX GV` usa los mismos porcentajes):
 
    ```
    Costo Unit = precio al cliente × (1 − margen) / ((1 + imprevistos) × (1 + administración))
@@ -412,8 +434,16 @@ verificar el acceso (viven dentro de la carpeta compartida `COMERCIAL
   Alessandro sí, y además tiene `Comentarios`. Esta tabla es una ayuda
   para saber qué esperar, **no un reemplazo de leer el encabezado
   real**: si alguien agrega una columna, la tabla queda vieja y el
-  archivo no. Leé siempre la fila 1 de la pestaña en la que vas a
-  escribir.
+  archivo no. Leé siempre el encabezado de la pestaña en la que vas a
+  escribir: está en la **fila 6** (arriba hay un título), y la próxima
+  fila libre es la de abajo de la última con cliente.
+
+  ⚠️ **Quién usa cada pestaña** (medido el 2026-10-19): la de Alessandro
+  sí, con 117 filas de julio a octubre de 2026; la de Katherine casi
+  no, dos filas y la última de febrero. Katherine registra solo en
+  `Control de cotizaciones 2026`. Antes de escribir en la pestaña de un
+  asesor que no la usa, preguntá: agregarle una fila después de meses no
+  es lo que hace el equipo.
 
 **El "Monto" que se escribe (corregido 2026-09-22 — la versión del
 2026-09-14 decía lo contrario y estaba mal):**

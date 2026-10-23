@@ -273,6 +273,7 @@ proveedor se recalcula. Ejemplos de hoy:
   descuentos medidos en las cotizaciones reales, uno general y uno por
   tipo de equipo, con estado `MEDIDO` (decisión de Fabián: aplicarlos
   tal cual lo medido; desde el 2026-10-12 no esperan confirmación).
+  **Desde el 2026-10-21 (preventa): por defecto 50% sobre el MSRP**, *"por ley para Hanwha"*; lo medido (58% en cámaras) queda como la opción que se le pregunta al asesor. Ver `buscar-equipo`, "Hanwha: 50% sobre el MSRP por defecto". Desde el 2026-10-22 la pestaña `Descuentos por proveedor` tiene **50% en las cinco filas de Hanwha**, estado `CONFIRMADO POR PREVENTA` (lo medido sigue en su columna), y el catálogo muestra el costo con 50% en los 1.381 productos Hanwha. Se cambió con `cambiar_descuento.ps1`.
 - **ISTC, Seguritronic y Security Doctors:** `0%`, porque su precio de lista ya es
   el de compra (medido en las cotizaciones reales, mediana 1,00).
 - **Axis por Anixter:** medido en una cotización de 2024. Todavía no hay
@@ -332,6 +333,7 @@ Descuento, Se paga (% de la lista, calculada), Estado, De dónde sale,
 Medido en cotizaciones reales, Fecha, Notas, y dos técnicas (Clave y
 Valor) que usa la fórmula. Reglas:
 
+- **Para cambiar el descuento de un proveedor** (todas sus filas, o de una marca): `scripts/cambiar_descuento.ps1 -Ruta <catálogo> -Datos <json> [-Guardar]`. Saca respaldo, no corre sin OneDrive sincronizado, y no guarda si cambió el precio de compra de otro proveedor o si alguna fila no quedó en lista × (1 − descuento). Se usó el 2026-10-22 para dejar Hanwha en 50%.
 - El **Descuento vacío** no se aplica: el catálogo muestra `PENDIENTE` y
   usa el precio de lista tal cual.
 - Si escriben `30` en vez de `30%`, se entiende como 30% (el mismo

@@ -67,6 +67,38 @@ try {
         Write-Output ("{0}: ceros en blanco en las lineas 22-71 y aviso de lineas ocultas en L74" -f $nombre.Trim())
     }
 
+    # --- 1b. COTIZACION: la linea de OPEX (mano de obra y materiales) ---
+    # Asi lo hace preventa (4 de 4 matrices de un cliente, 2026-10-21): una
+    # linea en la cotizacion con el total de OPEX GV. La fila 72 la toma; el
+    # cierre "U.L" baja a la 73 (las dos quedan dentro de SUM(J21:J73)).
+    $cot = @($hojas.Keys | Where-Object { $_ -like "COTIZACI*N " })
+    foreach ($nombre in $cot) {
+        $h = $hojas[$nombre]
+        $yaEsta = ([string]$h.Range("I72").Formula) -like "*OPEX GV*"
+        if (-not $yaEsta) {
+            if (([string]$h.Range("B72").Value2) -notlike "*U.L*") { throw "$nombre B72 no tiene el cierre U.L: no muevo nada" }
+            if ($excel.WorksheetFunction.CountA($h.Range("B73:J73")) -ne 0) { throw "$nombre fila 73 no esta vacia: no muevo nada" }
+            [void]$h.Rows.Item(72).Copy($h.Rows.Item(73))
+            $h.Range("B72:J72").UnMerge(); [void]$h.Range("B72:J72").ClearContents()
+            [void]$h.Rows.Item(71).Copy(); [void]$h.Rows.Item(72).PasteSpecial(-4122); [void][System.__ComObject].InvokeMember("CutCopyMode", [System.Reflection.BindingFlags]::SetProperty, $null, $excel, @($false))
+            $h.Rows.Item(72).RowHeight = $h.Rows.Item(71).RowHeight
+        }
+        # Formulas de la linea (se reescriben siempre). Antes de cada una, formato que no
+        # sea texto: en una celda con formato "@" la formula queda guardada como texto.
+        if (-not $h.Range("C72").HasFormula -or -not $h.Range("B72").HasFormula) {
+            [void]$h.Range("C72").MergeArea.ClearContents()
+            Fmt ($h.Range("B72")) "0;-0;;@"; Fmt ($h.Range("C72").MergeArea) "General"
+            $h.Range("B72").Formula = "=IF('OPEX GV'!O17>0,1,0)"
+            $h.Range("C72").Formula = '="Instalaci"&UNICHAR(243)&"n, configuraci"&UNICHAR(243)&"n y puesta en marcha de los equipos ofertados (mano de obra y materiales)"'
+            $h.Range("I72").Formula = "='OPEX GV'!O17"
+            $h.Range("J72").Formula = "=I72*B72"
+            if (-not $h.Range("C72").HasFormula) { throw "$nombre C72 no quedo como formula" }
+        }
+        $h.Range("L75").Formula = '=IF(ROUND(J74-K74,2)<>0,"OJO: el SUBTOTAL no da Equipos + OPEX GV ("&TEXT(K74,"#,##0.00")&"). Revis"&UNICHAR(225)&" las l"&UNICHAR(237)&"neas.","")'
+        $h.Range("L75").Font.Bold = $true; $h.Range("L75").Font.Color = (Color 192 0 0)
+        Write-Output ("{0}: linea de OPEX en la fila 72 (cierre U.L en la 73) y control en L75" -f $nombre.Trim())
+    }
+
     # --- 2. Financiamiento ---
     if ($hojas.ContainsKey("Financiamiento")) {
         $f = $hojas["Financiamiento"]

@@ -168,14 +168,26 @@ arriba:
 |---|---|---|
 | `Precio dealer` (col. 11) | el dealer | nada especial. Si el tipo (col. 28) dice `COSTO DE UNA COTIZACION REAL`, que es el costo de esa cotización: mostrá los días. Si dice `PRECIO DEL PORTAL DEL PROVEEDOR` o el origen es un portal, es el precio que ve la cuenta de GV, sin IVA; las existencias de ese día están al final de la Descripción, y lo agotado no se ofrece |
 | un porcentaje, estado `CONFIRMADO POR PREVENTA` | lista menos ese descuento | nada especial |
-| un porcentaje, estado `MEDIDO` | lista menos ese descuento | que el descuento sale de medir las cotizaciones reales, y en cuántas (columna `Medido en cotizaciones reales`). **No pidas confirmación**: lo medido se aplica tal cual (Fabián, 2026-10-12). Es el caso de Hanwha y Axis |
+| un porcentaje, estado `MEDIDO` | lista menos ese descuento | que el descuento sale de medir las cotizaciones reales, y en cuántas (columna `Medido en cotizaciones reales`). **No pidas confirmación**: lo medido se aplica tal cual (Fabián, 2026-10-12). Es el caso de Axis. Hanwha desde el 2026-10-22 es `CONFIRMADO POR PREVENTA`, 50% (ver abajo) |
 | `0%` | el precio de lista, que ya es el de compra | nada especial (ISTC, Seguritronic, Security Doctors) |
 | `PENDIENTE` | **el precio de lista tal cual** | que el proveedor está anotado pero su descuento todavía no tiene número: el costo real es menor |
 | vacío | el precio de lista tal cual | que ese proveedor no está en `Descuentos por proveedor`: no se sabe si su precio ya trae descuento |
 
-**El descuento de Hanwha cambia según el proyecto**: con registro en el
-portal de Wisenet es mayor que el anotado. Si el asesor dice que el
-proyecto está registrado, preguntale si tiene el precio del proyecto.
+**Hanwha: 50% sobre el MSRP por defecto, y se pregunta si va más**
+(preventa, 2026-10-21: *"por ley para Hanwha siempre tienen un descuento
+de 50% sobre MSRP"*). Aunque lo medido en las cotizaciones reales sea
+mayor —58% en cámaras, 183 casos—, la cotización arranca con **50%** y se
+pregunta una vez:
+
+> *"Para Hanwha uso 50% sobre el MSRP, el descuento base. En las
+> cotizaciones reales se ha aplicado hasta 58% en cámaras. ¿Lo dejo en 50%
+> o aplico 58% u otro?"*
+
+Si contesta otro porcentaje, va ese. Con registro del proyecto en el
+portal de Wisenet el descuento es mayor: si el asesor dice que está
+registrado, preguntale si tiene el precio del proyecto. Al escribir la
+matriz, el costo de cada línea Hanwha es MSRP × (1 − el descuento
+elegido), y en `Datos del proyecto` se anota cuál se usó.
 
 **Nunca inventes ni ajustes un descuento por tu cuenta.** Solo vale lo
 que está en la pestaña `Descuentos por proveedor`; el catálogo lo aplica

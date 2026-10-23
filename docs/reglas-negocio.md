@@ -482,6 +482,7 @@ proveedor`. Se midió proveedor por proveedor:
 - **ISTC, Seguritronic y Security Doctors:** su único precio ya es el de
   compra (mediana 1,00 entre el costo usado y el precio cargado). Van con
   0%.
+- **Desde el 2026-10-21 (preventa): por defecto 50% sobre el MSRP**, *"por ley para Hanwha"*; lo medido (58% en cámaras) queda como la opción que se le pregunta al asesor. Ver `buscar-equipo`, "Hanwha: 50% sobre el MSRP por defecto". Desde el 2026-10-22 la pestaña `Descuentos por proveedor` tiene **50% en las cinco filas de Hanwha**, estado `CONFIRMADO POR PREVENTA` (lo medido sigue en su columna), y el catálogo muestra el costo con 50% en los 1.381 productos Hanwha. Se cambió con `cambiar_descuento.ps1`.
 - **Hanwha:** su lista trae solo el MSRP y una casilla para que cada
   distribuidor reste su descuento. El descuento se midió en las
   cotizaciones reales y en las de Anixter, por tipo de equipo, y se
@@ -1020,10 +1021,22 @@ Una instalación que el cliente tiene que ver va como **línea de
 monto que dan es el precio al cliente, el costo se despeja para que el
 margen no lo infle; la fórmula está en `armar-cotizacion`.
 
-**Confirmado por preventa el 2026-10-19**, al revisar el primer caso
-real: *"todo lo que sea mano de obra va donde dice cámaras o equipos, ahí
-es donde van todos los equipos en general"*. No va en `OPEX`. El machote
-no cambia: la regla es dónde se escribe.
+**Corregido el 2026-10-21: la mano de obra va en `OPEX GV`, no en
+`Equipos`.** Preventa: *"para la parte de OPEX (así se llama la hoja de
+la mano de obra en la matriz)"*. Del 19 al 21 este documento decía lo
+contrario: un mensaje de voz transcrito a medias ("todo lo que sea mano
+de obra [va en OPEX] y donde dice cámaras o equipos van todos los
+equipos") se leyó al revés.
+
+Cómo lo hace el equipo (4 de 4 matrices de un cliente, medido el
+2026-10-21): personas y días en `MANO DE OBRA ` (llega solo a
+`OPEX GV!D6`, con cantidad 1 en `C6`); materiales de la instalación como
+filas de `OPEX GV`; y en la cotización, **una línea con el total de
+`OPEX GV`** ("Instalación, configuración y puesta en marcha…"). El
+machote no tenía esa línea —lo cargado en OPEX no llegaba a la
+cotización— y desde el 2026-10-21 la tiene en la fila 72 de
+`COTIZACIÓN `, con un control en `L75` que avisa si el SUBTOTAL no da
+Equipos + OPEX.
 
 ~~**Pestaña `Tarifario Mano de Obra`** en el Excel del catálogo.~~
 **Eliminada el 2026-09-28.** Se había creado vacía el 2026-09-18 para que

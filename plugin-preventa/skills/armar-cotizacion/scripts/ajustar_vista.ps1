@@ -44,6 +44,15 @@ try {
         if ($ultima -lt 55) { $h.Range(("A{0}:A71" -f ($ultima + 17))).EntireRow.Hidden = $true }
     }
     Write-Output ("lineas usadas: {0}; Equipos muestra filas 6 a {1}; las cotizaciones, solo las usadas (22 a {2})" -f ($ultima - 5), $hasta, ($ultima + 16))
+    # La linea de OPEX (fila 72 de COTIZACION) solo se ve si hay mano de obra o materiales.
+    $opex = $hojas["OPEX GV"].Range("O17").Value2
+    foreach ($n in @($hojas.Keys | Where-Object { $_ -like "COTIZACI*N " })) {
+        $h = $hojas[$n]
+        if (([string]$h.Range("I72").Formula) -like "*OPEX GV*") {
+            $h.Rows.Item(72).Hidden = -not ($opex -is [double] -and $opex -gt 0)
+            Write-Output ("linea de OPEX: {0}" -f $(if ($h.Rows.Item(72).Hidden) { "oculta (OPEX en cero)" } else { "visible (OPEX {0:N2})" -f $opex }))
+        }
+    }
 
     $fin = ([string]$hojas["Datos del proyecto"].Range("B42").Value2).Trim().ToLower()
     $tabs = @("Financiamiento", "PTMO") + @($hojas.Keys | Where-Object { $_ -like "COTIZACION (Financ)*" })

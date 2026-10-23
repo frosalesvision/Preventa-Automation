@@ -56,7 +56,7 @@ preguntar; lo que no se sabe **siempre** se pregunta.
 | 9 | **Imprevistos %** | Valor del machote |
 | 10 | **Administración %** | Valor del machote; puede bajar a 0 en licitaciones agresivas |
 | 11 | **Margen %** | **27,4%, el estándar. No proponer cambiarlo.** Aclarar que se puede cambiar a mano en el Excel, y que hacerlo en `Equipos` mueve también `OPEX GV` |
-| 12 | **Mano de obra** | Días y personas: se preguntan siempre. Los precios —hora, día, alimentación, kilometraje— vienen por defecto en `MANO DE OBRA` del machote y se cambian ahí si el proyecto lo pide (R8). **Lo que el cliente tiene que ver va como línea de `Equipos`, no en `OPEX`** (confirmado por preventa). Si es un **precio cerrado** y redondo ($30), avisá que no se usan números cerrados y proponé uno con decimales ($29,25); elige el asesor (R23) |
+| 12 | **Mano de obra** | Días y personas: se preguntan siempre. Los precios —hora, día, alimentación, kilometraje— vienen por defecto en `MANO DE OBRA` del machote y se cambian ahí si el proyecto lo pide (R8). **La mano de obra y los materiales de la instalación van en `OPEX GV`, nunca en `Equipos`** (preventa, 2026-10-21; personas y días en `MANO DE OBRA `, que llega solo a OPEX); la cotización los muestra en una línea con el total de OPEX (fila 72). Ver `armar-cotizacion`. Si es un **precio cerrado** y redondo ($30), avisá que no se usan números cerrados y proponé uno con decimales ($29,25); elige el asesor (R23) |
 | 12b | **Viajes al sitio** | Cuántos viajes, cuántos vehículos y si hay hospedaje. **Se preguntan**: solo los kilómetros salen de la tabla de destinos (R9) |
 | 13 | **Financiamiento** | **Siempre preguntar**, sin importar el tamaño del proyecto. Si va: plazo y tasa. Si no: la columna `Financ.` queda vacía (R13) |
 | 14 | **Tipo de cambio** | **Proponer el de la pestaña `Tipo de Cambio` del catálogo y preguntar si se mantiene:** *"En el catálogo tenemos el tipo de cambio X, ¿seguimos con ese o lo cambiás para este proyecto?"*. Si la pestaña está vacía, preguntar cuál usar. El que se elija queda en la cotización; la pestaña del catálogo no se toca (R7) |
@@ -286,6 +286,10 @@ estado (confirmado, medido o sin registrar):
 
 Lo `MEDIDO` se aplica tal cual (Fabián, 2026-10-12): se dice de dónde
 salió, no se pide que alguien lo confirme.
+
+**Hanwha es la excepción** (preventa, 2026-10-21): por defecto va **50%
+sobre el MSRP**, y se pregunta si se aplica 58% (lo medido en cámaras) u
+otro. Ver `buscar-equipo`.
 
 Si no contesta eso en particular, va el precio con descuento. Si pide
 una mezcla, se hace así y se marca en la tabla. Los detalles están en
