@@ -55,3 +55,4 @@ desktop.ini
 # de proveedor y conteos por proveedor: se generan corriendo el script,
 # no se versionan.
 medicion-*.json
+material-video/

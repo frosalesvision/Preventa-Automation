@@ -168,7 +168,8 @@ centavo).
    precio de más de +50% o menos de -40%.
 5. **Probar sobre una copia**: copiar el catálogo a una carpeta temporal,
    correr `scripts/cargar_portales.ps1 -Ruta <copia> -Datos <carga.json>
-   -Guardar`, y pasarle `python scripts/verificar-catalogo.py <copia>`.
+   -Guardar` (como todo `.ps1` del plugin, con
+   `powershell -NoProfile -ExecutionPolicy Bypass -File`; ver `verificar-entorno`, punto 5), y pasarle `python scripts/verificar-catalogo.py <copia>`.
 6. **Mostrar el resumen** (nuevas por proveedor y categoría, las
    actualizaciones con precio viejo y nuevo, los saltos) y **esperar el
    OK**.
@@ -614,8 +615,8 @@ soportes, lentes y cubiertas sirven para cada equipo. Son dos pasos:
 
 ```
 python scripts/generar_matriz_accesorios.py "<catalogo.xlsx>" "<pares.json>"
-powershell -File scripts/escribir_matriz_accesorios.ps1 -Ruta "<catalogo.xlsx>" -Datos "<pares.json>"            (prueba)
-powershell -File scripts/escribir_matriz_accesorios.ps1 -Ruta "<catalogo.xlsx>" -Datos "<pares.json>" -Guardar
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/escribir_matriz_accesorios.ps1 -Ruta "<catalogo.xlsx>" -Datos "<pares.json>"            (prueba)
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/escribir_matriz_accesorios.ps1 -Ruta "<catalogo.xlsx>" -Datos "<pares.json>" -Guardar
 ```
 
 El primero solo lee y calcula los pares: **solo entra lo que el
@@ -875,7 +876,7 @@ Si algo llegara a guardar el catálogo con `openpyxl`, después hay que
 correr:
 
 ```
-powershell -File scripts/reparar-desplegables.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/reparar-desplegables.ps1
 ```
 
 **El desplegable es una comodidad, no la garantía.** Evita el error de

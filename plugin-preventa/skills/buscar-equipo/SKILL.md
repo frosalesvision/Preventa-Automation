@@ -570,8 +570,8 @@ pasos, en `../actualizar-catalogo/scripts/`:
 
 ```
 python generar_matriz_accesorios.py "<catalogo.xlsx>" "<pares.json>"
-powershell -File escribir_matriz_accesorios.ps1 -Ruta "<catalogo.xlsx>" -Datos "<pares.json>"
-powershell -File escribir_matriz_accesorios.ps1 -Ruta "<catalogo.xlsx>" -Datos "<pares.json>" -Guardar
+powershell -NoProfile -ExecutionPolicy Bypass -File escribir_matriz_accesorios.ps1 -Ruta "<catalogo.xlsx>" -Datos "<pares.json>"
+powershell -NoProfile -ExecutionPolicy Bypass -File escribir_matriz_accesorios.ps1 -Ruta "<catalogo.xlsx>" -Datos "<pares.json>" -Guardar
 ```
 
 El primero solo lee el catálogo. El segundo escribe por Excel (COM),

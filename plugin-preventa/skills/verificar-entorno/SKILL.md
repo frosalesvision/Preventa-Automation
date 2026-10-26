@@ -50,6 +50,12 @@ lenguaje simple — no asumas que sabe qué es un plugin o un MCP:
    (Outlook/SharePoint). Esto permite que Claude ayude con tareas que
    necesitan navegador (ej. revisar un archivo compartido puntual) —
    no es necesario para el día a día, pero conviene tenerlo listo.
+6. **Tener Python y Excel de escritorio** (agregado 2026-10-26). Los
+   scripts del plugin —buscar en el catálogo, llenar la matriz, cargar
+   precios— usan **Python con el paquete openpyxl**, y las matrices y el
+   catálogo se escriben con **Excel instalado en la computadora** (Excel
+   en el navegador no sirve). Se confirma en la verificación 5 de abajo,
+   que también dice cómo instalar lo que falte.
 
 Después de esto, decile a Claude **"revisá el entorno"** — corre el
 checklist de abajo y confirma qué quedó bien y qué falta.
@@ -233,6 +239,27 @@ zona de prueba segura — nunca escribir datos de cotizaciones reales
 ahí, es solo para verificar que el acceso de escritura sigue
 funcionando.
 
+## 5. Programas que usan los scripts: Python, openpyxl y Excel (agregado 2026-10-26)
+
+Sin esto el plugin conversa, pero no puede buscar en el catálogo ni
+escribir una matriz. Cada comprobación se hace corriéndola, no
+suponiéndola:
+
+| Qué | Cómo se comprueba | Si falta |
+|---|---|---|
+| **Python 3** | `python --version` (Bash o PowerShell): tiene que responder 3.9 o más | Instalar "Python 3.12" desde la Microsoft Store (no pide permisos de administrador) y abrir una terminal nueva |
+| **openpyxl** | `python -c "import openpyxl; print(openpyxl.__version__)"` | `python -m pip install --user openpyxl` |
+| **Permiso para correr los scripts** | `Get-ExecutionPolicy` en PowerShell. `Restricted` (lo normal en Windows 11) o `AllSigned` no se arreglan cambiando nada: alcanza con la forma de correrlos de abajo | Nada que instalar |
+| **Excel de escritorio** | En PowerShell: `$x = New-Object -ComObject Excel.Application; $x.Version; $x.Quit()` tiene que devolver un número de versión (16.0 o más) | Instalar Microsoft 365 / Excel de escritorio con la cuenta de la empresa. Excel en el navegador no sirve: los scripts escriben por Excel instalado |
+
+**Cómo se corre siempre un `.ps1` del plugin:**
+`powershell -NoProfile -ExecutionPolicy Bypass -File <script> <parámetros>`. El permiso vale
+solo para esa ejecución, así que no hace falta cambiar la configuración
+de seguridad de Windows. **Nunca corras `Set-ExecutionPolicy`** ni le
+pidas a la persona que lo haga. (En la máquina de Fabián la política ya
+es `Bypass` y por eso `powershell -File` solo funcionaba; en una
+computadora nueva del equipo, no.)
+
 ## Checklist final
 
 Presentá el resultado como una lista clara, por ejemplo:
@@ -244,6 +271,7 @@ Presentá el resultado como una lista clara, por ejemplo:
 ❌ Excels de control de cotizaciones: no se encontró la carpeta
    "COMERCIAL 2024" en tu OneDrive — hay que pedir que te la compartan
    y agregarla como acceso directo (ver paso 4 de este skill)
+✅ Python 3.12 con openpyxl 3.1, y Excel de escritorio 16.0
 
 Qué falta:
 - Confirmar la ruta correcta de la carpeta compartida.

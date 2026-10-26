@@ -78,9 +78,11 @@ ver Opción A abajo).
    ⚠️ **Mantenimiento de la Opción A (nota para quien administra el
    plugin, no para quien lo instala):** la carpeta de OneDrive es una
    copia manual del repo de git, no se actualiza sola. Cada vez que se
-   publique un cambio nuevo, hay que volver a copiar los archivos del
-   repo (los que están trackeados en git, nunca `recursos-originales/`
-   ni nada con datos reales de clientes) a esa carpeta compartida. No
+   publique un cambio nuevo, después del commit, hay que correr
+   `python scripts/publicar-plugin-onedrive.py --copiar` (sin `--copiar`
+   solo compara): copia lo trackeado en git tal como está en HEAD, nunca
+   `recursos-originales/` ni nada con datos reales de clientes, y
+   verifica cada archivo. Se actualizó por última vez el 2026-10-26. No
    está confirmado todavía si `/plugin marketplace update` refresca solo
    una fuente local, o si cada persona necesita sacar y volver a agregar
    el marketplace (`/plugin marketplace remove` + `add` de nuevo) después
@@ -104,6 +106,13 @@ ver Opción A abajo).
    Chrome"** e iniciar sesión con la misma cuenta, en el Chrome donde
    también tenés tu cuenta de Grupo Visión. Ayuda para tareas puntuales
    que necesitan navegador — no es necesario para el día a día.
+6. **Tener Python y Excel de escritorio.** Los scripts del plugin usan
+   **Python 3 con el paquete openpyxl** (buscar en el catálogo) y
+   **Excel instalado en la computadora** (escribir la matriz; Excel en
+   el navegador no alcanza). Si Python falta, se instala "Python 3.12"
+   desde la Microsoft Store, sin permisos de administrador, y openpyxl
+   con `python -m pip install --user openpyxl`. "Revisá el entorno" lo
+   comprueba y dice qué falta.
 
 Después de esto, abrí una conversación nueva con el plugin y decile a
 Claude **"revisá el entorno"** — corre
