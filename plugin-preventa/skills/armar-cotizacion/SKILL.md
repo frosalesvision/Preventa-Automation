@@ -249,37 +249,57 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
    (bases, mounts, lentes, etc. — ver `buscar-equipo`), esos van como
    filas adicionales en la misma pestaña, con la misma lógica.
 
-   ⚠️ **La mano de obra va en `OPEX GV`, nunca en `Equipos`** (preventa,
-   2026-10-21: *"OPEX, así se llama la hoja de la mano de obra en la
-   matriz"*). En `Equipos` van solo los equipos. **Corrección:** del
-   2026-10-15 al 2026-10-21 este skill decía lo contrario, por un mensaje
-   de voz mal entendido; el primer caso real se armó así y preventa lo
-   señaló.
+   ⚠️ **La mano de obra va en `OPEX GV`; los materiales de instalación,
+   en `MATERIALES`.** En `Equipos` van solo los equipos. Así quedó después
+   de dos correcciones: preventa (2026-10-21, *"OPEX, así se llama la hoja
+   de la mano de obra en la matriz"*) y gerencia (2026-10-27, en la demo:
+   el cable de fibra va en `MATERIALES`, no en OPEX). Del 2026-10-15 al
+   2026-10-21 este skill escribía la mano de obra en `Equipos` (un mensaje
+   de voz mal entendido), y del 2026-10-21 al 2026-10-27 los materiales en
+   `OPEX GV`, porque `MATERIALES` no llegaba a la cotización.
 
-   Cómo se carga, como lo hace el equipo (4 de 4 matrices de un cliente,
-   medido el 2026-10-21):
+   Cómo se carga:
 
    - **Las personas y los días** van en `MANO DE OBRA ` (fila del
-     Configurador: días en `E5`, personas en `F5`, alimentación `H5`,
-     combustible por día `I5`, hospedaje `J5`). Su total llega solo a
-     `OPEX GV!D6`, y en `OPEX GV!C6` va cantidad **1** para que cuente. El
-     combustible del machote es una fórmula que sale de `Transporte`; si
-     preventa da un monto por día, se escribe encima
-     (`"reemplaza_formula": true` en `llenar_matriz.ps1`).
-   - **Los materiales de la instalación** (cable, tubería, "materiales
-     varios") van como filas de `OPEX GV` (desde la 10): descripción en
-     `A`, cantidad en `C`, costo unitario en `D`. Las cantidades las da
-     preventa: nunca se estiman (R10).
-   - **En la cotización** el total de `OPEX GV` (`O17`) aparece en la
-     **fila 72** de `COTIZACIÓN `: *"Instalación, configuración y puesta en
-     marcha de los equipos ofertados"*, cantidad 1. Está en el machote
-     desde el 2026-10-21 y `ajustar_vista.ps1` la oculta si OPEX da cero.
-     El texto se puede cambiar. `K74` (Equipos + OPEX) tiene que dar igual
-     al SUBTOTAL; si no, avisa `L75`.
+     Configurador): días `E5`, personas `F5`, alimentación por día y
+     persona `H5`. Su total llega solo a `OPEX GV!D6`, y en `OPEX GV!C6` va
+     cantidad **1** para que cuente. **Viajes y hospedaje, desde el
+     2026-10-27** (antes los dos se multiplicaban por los días, y en la
+     demo *"₡35.000 ida y vuelta"* se vio como $35,71 por día):
+     - **Combustible por viaje de ida y vuelta** en `I5`, y **cuántos
+       viajes** en `L5`. Si lo dan **en colones**, va en `N5` (ej. `35000`)
+       e `I5` lo pasa a dólares con el tipo de cambio de `Datos del
+       proyecto!B47`: no se convierte a mano ni se pisa la fórmula. Si no
+       dan nada, `I5` sale de `Transporte` (los km del destino).
+     - **Hospedaje: el costo de una noche para todo el equipo** en `J5`, y
+       **cuántas noches** en `M5`.
+     - Si `L5` o `M5` quedan vacíos, cuentan como los días (el cálculo de
+       antes: un viaje y una noche por día).
 
-   Antes del 2026-10-21 el machote no tenía esa fila: lo cargado en OPEX
-   no llegaba a la cotización, y por eso se terminó escribiendo la
-   instalación en `Equipos`. Ya no hace falta.
+     Al confirmar con el asesor, mostrá la conversión: *"₡35.000 ida y
+     vuelta = $71,43 al tipo de cambio 490, 1 viaje"*.
+   - **Los materiales de la instalación** (cable, fibra, tubería, cajas,
+     conectores) van en `MATERIALES`: descripción en `A`, `IMPORTADO` en
+     `B` (**`no`** si se compra en el país: la plantilla trae `si`),
+     cantidad en `C`, costo unitario en `D`. Las filas 6 a 32 traen una
+     lista de materiales comunes con cantidad 0: si el material está ahí,
+     se usa esa fila; si no, la primera vacía (33-36, 38-42 o 44; las
+     filas `Sección` no se tocan). `MATERIALES` tiene sus porcentajes
+     propios: IVA de compra 13% y **margen 30%**, no el 27,4% de `Equipos`.
+     Las cantidades las da preventa: nunca se estiman (R10).
+   - **En la cotización**, la **fila 72** de `COTIZACIÓN ` lleva `OPEX GV`
+     + `MATERIALES` en una línea, cantidad 1, y su texto cambia solo:
+     *"Instalación, configuración y puesta en marcha de los equipos
+     ofertados"*, con *"(mano de obra y materiales)"* si hay de los dos, o
+     *"Materiales de instalación"* si hay solo materiales. El texto se
+     puede cambiar. `ajustar_vista.ps1` la oculta si da cero. `K74`
+     (Equipos + OPEX GV + MATERIALES) tiene que dar igual al SUBTOTAL; si
+     no, avisa `L75`. Una matriz armada antes del 2026-10-27 se pone al día
+     con [`scripts/ajustar_materiales_viaticos.ps1`](scripts/ajustar_materiales_viaticos.ps1).
+
+   ⚠️ La cotización **financiada** no tiene esa línea: financia solo
+   `Equipos`. Si la instalación también va financiada, decíselo al asesor:
+   hoy se agrega a mano.
 
    Cuando la instalación tiene **precio cerrado** ("la instalación se
    cobra $100"), va en `OPEX GV` con cantidad 1. El monto que dan es lo
@@ -506,6 +526,22 @@ correspondiente.
 
 **Se registra en los dos** (decisión confirmada 2026-09-01 — es el
 flujo de trabajo real de preventa, no se consolida).
+
+**Para escribir:** [`scripts/registrar_control.ps1`](scripts/registrar_control.ps1)
+(2026-10-27, primer uso en la demo a gerencia). Agrega una fila debajo de
+la última con datos, con las columnas en un JSON: no corre sin OneDrive
+sincronizado, saca respaldo, apaga el Autoguardado, no escribe sobre una
+celda con algo, y relee `.Text` de cada celda (así se vio que una fecha
+quedaba como `46322` si la celda de arriba no tenía formato de fecha).
+Primero sin `-Guardar`, se le muestra la fila al asesor, y después con
+`-Guardar`. Con `-Quitar` borra la fila de una cotización de prueba o
+anulada, buscándola por contenido (cliente + número de oferta), y solo si
+coincide una sola fila. Encabezados medidos ese día: `Control de
+cotizaciones 2026` en la **fila 2** (A Fecha solicitud · C Empleado, con
+la inicial: `A`/`K` · D Cliente · E Descripción · G Fecha de la oferta ·
+I Número · J Monto sin IVA, como texto con `$` · K `=+NETWORKDAYS(A<f>,$K$1)`
+· L Proveedor), `Cotizaciones en Preventa` / `Alessandro ` en la **fila
+6** (Comentarios con el estado: `EN PROCESO (AL)`, `ENVIADA (AL)`).
 
 **Cómo escribir, según el acceso disponible:**
 

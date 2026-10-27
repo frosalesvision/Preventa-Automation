@@ -34,7 +34,9 @@ $esperado = @{
     "P-03 MATERIALES!J7  Costo Nac. unit"  = 56.5
     "P-03 MATERIALES!O7  Venta total"      = 1662.71428571429
     "P-04 Equipos!P57  Total Venta"        = 3309.8326446281
-    "P-04 COTIZACION!J76  TOTAL"           = 3740.11
+    # Desde el 2026-10-27 MATERIALES llega a la cotizacion (fila 72, con OPEX GV): el total
+    # suma los $1.662,71 de P-03 con su 13%. Antes daba 3740.11, solo Equipos.
+    "P-04 COTIZACION!J76  TOTAL"           = 5618.97
     # El cuadro financia el precio UNITARIO (opcion A, 2026-09-21).
     "P-05 Financiamiento!C4   Total Venta" = 184.853787878788
     "P-05 Financiamiento!C12  Cuota"       = 4.77764275443391
@@ -160,9 +162,11 @@ try {
     Write-Output ("  {0}  COTIZACION llega a la linea 50" -f $(if ($okUlt) { "OK  " } else { "FALLA" }))
 
     $sub = $cot.Range("J$FILA_COT_SUB").Value2
-    $okSub = [Math]::Abs($sub - $totalReal) -lt 0.01
+    # Equipos + la linea 72 (OPEX GV + MATERIALES, desde el 2026-10-27)
+    $esperaSub = $totalReal + (Hoja $wb "OPEX GV" $null).Range("O17").Value2 + (Hoja $wb "MATERIALES" $null).Range("O46").Value2
+    $okSub = [Math]::Abs($sub - $esperaSub) -lt 0.01
     if (-not $okSub) { $fallas++ }
-    Write-Output ("  {0}  SUBTOTAL de COTIZACION cuadra   esperado={1}  obtenido={2}" -f $(if ($okSub) { "OK  " } else { "FALLA" }), $totalReal, $sub)
+    Write-Output ("  {0}  SUBTOTAL de COTIZACION cuadra   esperado={1}  obtenido={2}" -f $(if ($okSub) { "OK  " } else { "FALLA" }), $esperaSub, $sub)
 
     # la cuota del cuadro 50 debe ser la del precio unitario de esa linea
     $caja50 = $fin.Range("C837").Value2

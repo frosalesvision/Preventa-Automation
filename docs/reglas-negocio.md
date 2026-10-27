@@ -894,6 +894,15 @@ Mano de Obra` del catálogo, que estaba vacía, se eliminó ese día.
 
 Lo que sigue es la historia de cómo se llegó ahí.
 
+**Cambio del 2026-10-27 (demo a gerencia):** el combustible y el hospedaje
+se multiplicaban por los días, así que *"₡35.000 ida y vuelta"* en un
+trabajo de 2 días se veía como $35,71 y *"$200 la noche"* como $100. El
+machote ahora pide **combustible por viaje** (`I5`, o en colones en `N5`,
+que se convierte con el tipo de cambio de la ficha) por **cantidad de
+viajes** (`L5`), y **hospedaje por noche** (`J5`) por **cantidad de
+noches** (`M5`). Vacíos, cuentan como los días: el cálculo de antes.
+Script: `armar-cotizacion/scripts/ajustar_materiales_viaticos.ps1`.
+
 > **Lo que contestó preventa:** *"eso aún no lo tenemos 100%
 > establecido. Tengo anotado un par de precios base por instalaciones
 > pero de hecho tenemos la tarea de elaborar un cuadro de instalaciones,
@@ -1110,6 +1119,14 @@ distintas con el mismo nombre.
 ## R10 — Materiales de instalación: sí en el catálogo, no en una tabla de proporciones
 
 **Estado: decidido 2026-09-21 y CONFIRMADO POR EL NEGOCIO el 2026-09-22.**
+
+**Dónde van (gerencia, 2026-10-27):** en la pestaña **`MATERIALES`** de la
+matriz, no en `OPEX GV`. En la demo se cargó un cable de fibra en OPEX
+porque `MATERIALES` no llegaba a la cotización; ese día se conectó: la
+fila 72 de la cotización suma `OPEX GV` + `MATERIALES`. `MATERIALES` usa
+sus propios porcentajes (IVA de compra 13%, margen 30%). Pendiente de
+confirmar con preventa, que el 2026-10-21 había dicho "materiales en
+OPEX".
 
 > **Lo que contestó preventa cuando se les pidió la tabla de
 > proporciones:** *"eso varía totalmente. A como puede instalarse una
