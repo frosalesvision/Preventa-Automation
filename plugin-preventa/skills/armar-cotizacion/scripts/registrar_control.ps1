@@ -1,10 +1,12 @@
 # Registra una cotizacion en una pestana de los Excels de control (Control de cotizaciones 2026,
 # Cotizaciones en Preventa): agrega UNA fila debajo de la ultima con datos, por Excel (COM),
 # nunca openpyxl (los dos archivos tienen imagenes y comentarios). Con -Quitar, borra la fila
-# que se registro (una cotizacion de prueba o anulada).
+# que se registro (una cotizacion de prueba o anulada). Con -Actualizar, reescribe celdas de la
+# fila ya registrada (la cotizacion se corrigio y cambio el monto o la descripcion).
 #
 #   powershell -NoProfile -ExecutionPolicy Bypass -File registrar_control.ps1 -Ruta "<xlsx>" -Hoja "<pestana>" -Datos "<fila.json>" [-Guardar]
 #   powershell -NoProfile -ExecutionPolicy Bypass -File registrar_control.ps1 -Ruta "<xlsx>" -Hoja "<pestana>" -Datos "<buscar.json>" -Quitar [-Guardar]
+#   powershell -NoProfile -ExecutionPolicy Bypass -File registrar_control.ps1 -Ruta "<xlsx>" -Hoja "<pestana>" -Datos "<corregir.json>" -Actualizar [-Guardar]
 #
 # fila.json (UTF-8; los textos van aca para que este archivo quede en ASCII):
 #   {"claves": ["A", "D"],                       columnas que dicen si una fila tiene datos
@@ -14,6 +16,9 @@
 #               "K": {"formula": "=+NETWORKDAYS(A{f},$K$1)"}}} {f} = numero de la fila nueva
 # buscar.json, para -Quitar: {"buscar": {"D": "Cliente", "I": "T5-0000001-26"}}
 #   Se borra la fila entera solo si UNA fila coincide en todas esas columnas; si hay 0 o mas de 1, no toca nada.
+#   El numero de oferta solo no alcanza: cada cliente lleva su consecutivo (hay dos T5-0000012-26).
+# corregir.json, para -Actualizar: {"buscar": {...igual que arriba...}, "celdas": {...igual que fila.json...}}
+#   Misma regla de UNA fila; muestra cada celda antes -> despues y no toca las columnas que no trae.
 #
 # Sin -Guardar: muestra lo que haria y cierra sin guardar.
 # Seguridad: no corre sin OneDrive sincronizado; respaldo antes de abrir; apaga el Autoguardado;
@@ -23,12 +28,43 @@ param(
     [Parameter(Mandatory = $true)][string]$Hoja,
     [Parameter(Mandatory = $true)][string]$Datos,
     [switch]$Quitar,
+    [switch]$Actualizar,
     [switch]$Guardar
 )
+if ($Quitar -and $Actualizar) { throw "-Quitar o -Actualizar, no los dos" }
 $ErrorActionPreference = "Stop"
 $EN_US = [System.Globalization.CultureInfo]::GetCultureInfo("en-US")
 function Poner($obj, $prop, $valor) { [void][System.__ComObject].InvokeMember($prop, [System.Reflection.BindingFlags]::SetProperty, $null, $obj, @(, $valor), $EN_US) }
 function Txt($v) { if ($v -eq $null) { return "" } return ([string]$v).Trim() }
+# la unica fila que coincide en todas las columnas de $buscar; si hay 0 o mas de 1, para
+function UnaFila($ws, $fin, $buscar) {
+    $cols = @($buscar.PSObject.Properties.Name)
+    $hallado = @()
+    for ($r = 1; $r -le $fin; $r++) {
+        $ok = $true
+        foreach ($c in $cols) { if ((Txt $ws.Range("$c$r").Value2) -ne (Txt $buscar.$c)) { $ok = $false; break } }
+        if ($ok) { $hallado += $r }
+    }
+    if ($hallado.Count -ne 1) { throw ("coinciden {0} filas ({1}): no toco nada" -f $hallado.Count, ($hallado -join ", ")) }
+    return $hallado[0]
+}
+# escribe una celda de fila.json: fecha (con el formato de la ultima fecha de la columna), formula o texto
+function Escribir($ws, $c, $f, $x) {
+    $cel = $ws.Range("$c$f")
+    if ($x.formato) { Poner $cel "NumberFormat" $x.formato }
+    if ($x.fecha) {
+        # el formato de la ultima fecha de esa columna (la celda de arriba puede estar vacia y en General)
+        $fmt = "dd/mm/yyyy"
+        for ($r = $f - 1; $r -ge [math]::Max(1, $f - 60); $r--) {
+            $arriba = $ws.Range("$c$r")
+            if ($arriba.Value2 -is [double] -and $arriba.NumberFormat -ne "General") { $fmt = $arriba.NumberFormat; break }
+        }
+        Poner $cel "NumberFormat" $fmt
+        Poner $cel "Value2" ([datetime]::ParseExact($x.fecha, "yyyy-MM-dd", $EN_US).ToOADate())
+    }
+    elseif ($x.formula) { Poner $cel "Formula" ($x.formula -replace '\{f\}', "$f") }
+    else { Poner $cel "Value2" ([string]$x.texto) }
+}
 function EstadoNube($ruta) {
     $sh = New-Object -ComObject Shell.Application
     return $sh.Namespace((Split-Path -Parent $ruta)).ParseName((Split-Path -Leaf $ruta)).ExtendedProperty("System.StorageProviderState")
@@ -58,15 +94,7 @@ try {
     $fin = $ws.UsedRange.Row + $ws.UsedRange.Rows.Count - 1
 
     if ($Quitar) {
-        $cols = @($D.buscar.PSObject.Properties.Name)
-        $hallado = @()
-        for ($r = 1; $r -le $fin; $r++) {
-            $ok = $true
-            foreach ($c in $cols) { if ((Txt $ws.Range("$c$r").Value2) -ne (Txt $D.buscar.$c)) { $ok = $false; break } }
-            if ($ok) { $hallado += $r }
-        }
-        if ($hallado.Count -ne 1) { throw ("coinciden {0} filas ({1}): no borro nada" -f $hallado.Count, ($hallado -join ", ")) }
-        $f = $hallado[0]
+        $f = UnaFila $ws $fin $D.buscar
         $arriba = ($ws.Range("A$($f - 1):M$($f - 1)").Value2 | ForEach-Object { Txt $_ }) -join "|"
         $abajo = ($ws.Range("A$($f + 1):M$($f + 1)").Value2 | ForEach-Object { Txt $_ }) -join "|"
         Write-Output ("fila {0}: [{1}]" -f $f, (($ws.Range("A${f}:M$f").Value2 | ForEach-Object { Txt $_ }) -join " | "))
@@ -75,6 +103,15 @@ try {
         if ((($ws.Range("A$($f - 1):M$($f - 1)").Value2 | ForEach-Object { Txt $_ }) -join "|") -ne $arriba) { throw "cambio la fila de arriba: no guardo" }
         if ((($ws.Range("A${f}:M$f").Value2 | ForEach-Object { Txt $_ }) -join "|") -ne $abajo) { throw "la fila de abajo no subio como se esperaba: no guardo" }
         Write-Output ("BORRADA la fila {0}; arriba igual, lo de abajo subio una fila" -f $f)
+    }
+    elseif ($Actualizar) {
+        $f = UnaFila $ws $fin $D.buscar
+        $cols = @($D.celdas.PSObject.Properties.Name)
+        $antes = @{}
+        foreach ($c in $cols) { $antes[$c] = $ws.Range("$c$f").Text }
+        foreach ($c in $cols) { Escribir $ws $c $f $D.celdas.$c }
+        $excel.Calculate()
+        foreach ($c in $cols) { Write-Output ("{0}{1}: [{2}] -> [{3}]" -f $c, $f, $antes[$c], $ws.Range("$c$f").Text) }
     }
     else {
         $ult = 0
@@ -92,23 +129,7 @@ try {
             $cel = $ws.Range("$c$f")
             if ($cel.HasFormula -or ($cel.Value2 -ne $null -and "$($cel.Value2)".Trim() -ne "")) { throw "la fila $f ya tiene algo en $c$f : no escribo" }
         }
-        foreach ($c in $cols) {
-            $x = $D.celdas.$c
-            $cel = $ws.Range("$c$f")
-            if ($x.formato) { Poner $cel "NumberFormat" $x.formato }
-            if ($x.fecha) {
-                # el formato de la ultima fecha de esa columna (la celda de arriba puede estar vacia y en General)
-                $fmt = "dd/mm/yyyy"
-                for ($r = $f - 1; $r -ge [math]::Max(1, $f - 60); $r--) {
-                    $arriba = $ws.Range("$c$r")
-                    if ($arriba.Value2 -is [double] -and $arriba.NumberFormat -ne "General") { $fmt = $arriba.NumberFormat; break }
-                }
-                Poner $cel "NumberFormat" $fmt
-                Poner $cel "Value2" ([datetime]::ParseExact($x.fecha, "yyyy-MM-dd", $EN_US).ToOADate())
-            }
-            elseif ($x.formula) { Poner $cel "Formula" ($x.formula -replace '\{f\}', "$f") }
-            else { Poner $cel "Value2" ([string]$x.texto) }
-        }
+        foreach ($c in $cols) { Escribir $ws $c $f $D.celdas.$c }
         $excel.Calculate()
         foreach ($c in $cols) { Write-Output ("{0}{1} = [{2}]" -f $c, $f, $ws.Range("$c$f").Text) }
     }

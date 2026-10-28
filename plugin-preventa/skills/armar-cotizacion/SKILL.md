@@ -574,7 +574,10 @@ al asesor en la vista previa (R25): la corrida sin `-Guardar` es para
 confirmar que lo que se va a escribir es eso; si difiere (otra fila, otro
 monto), se para y se pregunta. Con `-Quitar` borra la fila de una cotización de prueba o
 anulada, buscándola por contenido (cliente + número de oferta), y solo si
-coincide una sola fila. Encabezados medidos ese día: `Control de
+coincide una sola fila. Con `-Actualizar` corrige la fila ya registrada de
+una cotización que cambió (descripción, monto), con la misma búsqueda; no
+se agrega una fila nueva por la misma oferta. El número de oferta solo no
+alcanza: cada cliente lleva su consecutivo. Encabezados medidos ese día: `Control de
 cotizaciones 2026` en la **fila 2** (A Fecha solicitud · C Empleado, con
 la inicial: `A`/`K` · D Cliente · E Descripción · G Fecha de la oferta ·
 I Número · J Monto sin IVA, como texto con `$` · K `=+NETWORKDAYS(A<f>,$K$1)`
