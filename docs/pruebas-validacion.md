@@ -2300,3 +2300,24 @@ vacía en medio de la tabla sí se sigue marcando). Con eso: **el
 catálogo está sano**; el chequeo 3 tiene 6 filas corregidas a mano a
 propósito (la nueva es el detector de haz, que el clasificador manda a
 "accesorio").
+
+## La vista previa de montos (2026-10-28, regla R25)
+
+Fabián pidió que, antes de crear nada, el asesor vea la tabla de montos y
+la acepte o la rechace. La arma `armar-cotizacion/scripts/vista_previa_montos.py`
+leyendo lo que Excel calculó en el borrador; no calcula nada por su cuenta.
+
+### Cómo se comprobó
+
+Contra dos matrices reales ya entregadas, armadas antes de que existiera
+el script:
+
+| Caso | Qué tiene | Resultado |
+|---|---|---|
+| Cámaras + OPEX GV (7 líneas de OPEX) | 4 líneas de equipo y la línea de instalación | Precios unitarios, subtotal, impuesto y total iguales al centavo a los que leyó `llenar_matriz.ps1` al crearla; K74 = subtotal; 0 errores; costo de OPEX igual a la suma a mano |
+| Solo equipo | `OPEX GV` y `MATERIALES` en cero | Las dos pestañas vacías no aparecen; subtotal y total iguales a los registrados en el control |
+
+Dos detalles que aparecieron al probarlo: la etiqueta `Total FOB` está en
+la columna E en `Equipos` y en la D en las otras pestañas, y con
+`python -I` se ignora `PYTHONIOENCODING`, así que el script fija UTF-8
+en la salida (si no, las tildes de las descripciones salen rotas).

@@ -1,6 +1,6 @@
 ---
 name: seguimiento-correo
-description: Redacta un borrador de correo de seguimiento a un cliente sobre una cotización (etapas reales del proceso — Pendiente, Enviada, Entregada, En espera, Descartada), en tono formal, sin mencionar número de oferta ni monto (esos datos van solo en el PDF adjunto). NUNCA envía el correo, solo redacta el texto para que el asesor lo revise, adjunte el PDF y lo envíe a mano. Usar cuando el usuario pide redactar, escribir o dar seguimiento por correo a un cliente sobre una cotización.
+description: Redacta un borrador de correo de seguimiento a un cliente sobre una cotización (etapas reales del proceso — Pendiente, Enviada, Entregada, En espera, Descartada), en tono formal, sin mencionar número de oferta ni monto (esos datos van solo en el PDF adjunto). NUNCA envía el correo, solo redacta el texto para que el asesor lo revise, adjunte el PDF y lo envíe a mano. Usar cuando el usuario pide redactar, escribir o dar seguimiento por correo a un cliente sobre una cotización, y siempre al terminar una cotización nueva, después del PDF (vista previa del correo de envío).
 ---
 
 # Seguimiento por correo
@@ -21,7 +21,13 @@ Enviada, Entregada, En espera, Descartada** — corresponden a la columna
 "Estado" de `Control de cotizaciones 2026.xlsx` (ver `verificar-entorno`
 paso 4).
 
-**No asumas que cada cambio de estado implica mandar un correo.** Según
+**La excepción: al terminar una cotización nueva** (regla R25, desde el
+2026-10-28). Ahí no se pregunta: después del PDF va siempre la vista
+previa del correo de envío, con el modelo "Cotización lista" de abajo. Es
+parte de la entrega (`nueva-cotizacion`, paso 8).
+
+**Fuera de ese caso, no asumas que cada cambio de estado implica mandar
+un correo.** Según
 el propio asesor, el campo "Estado" es sobre todo informativo para el
 seguimiento interno de la empresa, no necesariamente un disparador
 automático de correo. **Preguntale siempre** para qué situación
@@ -65,7 +71,21 @@ inventa** un nombre, una fecha o un compromiso.
 
 ### Cotización lista, se envía por primera vez ("Enviada")
 
+Es el que va al final de cada cotización nueva (R25). Cómo se completa:
+
+- **Para:** el correo del contacto, si vino en el pedido o está en la
+  pestaña `Clientes` del catálogo (columna `Correo`). Si no, queda
+  `[correo de <contacto>]` y se dice en el resumen que falta.
+- **Saludo:** con el nombre del contacto del encabezado de la cotización
+  (`Atención:`).
+- **La descripción:** qué se cotiza en una frase (cantidad y tipo de
+  equipo, el sitio, si incluye instalación, cableado o tubería), sin
+  montos ni número de oferta.
+- **Firma:** la misma de la cotización, la de `B88`/`B92` de la matriz:
+  nombre del asesor de preventa, su departamento, teléfono y correo.
+
 ```
+Para: [correo del contacto]
 Asunto: Cotización — [nombre del proyecto]
 
 Estimado(a) [nombre del contacto]:

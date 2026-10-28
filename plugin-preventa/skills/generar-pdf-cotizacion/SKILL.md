@@ -1,6 +1,6 @@
 ---
 name: generar-pdf-cotizacion
-description: Genera el PDF que se le manda al cliente, exportando SOLO la pestaña de cotización de la matriz (la de contado o la financiada), después de verificar que no haya errores, que el impuesto sea el del cliente y que el total cuadre, y de confirmar con el asesor el nombre y la ruta del archivo. Usar cuando el asesor dice que la cotización está lista/terminada y hay que generar el PDF para enviarla.
+description: Genera el PDF que se le manda al cliente, exportando SOLO la pestaña de cotización de la matriz (la de contado o la financiada), después de verificar que no haya errores, que el impuesto sea el del cliente y que el total cuadre, y de confirmar con el asesor el nombre del archivo; el PDF queda siempre en la misma carpeta que la matriz (Matriz-Oferta), se le muestra al asesor en el chat y se sigue con la vista previa del correo para enviarlo. Usar cuando el asesor dice que la cotización está lista/terminada y hay que generar el PDF para enviarla.
 ---
 
 # Generar PDF de cotización
@@ -53,8 +53,12 @@ los montos en guión: no lo generes sin que lo pidan.
 
 ### 3. Proponer nombre y ruta, y esperar confirmación
 
-Por defecto, igual que los PDF reales que ya envió el equipo
-(`T4-0000010-26 Equipos Edwards.pdf`):
+**El PDF va siempre en la misma carpeta que la matriz**, `Matriz-Oferta/`
+(Fabián, 2026-10-28: *"el PDF debe ir en la misma carpeta de la
+matriz"*). Nunca en otra carpeta, en Descargas o en un temporal, y nunca
+solo mostrado en el chat: el chat es para revisarlo, la carpeta es donde
+el equipo lo busca. El nombre, igual que los PDF reales que ya envió el
+equipo (`T4-0000010-26 Equipos Edwards.pdf`):
 
 ```
 <carpeta de la cotización>\Matriz-Oferta\<número de oferta> <descripción corta>.pdf
@@ -63,6 +67,8 @@ Por defecto, igual que los PDF reales que ya envió el equipo
 Si ya existe un PDF con ese nombre, **preguntá**: reemplazarlo, o
 guardarlo con ` V2` al final, igual que se versiona la matriz. Mostrá la
 ruta completa y esperá el sí: **es el documento que sale de la empresa.**
+En una cotización nueva ese sí es el de la vista previa de montos (R25),
+que ya mostraba el nombre del PDF: no se vuelve a preguntar.
 
 ⚠️ **Medí la ruta antes de proponerla: máximo 259 caracteres**, como la
 matriz (Windows y Excel no abren una ruta más larga). La carpeta de la
@@ -118,17 +124,25 @@ matriz no se toca.
 El código está en el script, que abre la matriz en solo lectura; la
 financiada se busca con `'^COTIZACI.N \(Financ'`.
 
-### 5. Confirmar el resultado
+### 5. Mostrar el resultado y el correo (R25)
 
-Decile al asesor la ruta del PDF y cuántas páginas tiene, y recordale
-revisarlo antes de enviarlo. Si va a mandarlo por correo,
-[`seguimiento-correo`](../seguimiento-correo/SKILL.md) redacta el texto;
-el PDF se adjunta a mano.
+1. **Miralo vos primero** (por ejemplo, las páginas como imagen): líneas
+   y totales juntos, firma completa, sin corchetes.
+2. **Mostrale el PDF al asesor en el chat**, que lo pueda abrir y revisar
+   ahí mismo, con la ruta en `Matriz-Oferta/` y cuántas páginas tiene. No
+   basta con decir dónde quedó.
+3. **Seguí con la vista previa del correo** para enviarlo:
+   [`seguimiento-correo`](../seguimiento-correo/SKILL.md), modelo de
+   cotización lista. Es parte de la entrega, no un extra que hay que
+   pedir. El PDF se adjunta a mano y el correo lo manda una persona.
 
 ## Lo que este skill no hace nunca
 
 - **Mandar la matriz**, ni completa ni una pestaña que no sea la de
   cotización.
 - **Guardar la matriz** después de ocultar filas.
-- **Generar el PDF sin que el asesor confirme** nombre y ruta.
+- **Generar el PDF sin que el asesor confirme** nombre y ruta (en una
+  cotización nueva, la vista previa aceptada de R25 es esa confirmación).
+- **Dejar el PDF fuera de la carpeta de la matriz**, o entregarlo solo en
+  el chat.
 - **Enviar el PDF.** Lo genera; el envío lo hace una persona.

@@ -1,6 +1,6 @@
 ---
 name: nueva-cotizacion
-description: Punto de entrada único para atender de punta a punta un pedido de cotización descrito en lenguaje natural (ej. "necesito un proyecto para el cliente X, al menos 15 cámaras, presupuesto de ₡5 millones, la mejor calidad posible") — analiza qué datos ya vinieron en el pedido, pregunta SOLO lo que falte y sea necesario (nunca inventa ni omite), y orquesta en el orden correcto `buscar-equipo` (encontrar marca/modelo real que cumpla) y `armar-cotizacion` (carpeta, matriz, pestaña Equipos, registro en los dos Excels de control) sin que el asesor tenga que invocar cada skill por separado. Usar cuando el usuario describe una necesidad de cliente/proyecto nueva de forma libre y espera que se arme la cotización completa, cuando pide "arma la cotización de punta a punta", o cuando no está seguro de por dónde empezar. Para pasos sueltos (solo buscar equipo, solo organizar una carpeta ya con el equipo decidido) seguí usando `buscar-equipo` o `armar-cotizacion` directo.
+description: Punto de entrada único para atender de punta a punta un pedido de cotización descrito en lenguaje natural (ej. "necesito un proyecto para el cliente X, al menos 15 cámaras, presupuesto de ₡5 millones, la mejor calidad posible") — analiza qué datos ya vinieron en el pedido, pregunta SOLO lo que falte y sea necesario (nunca inventa ni omite), y orquesta en el orden correcto `buscar-equipo` (encontrar marca/modelo real que cumpla), una vista previa con la tabla de montos que el asesor acepta o rechaza antes de crear nada, y con el sí `armar-cotizacion` (carpeta, matriz, registro en los dos Excels de control), `generar-pdf-cotizacion` (PDF en la carpeta de la matriz, mostrado en el chat) y `seguimiento-correo` (vista previa del correo para enviarlo), sin que el asesor tenga que invocar cada skill por separado. Usar cuando el usuario describe una necesidad de cliente/proyecto nueva de forma libre y espera que se arme la cotización completa, cuando pide "arma la cotización de punta a punta", o cuando no está seguro de por dónde empezar. Para pasos sueltos (solo buscar equipo, solo organizar una carpeta ya con el equipo decidido) seguí usando `buscar-equipo` o `armar-cotizacion` directo.
 ---
 
 # Nueva cotización (orquestador de punta a punta)
@@ -309,30 +309,80 @@ búsqueda de equipo todavía podía cambiar todo):
   escribiendo en el chat.
 - Fecha límite de entrega de la oferta, si el cliente dio una.
 
-## Paso 6 — Armar la cotización
+## Paso 6 — Vista previa de montos: el asesor acepta o rechaza (R25)
 
-Con todo reunido, seguí el proceso completo de
-[`armar-cotizacion`](../armar-cotizacion/SKILL.md) tal cual está
-documentado ahí, sin saltar ningún paso: cálculo/confirmación de
-numeración de carpeta y de oferta, copia del machote, llenado de la
-pestaña `Equipos` con lo confirmado en el Paso 4, y registro en los dos
-Excels de control (`Control de cotizaciones 2026.xlsx` y `Cotizaciones en
-Preventa.xlsx`).
+Antes de crear nada, el asesor ve los números (Fabián, 2026-10-28: *"nos
+das la tabla de montos acá a razón preview para aceptar o rechazar"*).
+
+1. Calculá todo lo que `armar-cotizacion` pide decidir: número de
+   cotización y carpeta, número de oferta, nombre de la matriz y del PDF
+   (con el largo de la ruta medido) y las filas de los dos Excels de
+   control.
+2. Llená la matriz como **borrador fuera de `CLIENTES`**:
+   `llenar_matriz.ps1` con `-Destino "%TEMP%\preventa-borrador\Matriz
+   <Cliente> <DD-MM-AAAA>.xlsx"` (si ya existe un borrador de antes,
+   borralo: es un temporal).
+3. Corré
+   [`vista_previa_montos.py`](../armar-cotizacion/scripts/vista_previa_montos.py)
+   sobre ese borrador y mostrá lo que imprime, **tal cual, en el chat**:
+   lo que ve el cliente (líneas, subtotal, impuesto con su tasa, total),
+   el costo interno por pestaña y los controles. Los montos salen de
+   Excel; no los recalcules a mano.
+4. Debajo, en el mismo mensaje, lo que se va a crear: ruta de la carpeta,
+   número de oferta, nombre de la matriz y del PDF (los dos en
+   `Matriz-Oferta/`), y la fila de cada Excel de control con el subtotal.
+   Avisá lo que el asesor tiene que saber para decidir: descuentos no
+   confirmados, precios viejos, modelos corregidos del pedido, datos que
+   quedan en blanco.
+5. Preguntá una sola cosa: **¿aceptás o rechazás?**
+
+**Antes del sí no se escribe nada en `CLIENTES` ni en los Excels de
+control.** Si rechaza, cambiá lo que diga, armá un borrador nuevo y volvé
+a mostrar la tabla. Si acepta, ese sí confirma todo lo que mostraba la
+vista previa: carpeta, oferta, nombres y filas. No lo vuelvas a preguntar
+paso por paso.
+
+## Paso 7 — Con el sí, crear todo de corrido
+
+Seguí [`armar-cotizacion`](../armar-cotizacion/SKILL.md) y
+[`generar-pdf-cotizacion`](../generar-pdf-cotizacion/SKILL.md), sin
+volver a preguntar lo que ya se aceptó:
+
+1. La carpeta `Cotización #N-AAAA <descripción>/` con sus subcarpetas.
+2. La matriz: **el borrador aceptado, copiado tal cual** a
+   `Matriz-Oferta/`. No se vuelve a llenar: lo que se entrega es lo que
+   el asesor vio.
+3. Las dos filas de control (`registrar_control.ps1`: primero sin
+   `-Guardar`, para confirmar que la fila es la que se mostró, y después
+   con `-Guardar`).
+4. El PDF, **en la misma carpeta que la matriz** (`Matriz-Oferta/`),
+   nunca en otra ni solo en el chat.
+5. Que OneDrive haya subido todo (estado 2). Si un Excel de control se
+   queda subiendo, ver `armar-cotizacion`.
 
 Si en cualquier momento falla un acceso (carpeta compartida, Excels de
 control), corré [`verificar-entorno`](../verificar-entorno/SKILL.md) y
 explicá al asesor qué falta antes de seguir — es especialmente probable
 que esto pase la primera vez que alguien nuevo del equipo usa el plugin.
 
-## Paso 7 — Resumen final
+## Paso 8 — Entregar: el PDF a la vista y el correo para enviar
 
-Mostrá un resumen claro de todo lo que se hizo: carpeta creada (ruta
-completa), número de cotización y de oferta usados, equipo cargado en la
-matriz, y en qué filas quedó registrado en cada uno de los dos Excels de
-control. Aclará explícitamente cualquier cosa que haya quedado pendiente
-de confirmar (precio no actualizado, accesorio sin match exacto, brecha
-de presupuesto, etc.) — nunca cierres el resumen dando algo por resuelto
-que en realidad quedó a medias.
+La cotización no termina en "lo creé": termina cuando el asesor tiene en
+la mano lo que va a mandar.
+
+1. **El PDF a la vista en el chat** (que lo pueda abrir y revisar ahí
+   mismo), con su ruta en `Matriz-Oferta/` y cuántas páginas tiene. Antes,
+   miralo vos: líneas y totales juntos, firma completa.
+2. **La vista previa del correo** para enviarlo, con el modelo de
+   cotización lista de
+   [`seguimiento-correo`](../seguimiento-correo/SKILL.md): para, asunto,
+   cuerpo y firma. Nunca se envía; el asesor lo manda con el PDF adjunto.
+3. **El resumen:** carpeta (ruta completa), número de oferta, totales, en
+   qué fila quedó cada Excel de control y el estado de OneDrive. Aclará
+   explícitamente lo que haya quedado pendiente de confirmar (precio no
+   actualizado, accesorio sin match exacto, brecha de presupuesto, correo
+   del contacto que no se sabe, etc.) — nunca cierres el resumen dando
+   algo por resuelto que en realidad quedó a medias.
 
 ## Caso: cambio de marca o versión sobre una cotización existente
 
@@ -340,10 +390,10 @@ Si el pedido no es un cliente nuevo sino "recotizar esto que ya existe
 con otra marca" o "hacele una versión nueva a esta cotización", el Paso 1
 de acá sigue aplicando para detectar qué cambió (cantidad, spec, marca
 nueva), pero el Paso 3 usa el flujo de "cambio de marca" de
-`buscar-equipo` y el Paso 6 usa el "Caso 2" de `armar-cotizacion`
+`buscar-equipo` y el Paso 7 usa el "Caso 2" de `armar-cotizacion`
 (versionado) en vez del "Caso 1" — el resto de la orquestación (preguntar
-lo que falte, confirmar antes de escribir, registrar en los dos Excels)
-es igual.
+lo que falte, la vista previa de montos antes de escribir, registrar en
+los dos Excels, entregar el PDF y el correo) es igual.
 
 ## Estado
 

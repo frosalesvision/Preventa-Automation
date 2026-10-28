@@ -1,6 +1,6 @@
 ---
 name: armar-cotizacion
-description: Organiza los archivos y carpetas de una cotización de preventa dentro de la carpeta compartida del cliente (crear la carpeta "Cotización #N-AAAA <descripción>" con sus subcarpetas estándar, copiar el machote de matriz oficial, proponer numeración de carpeta y número de oferta, manejar versionado de nombres de archivo), y llenar la pestaña Equipos de esa matriz con el equipo/accesorios que se hayan encontrado (ej. vía `buscar-equipo`) — modelo, descripción, cantidad y costo unitario; las fórmulas de margen/precio de venta del machote calculan el resto solas, nunca se tocan a mano ni se inventan. También registra la cotización en los dos Excels de control compartidos ("Control de cotizaciones 2026.xlsx" y "Cotizaciones en Preventa.xlsx") cuando están sincronizados localmente. Usar cuando el usuario pide crear/organizar la carpeta de una cotización nueva, agregar una versión a una cotización existente, pide el siguiente número de "Cotización #N" u oferta para un cliente, pide cargar el equipo ya encontrado a la matriz, o pide registrar/anotar la cotización en el control de ofertas.
+description: Organiza los archivos y carpetas de una cotización de preventa dentro de la carpeta compartida del cliente (crear la carpeta "Cotización #N-AAAA <descripción>" con sus subcarpetas estándar, copiar el machote de matriz oficial, proponer numeración de carpeta y número de oferta, manejar versionado de nombres de archivo), y llenar la pestaña Equipos de esa matriz con el equipo/accesorios que se hayan encontrado (ej. vía `buscar-equipo`) — modelo, descripción, cantidad y costo unitario; las fórmulas de margen/precio de venta del machote calculan el resto solas, nunca se tocan a mano ni se inventan. En una cotización nueva la matriz se llena primero como borrador fuera de CLIENTES y se muestra la tabla de montos para que el asesor la acepte o la rechace; con el sí se crea la carpeta y se copia el borrador. También registra la cotización en los dos Excels de control compartidos ("Control de cotizaciones 2026.xlsx" y "Cotizaciones en Preventa.xlsx") cuando están sincronizados localmente. Usar cuando el usuario pide crear/organizar la carpeta de una cotización nueva, agregar una versión a una cotización existente, pide el siguiente número de "Cotización #N" u oferta para un cliente, pide cargar el equipo ya encontrado a la matriz, o pide registrar/anotar la cotización en el control de ofertas.
 ---
 
 # Armar cotización
@@ -53,6 +53,21 @@ Ver [`docs/notas-proceso.md`](../../../docs/notas-proceso.md) para la
 estructura de carpetas confirmada y las reglas de numeración/versionado.
 
 ## Caso 1: cotización nueva
+
+⚠️ **El orden, desde el 2026-10-28 (regla R25 de
+[`docs/reglas-negocio.md`](../../../docs/reglas-negocio.md)):** primero
+se **calcula** todo (pasos 1 a 4 y 6) y la matriz se llena como
+**borrador fuera de `CLIENTES`** (paso 7, en `%TEMP%\preventa-borrador\`).
+Con [`scripts/vista_previa_montos.py`](scripts/vista_previa_montos.py)
+se le muestra al asesor la tabla de montos, y junto a ella la carpeta, el
+número de oferta, los nombres de la matriz y del PDF y las filas de
+control. **Esa vista previa es la confirmación que piden los pasos de
+abajo**: con un solo sí se crea la carpeta (paso 5), se copia el borrador
+tal cual a `Matriz-Oferta/`, se registra en los dos Excels de control, se
+genera el PDF en esa misma carpeta (`generar-pdf-cotizacion`) y se
+entregan el PDF a la vista y el borrador del correo
+(`seguimiento-correo`). Si la rechaza, se corrige el borrador y se vuelve
+a mostrar. El flujo completo está en `nueva-cotizacion`, pasos 6 a 8.
 
 1. **Ubicar al cliente.** Buscá la carpeta `CLIENTES/<Cliente>/`. Si no
    existe (cliente nuevo), confirmá el nombre exacto con el asesor antes
@@ -399,7 +414,15 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
 
    **Para escribir:** [`scripts/llenar_matriz.ps1`](scripts/llenar_matriz.ps1)
    copia el machote y escribe las celdas de un JSON (`Equipos`, `Datos
-   del proyecto`, el encabezado de `COTIZACIÓN `), por Excel.
+   del proyecto`, el encabezado de `COTIZACIÓN `), por Excel. **Primero
+   con `-Destino` en `%TEMP%\preventa-borrador\`** (R25): sobre ese
+   borrador corre
+   [`scripts/vista_previa_montos.py`](scripts/vista_previa_montos.py)
+   (`python -I`), que imprime en Markdown lo que ve el cliente, el costo
+   interno por pestaña y los controles (K74 = subtotal, celdas con error;
+   sale con código 1 si algo falla). Con el sí del asesor, el borrador se
+   **copia** a `Matriz-Oferta/` con su nombre final: no se vuelve a
+   llenar, para que lo entregado sea exactamente lo que se aceptó.
 
    ⚠️ **La firma de `COTIZACIÓN ` también va en el JSON** (2026-10-27,
    primer PDF de una cotización real): `B88` con el nombre completo del asesor de
@@ -546,8 +569,10 @@ la última con datos, con las columnas en un JSON: no corre sin OneDrive
 sincronizado, saca respaldo, apaga el Autoguardado, no escribe sobre una
 celda con algo, y relee `.Text` de cada celda (así se vio que una fecha
 quedaba como `46322` si la celda de arriba no tenía formato de fecha).
-Primero sin `-Guardar`, se le muestra la fila al asesor, y después con
-`-Guardar`. Con `-Quitar` borra la fila de una cotización de prueba o
+Primero sin `-Guardar` y después con `-Guardar`. La fila ya se le mostró
+al asesor en la vista previa (R25): la corrida sin `-Guardar` es para
+confirmar que lo que se va a escribir es eso; si difiere (otra fila, otro
+monto), se para y se pregunta. Con `-Quitar` borra la fila de una cotización de prueba o
 anulada, buscándola por contenido (cliente + número de oferta), y solo si
 coincide una sola fila. Encabezados medidos ese día: `Control de
 cotizaciones 2026` en la **fila 2** (A Fecha solicitud · C Empleado, con

@@ -19,7 +19,7 @@
 
 ## Índice: todas las reglas de un vistazo
 
-Actualizado el 2026-10-15. **De dónde sale** dice si la regla la dijo
+Actualizado el 2026-10-28. **De dónde sale** dice si la regla la dijo
 preventa, si sale de medir las cotizaciones reales, o si la decidió
 Fabián. **Las que salen de medir se aplican tal cual se midieron**
 (decisión de Fabián, 2026-10-12: *"si las reglas salieron de medir las
@@ -52,6 +52,8 @@ ya no esperan aprobación de preventa.
 | R21 | Productos pequeños: si el catálogo no tiene uno que cumpla o su precio pasa de 2 meses, se buscan opciones en tiendas de Costa Rica y elige quien cotiza | preventa y Fabián (2026-10-15); medido sobre el catálogo | vigente |
 | R22 | Si el producto exacto es importado, se le dice al asesor y elige importado o del país; si en el país no está el mismo, se le recomiendan similares del país | Fabián (2026-10-19) | vigente |
 | R23 | Un precio cerrado al cliente no va redondo ($29,25, no $30); y la cotización que ve el cliente, sin renglones en blanco | preventa (2026-10-19), primer caso real | vigente |
+| R24 | Avigilon: no hay lista; el precio lo da el distribuidor por proyecto y es el costo tal cual | Fabián (2026-10-28) | vigente |
+| R25 | Orden de una cotización: tabla de montos para aceptar o rechazar; con el sí se crea todo (carpeta, matriz, control, PDF en la carpeta de la matriz) y se entrega el PDF a la vista y el borrador del correo | Fabián (2026-10-28), después de una cotización real | vigente |
 
 Lo que quedaba abierto con preventa y contabilidad, y cómo lo cerró
 Fabián, está en [`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
@@ -1934,6 +1936,75 @@ primer caso real armado con el plugin, que ya se había enviado:
    `COTIZACIÓN ` y `COTIZACION (Financ)` se ocultan. Un aviso fuera del
    área de impresión avisa si una fila oculta tiene monto. Lo hace
    `ajustar_vista.ps1` (`armar-cotizacion`).
+
+---
+
+## R24 — Avigilon: el precio se pide por proyecto
+
+**Estado: vigente desde el 2026-10-28.** Lo dijo Fabián al probar el
+plugin con un pliego real de un cliente que ya usa Avigilon:
+
+> *"para esta marca los precios nos lo dan por proyecto. Aún no se tienen
+> listas generales de avigilon. Es decir cuando se ocupa un precio se
+> solicita el precio y ahí nos aplican un descuento X para X proyecto"*
+
+1. **No hay lista ni MSRP de Avigilon** en el catálogo. El precio lo da
+   el distribuidor para ese proyecto, ya con el descuento que le aplica.
+2. **Ese precio es el costo, tal cual.** No se le aplica otro descuento,
+   a diferencia de Hanwha (50% sobre MSRP).
+3. **Sin cotización del distribuidor no hay precio:** se pide, no se
+   estima.
+4. **FOB Miami o entrega local lo elige el asesor** (R22). FOB va con
+   `IMPORTADO = si`. Local va con `no`, y el cargo de logística del
+   distribuidor se reparte en las líneas o va como línea aparte.
+5. **Mirar la vigencia:** la del primer caso era de 20 días desde la
+   fecha de emisión.
+
+---
+
+## R25 — El orden de una cotización: vista previa de montos, aceptar, y recién ahí se crea todo
+
+**Estado: vigente desde el 2026-10-28.** Lo pidió Fabián después de una
+cotización real que se armó de punta a punta sin mostrar los montos antes,
+y que terminó sin el PDF a la vista ni el borrador del correo:
+
+> *"una vez analizas todo, nos das la tabla de montos acá a razón preview
+> para aceptar o rechazar, una vez aceptamos la tabla creas todo el flujo,
+> agregar al Excel, y creas la matriz, generas el PDF y nos das el preview
+> del correo para enviar"*
+>
+> *"el PDF debe ir en la misma carpeta de la matriz"*
+
+1. **Analizar.** Se lee el pedido y se pregunta solo lo que falte
+   (`nueva-cotizacion`, pasos 1 a 5).
+2. **Vista previa de montos.** La matriz se llena como **borrador fuera de
+   `CLIENTES`** (`%TEMP%\preventa-borrador\`, con `llenar_matriz.ps1`), y
+   `vista_previa_montos.py` arma la tabla con lo que calculó Excel: lo que
+   ve el cliente (líneas, subtotal, impuesto con su tasa, total), el costo
+   interno por pestaña y los controles (K74 igual al subtotal, cero
+   errores). Debajo va lo que se va a crear: carpeta, número de oferta,
+   nombre de la matriz y del PDF, y la fila de cada Excel de control.
+   **Antes del sí no se escribe nada en `CLIENTES` ni en los Excels de
+   control.**
+3. **Aceptar o rechazar.** El sí vale para todo lo que mostraba la vista
+   previa: no se vuelve a pedir confirmación paso por paso. Si la rechaza,
+   se cambia lo que diga el asesor, se arma un borrador nuevo y se muestra
+   la tabla otra vez.
+4. **Con el sí, todo de corrido:** la carpeta con sus subcarpetas; la
+   matriz, que es **el mismo borrador aceptado, copiado tal cual** (no se
+   vuelve a calcular); las dos filas de control, con el subtotal de la
+   tabla; el PDF, **en la misma carpeta que la matriz** (`Matriz-Oferta/`),
+   y la revisión de que OneDrive haya subido todo.
+5. **Entregar:** el PDF a la vista en el chat, con su ruta y cuántas
+   páginas tiene, y la **vista previa del correo** para enviarlo
+   (`seguimiento-correo`, modelo de cotización lista: para, asunto, cuerpo
+   y firma). El correo nunca se envía: lo manda una persona, con el PDF
+   adjunto.
+
+Por qué: una tabla se corrige en el chat sin costo; una fila de control ya
+sincronizada o un PDF ya generado no. Y la cotización no está terminada
+hasta que el asesor tiene en la mano lo que va a mandar: el PDF y el texto
+del correo.
 
 ---
 
