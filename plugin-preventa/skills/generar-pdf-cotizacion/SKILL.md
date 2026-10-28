@@ -5,10 +5,11 @@ description: Genera el PDF que se le manda al cliente, exportando SOLO la pesta�
 
 # Generar PDF de cotización
 
-**Estado: funcional.** Probado el 2026-09-25 sobre una copia del machote,
-con una línea de prueba: sale en 2 páginas —cotización y totales, después
-forma de pago y firma—, igual que los PDF reales que envía preventa, y la
-matriz queda intacta. **Falta usarlo con una cotización real.**
+**Estado: funcional, usado con una cotización real** (2026-10-27: 7
+líneas, 2 páginas, la matriz intacta). Antes, el 2026-09-25, se probó
+sobre una copia del machote con una línea: sale en 2 páginas
+—cotización y totales, después forma de pago y firma—, igual que los PDF
+reales que envía preventa.
 
 ## Qué se exporta, y qué nunca
 
@@ -44,6 +45,11 @@ los montos en guión: no lo generes sin que lo pidan.
 3. **Que el total cuadre** con lo registrado en los Excels de control. Al
    control va el **subtotal sin impuesto**; al cliente, el **total**. No
    son el mismo número.
+4. **Que no queden textos del machote entre corchetes.** La firma (`B88`
+   nombre del asesor, `B92` su correo) viene como `[Nombre del asesor
+   responsable]` y `[correo del asesor]`: se llena en la matriz
+   (`armar-cotizacion`), nunca solo en el PDF. El script no exporta si
+   queda alguno visible.
 
 ### 3. Proponer nombre y ruta, y esperar confirmación
 
@@ -58,7 +64,42 @@ Si ya existe un PDF con ese nombre, **preguntá**: reemplazarlo, o
 guardarlo con ` V2` al final, igual que se versiona la matriz. Mostrá la
 ruta completa y esperá el sí: **es el documento que sale de la empresa.**
 
+⚠️ **Medí la ruta antes de proponerla: máximo 259 caracteres**, como la
+matriz (Windows y Excel no abren una ruta más larga). La carpeta de la
+cotización ya trae la descripción larga, así que en el PDF va corta. El
+2026-10-27 la propuesta confirmada daba 263 y hubo que acortarla.
+
 ### 4. Exportar
+
+Con [`scripts/exportar_pdf.ps1`](scripts/exportar_pdf.ps1) (2026-10-27):
+
+```
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/exportar_pdf.ps1 -Matriz "<xlsx>" -Pdf "<pdf>" [-Financiada]
+```
+
+Hace lo de abajo y además se niega si hay celdas en error, corchetes sin
+llenar, una ruta de más de 259 o un PDF que ya existe. Al final dice
+cuántas páginas salieron, contadas en el PDF.
+
+⚠️ **Los totales nunca se parten, y la escala la calcula el script**
+(2026-10-27, dos cotizaciones reales):
+- Con "ajustar a 1 página de ancho", una cotización de 3 líneas dejó
+  subtotal e impuesto en la página 1 y el **TOTAL solo en la 2**.
+- En otra, Excel calculaba 2 páginas y el PDF salió en 3, la última con
+  solo el teléfono y el correo del pie. Excel mide con la impresora
+  activa (en esta máquina, una de AnyDesk) y el PDF usa otras medidas.
+
+Ahora el script mide las filas y elige:
+1. **Si las líneas y los totales entran en la página 1 al 80% o más:**
+   página 1 con encabezado, líneas y totales (salto manual después del
+   TOTAL), y página 2 con forma de pago y firma, como los PDF reales.
+2. **Si no:** las líneas siguen en la página 2 y el bloque de totales
+   nunca se separa (si el salto cae ahí, la última línea pasa con los
+   totales). Usa la escala más grande, entre 97% y 75%, que dé la menor
+   cantidad de páginas.
+
+Si el PDF igual sale con más páginas que las calculadas, baja la escala
+de a 3% y lo dice. **Mirá siempre el PDF antes de darlo por bueno.**
 
 Por Excel (COM), sobre la **hoja**. Nunca sobre el libro ni sobre las
 hojas seleccionadas: `SelectedSheets` no tiene ese método y falla.
@@ -74,42 +115,8 @@ cliente.
 ⚠️ **Y se cierra SIN guardar.** Ocultar filas es solo para el PDF; la
 matriz no se toca.
 
-```powershell
-$excel = New-Object -ComObject Excel.Application
-$excel.Visible = $false; $excel.DisplayAlerts = $false
-try {
-    $wb = $excel.Workbooks.Open($rutaMatriz)
-    $h = $null
-    foreach ($w in $wb.Worksheets) {
-        # contado: '^COTIZACI.N$'   financiada: '^COTIZACI.N \(Financ'
-        if ($w.Name.Trim() -match '^COTIZACI.N$') { $h = $w }
-    }
-    # el bloque de lineas va del encabezado "Cantidad" a la fila del SUBTOTAL
-    $primera = 0; $ultima = 0
-    for ($r = 1; $r -le 120; $r++) {
-        if ($primera -eq 0 -and ([string]$h.Cells.Item($r, 2).Value2).Trim() -eq "Cantidad") { $primera = $r + 1 }
-        if ($ultima -eq 0) {
-            for ($c = 1; $c -le 12; $c++) {
-                if (([string]$h.Cells.Item($r, $c).Value2).Trim() -eq "SUBTOTAL") { $ultima = $r - 1; break }
-            }
-        }
-    }
-    for ($r = $primera; $r -le $ultima; $r++) {
-        $q = $h.Cells.Item($r, 2).Value2
-        if (($q -is [double]) -and ($q -eq 0)) { $h.Rows.Item($r).Hidden = $true }
-    }
-    $h.PageSetup.Orientation    = 2        # horizontal
-    $h.PageSetup.Zoom           = $false
-    $h.PageSetup.FitToPagesWide = 1
-    $h.PageSetup.FitToPagesTall = $false
-    $h.ExportAsFixedFormat(0, $rutaPdf)
-    $wb.Close($false)                      # SIN guardar
-}
-finally {
-    $excel.Quit()
-    [System.Runtime.InteropServices.Marshal]::ReleaseComObject($excel) | Out-Null
-}
-```
+El código está en el script, que abre la matriz en solo lectura; la
+financiada se busca con `'^COTIZACI.N \(Financ'`.
 
 ### 5. Confirmar el resultado
 

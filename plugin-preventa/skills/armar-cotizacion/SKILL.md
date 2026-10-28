@@ -84,9 +84,13 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
 
    El cálculo, para ese cliente concreto:
 
-   1. Armá las dos rutas más profundas que va a tener la cotización: el
-      machote en `…/Matriz-Oferta/Matriz <Cliente> <DD-MM-AAAA>.xlsx` y
-      la carpeta `…/Implementacion/Documentación del proyecto`.
+   1. Armá las rutas más profundas que va a tener la cotización: el
+      machote en `…/Matriz-Oferta/Matriz <Cliente> <DD-MM-AAAA>.xlsx`,
+      la carpeta `…/Implementacion/Documentación del proyecto` y el PDF
+      `…/Matriz-Oferta/<número de oferta> <descripción corta>.pdf`. El PDF
+      es el que más se olvida: el 2026-10-27 la carpeta y la matriz cabían
+      (242) y el nombre de PDF propuesto llegaba a 263; se acortó la
+      descripción del PDF a tres palabras (248).
    2. Desde el 2026-10-19 la descripción aparece **una sola vez** (en la
       carpeta); el nombre del archivo lleva el del cliente, que también
       cuenta como fijo.
@@ -395,7 +399,16 @@ estructura de carpetas confirmada y las reglas de numeración/versionado.
 
    **Para escribir:** [`scripts/llenar_matriz.ps1`](scripts/llenar_matriz.ps1)
    copia el machote y escribe las celdas de un JSON (`Equipos`, `Datos
-   del proyecto`, el encabezado de `COTIZACIÓN `), por Excel. Se corre
+   del proyecto`, el encabezado de `COTIZACIÓN `), por Excel.
+
+   ⚠️ **La firma de `COTIZACIÓN ` también va en el JSON** (2026-10-27,
+   primer PDF de una cotización real): `B88` con el nombre completo del asesor de
+   preventa y `B92` con `E-mail: <su correo>`. El machote trae
+   `[Nombre del asesor responsable]` y `[correo del asesor]`, y así
+   saldrían en el PDF que ve el cliente. El dato sale de la última matriz
+   de ese asesor (preventa lo llena en las suyas) o se le pregunta; nunca
+   se inventa. `generar-pdf-cotizacion` no exporta si quedan corchetes.
+   Se corre
    con `powershell -NoProfile -ExecutionPolicy Bypass -File` (ver `verificar-entorno`,
    punto 5). No escribe
    en una celda con fórmula, recalcula, lee los totales y cuenta las
