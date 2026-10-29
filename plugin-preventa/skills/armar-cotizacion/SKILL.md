@@ -297,6 +297,17 @@ a mostrar. El flujo completo está en `nueva-cotizacion`, pasos 6 a 8.
 
      Al confirmar con el asesor, mostrá la conversión: *"₡35.000 ida y
      vuelta = $71,43 al tipo de cambio 490, 1 viaje"*.
+   - **La configuración del sistema** (R27, desde 2026-10-29) va aparte,
+     en el segundo bloque de `MANO DE OBRA ` ("MO"), fila 21: `C21` 8,9 y
+     `D21` 48, como la fila 5 (`D21` trae `=C21*8`: va con
+     `reemplaza_formula`), días `E21`, personas `F21`, alimentación `H21`,
+     combustible por día `I21`, hospedaje `J21`. En `OPEX GV` fila 14:
+     `A14` *"Configuración del sistema (N personas x N días)"*, `C14` 1 y
+     `D14` `=+'MANO DE OBRA '!G25+'MANO DE OBRA '!K25` (la fórmula se
+     escribe como valor y Excel la toma). Con configuración aparte,
+     `OPEX GV!A6` dice *"Mano de obra: instalación (…)"*. Así lo carga
+     Alessandro a mano. Probado: la #14 con 2 días × 2 personas y $5 da
+     el mismo subtotal que la suya, $11.095,61.
    - **Los materiales de la instalación** (cable, fibra, tubería, cajas,
      conectores) van en `MATERIALES`: descripción en `A`, `IMPORTADO` en
      `B` (**`no`** si se compra en el país: la plantilla trae `si`),
@@ -581,7 +592,14 @@ alcanza: cada cliente lleva su consecutivo. Con `-Guardar` termina corriendo
 [`scripts/verificar_onedrive.ps1`](scripts/verificar_onedrive.ps1) sobre el
 Excel (R26): sale con código 1 si no quedó en la nube. Ese mismo script se
 corre sobre la carpeta de la cotización después de copiar la matriz, y al
-cerrar sobre la carpeta y los dos Excels juntos. Encabezados medidos ese día: `Control de
+cerrar sobre la carpeta y los dos Excels juntos. ⚠️ **El encabezado de
+`Control de cotizaciones 2026` cambió el 2026-10-29** (lo reorganizó el
+equipo): fila 2 = A Fecha solicitud · B Importancia · C Empleado · D
+Cliente · E Descripción · F Fecha oficial de entrega · G Fecha de envío ·
+**H Número de oferta · I Monto sin IVA** · J Días de retraso · K
+Proveedor/Contratista · L Estado · M Asesor comercial · N Notas. Leé
+siempre el encabezado real antes de armar el JSON: las letras de abajo son
+las de antes. Encabezados medidos el 2026-10-27: `Control de
 cotizaciones 2026` en la **fila 2** (A Fecha solicitud · C Empleado, con
 la inicial: `A`/`K` · D Cliente · E Descripción · G Fecha de la oferta ·
 I Número · J Monto sin IVA, como texto con `$` · K `=+NETWORKDAYS(A<f>,$K$1)`
@@ -618,6 +636,16 @@ I Número · J Monto sin IVA, como texto con `$` · K `=+NETWORKDAYS(A<f>,$K$1)`
 
 ## Caso 2: nueva versión de una cotización existente
 
+0. **Primero la advertencia (R28).** Corré
+   [`scripts/huella.py`](scripts/huella.py)` revisar "<carpeta>"` y decile
+   al asesor qué archivo es, si lo creó el plugin, quién lo guardó por
+   última vez y qué querés cambiar. Proponé la V2 y que elija la base: la
+   versión de ahora, con los cambios de la persona (recomendada); la que
+   creó el plugin (historial de versiones de OneDrive); o el pedido
+   original. Ver el modelo de mensaje en `nueva-cotizacion`. Sin
+   respuesta no se toca nada, y **nunca se renombra, mueve ni borra** un
+   archivo ajeno o cambiado por una persona. Después de crear la V2,
+   `huella.py anotar` con sus archivos.
 1. **Preguntá siempre** si el cambio es "menor" o "grande" — nunca lo
    infieras. No hay regla fija hoy, es criterio del asesor.
 2. **Cambio menor:** dentro de la misma carpeta `Matriz-Oferta/`, se

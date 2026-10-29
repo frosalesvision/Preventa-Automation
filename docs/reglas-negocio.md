@@ -55,6 +55,8 @@ ya no esperan aprobación de preventa.
 | R24 | Avigilon: no hay lista; el precio lo da el distribuidor por proyecto y es el costo tal cual | Fabián (2026-10-28) | vigente |
 | R25 | Orden de una cotización: tabla de montos para aceptar o rechazar; con el sí se crea todo (carpeta, matriz, control, PDF en la carpeta de la matriz) y se entrega el PDF a la vista y el borrador del correo | Fabián (2026-10-28), después de una cotización real | vigente |
 | R26 | Nada está terminado hasta que OneDrive lo subió: `verificar_onedrive.ps1` después de cada escritura y en la entrega | Fabián (2026-10-28), después de revisar las cotizaciones reales | vigente |
+| R27 | Configuración del sistema: días, personas y combustible se preguntan aparte de la instalación, en cada cotización con mano de obra; van en el segundo bloque de `MANO DE OBRA` y en su propia línea de `OPEX GV` | Fabián (2026-10-29), por cómo las arma Alessandro | vigente |
+| R28 | Si una persona cambió algo, el plugin no lo toca: antes de cualquier cambio sobre algo que ya existe, avisa y propone una V2 | Preventa y Fabián (2026-10-29), después de tener que deshacer una corrección | vigente |
 
 Lo que quedaba abierto con preventa y contabilidad, y cómo lo cerró
 Fabián, está en [`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
@@ -2037,6 +2039,104 @@ Por qué: un archivo que quedó solo en esta PC no lo ve nadie del equipo, y
 un Excel de control trabado en "falta subir" se pisa con la versión de otra
 persona. En la revisión del 2026-10-28 aparecieron PDFs con rutas de más
 de 259 caracteres que esta PC no podía ni descargar.
+
+---
+
+## R27 — La configuración del sistema se pregunta aparte de la instalación
+
+**Estado: vigente desde el 2026-10-29.** Fabián aprobó agregarla después
+de ver cómo trabaja preventa. El 2026-10-28 Alessandro abrió 7 de las 8
+cotizaciones Hilton que armó el plugin (#7, #8 y #10 a #14) y a cada una
+le agregó una línea de configuración que el pedido de ventas no traía. La
+#9 quedó sin configuración.
+
+1. **Se pregunta en cada cotización con mano de obra**, junto con la
+   instalación: **cuántos días de configuración, cuántas personas y
+   cuánto de combustible por día**. La alimentación y el hospedaje van en
+   cero salvo que el asesor diga otra cosa, y así se muestra en la tabla
+   de montos. Si contesta que no lleva configuración, se deja vacía.
+2. **Nada de eso tiene valor por defecto ni fórmula.** En las 7 que armó
+   Alessandro, los días fueron 2 a 7 y no siguen a la cantidad de
+   cámaras: con 8 cámaras hay una de 4 días y otra de 2. El combustible
+   fue de $4 a $6 por día, distinto al de la instalación de la misma
+   cotización. Las personas fueron siempre 2, pero igual se preguntan.
+3. **Dónde va en la matriz**, igual que lo carga él:
+   - `MANO DE OBRA `, segundo bloque ("MO"), fila 21 (Configurador):
+     hora hombre `C21` 8,9 y precio por día `D21` 48, los mismos de la
+     fila 5. `D21` trae la fórmula `=C21*8`, y se reemplaza. Días `E21`,
+     personas `F21`, alimentación `H21`, combustible por día `I21`,
+     hospedaje `J21`. Los totales del bloque son `G25` y `K25`.
+   - `OPEX GV` fila 14: descripción
+     `Configuración del sistema (N personas x N días)`, cantidad `C14` 1
+     y costo `D14` `=+'MANO DE OBRA '!G25+'MANO DE OBRA '!K25`.
+     Alessandro pasa por una celda intermedia (`I27` = `G25+K25`); va
+     directo y da lo mismo.
+   - Con configuración aparte, la línea de mano de obra de `OPEX GV!A6`
+     dice **instalación**, no "instalación y configuración".
+4. En la cotización no se ve aparte: suma a la línea de instalación
+   (fila 72), como el resto de `OPEX GV`.
+
+Por qué: la configuración la decide preventa, no ventas. Si el plugin no
+la pregunta, la cotización sale corta y alguien tiene que abrir la matriz
+a mano, rehacer el PDF y corregir los Excels de control, como pasó el
+2026-10-28.
+
+---
+
+## R28 — Si una persona cambió algo, el plugin no lo toca: avisa y propone una V2
+
+**Estado: vigente desde el 2026-10-29.** Lo pidió preventa, por medio de
+Fabián:
+
+> *"es probable que siempre les tengamos que editar algo, aunque sea el
+> nombre o mover algún número, entonces sería bueno decirle que no haga
+> esos cambios cuando detecta que uno hizo un cambio"*
+
+Y Fabián: *"antes de cambiar algo, así sea que uno se lo dice acá, debe
+enviar un mensaje de advertencia antes de hacer algún cambio y sugerir una
+V2, ya sea del documento original, el que se creó o del cambiado... es
+muy importante y necesario"*.
+
+1. **Cualquier cambio sobre algo que ya existe empieza con una
+   advertencia**, aunque lo pida el asesor en el chat. Vale para una
+   matriz, un PDF, el nombre o la carpeta de un archivo, o una fila de los
+   Excels de control. La advertencia dice:
+   - qué archivo es;
+   - si lo creó el plugin y si una persona lo cambió después: quién lo
+     guardó por última vez y cuándo;
+   - qué se quiere cambiar.
+
+   Después se espera la respuesta. Nada se cambia antes.
+2. **Lo que se propone es una V2, no pisar.** Es una copia nueva en la
+   misma carpeta, con el sufijo ` V2` (` V3`…), y el archivo de antes
+   queda como estaba. El asesor elige sobre qué base se arma:
+   - **la versión cambiada**, la que está ahora, con los cambios de la
+     persona (la recomendada);
+   - **la que creó el plugin**, que está en el historial de versiones de
+     OneDrive (la fecha sale del registro);
+   - **el pedido original**, armándola de nuevo.
+
+   Cambiar el archivo directamente queda como última opción, y solo si el
+   asesor la elige con todas las letras.
+3. **Nunca se renombra, se mueve ni se borra** un archivo que no creó el
+   plugin o que una persona cambió, ni siquiera para "ordenar". Si sobra
+   un PDF o un nombre no sirve, se avisa y lo decide una persona.
+4. **Cómo se detecta:**
+   - `armar-cotizacion/scripts/huella.py anotar` guarda en
+     `registro-preventa.json` (oculto, en la carpeta de la cotización) la
+     huella de cada archivo que el plugin crea.
+   - `huella.py revisar` dice, por archivo, si está igual, si cambió, si
+     lo renombraron, si falta o si no es del plugin.
+   - Una cotización sin registro (las de antes del 2026-10-29, o las que
+     armó una persona) cuenta entera como de una persona.
+   - En los Excels de control, `registrar_control.ps1 -Actualizar` exige
+     el valor que espera encontrar en cada celda (`antes`). Si alguien la
+     cambió, no toca nada.
+
+Por qué: el 2026-10-29 el plugin "corrigió" las 7 cotizaciones Hilton que
+Alessandro había ajustado a mano. Renombró sus PDFs, sacó PDFs de las
+carpetas y cambió montos de control, y hubo que deshacer todo. Lo que
+cambió una persona es la versión real hasta que ella diga otra cosa.
 
 ---
 

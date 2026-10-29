@@ -2353,3 +2353,48 @@ Cuatro cosas que aparecieron:
 - **Prueba en estado 10:** la copia de prueba era un Excel de control
   copiado a otra biblioteca. Los Excels de control reales, guardados el
   mismo día con el mismo script, pasaron a estado 2 en menos de un minuto.
+
+## La configuración del sistema (2026-10-29, regla R27)
+
+La línea de configuración que Alessandro agregó a mano a 7 cotizaciones
+Hilton se cargó en un borrador fuera de `CLIENTES`. Se usaron las mismas
+celdas que va a escribir el skill: la #14 tal como la armó el plugin,
+más 2 días × 2 personas y $5 de combustible.
+
+| Qué se midió | Borrador del plugin | Matriz de Alessandro |
+|---|---|---|
+| Configuración (`G25` + `K25`) | $192 + $10 = $202 | $202 |
+| Total de `OPEX GV` (costo) | $4.838,00 | $4.838,00 |
+| SUBTOTAL / TOTAL | $11.095,61 / $12.538,04 | $11.095,61 / $12.538,04 |
+| `K74` = SUBTOTAL, errores | sí, 0 | — |
+
+`D14` se escribió como texto `=+'MANO DE OBRA '!G25+…` con
+`llenar_matriz.ps1`, y Excel la tomó como fórmula. `D21` se reemplazó
+con `reemplaza_formula`. La tabla de montos (`vista_previa_montos.py`)
+muestra la línea en `OPEX GV` sin cambios en el script.
+
+## Advertir antes de cambiar (2026-10-29, regla R28)
+
+Preventa pidió que el plugin no toque lo que cambió una persona: tiene que
+avisar y proponer una V2.
+
+### `huella.py`, en una carpeta de prueba fuera de OneDrive
+
+| Caso | Resultado |
+|---|---|
+| `anotar` una matriz y un PDF, y después `revisar` | `IGUAL` los dos y `TODO COMO LO DEJO EL PLUGIN`, código 0 |
+| Al PDF se le agrega un byte | `CAMBIADO`, con la fecha en que lo dejó el plugin y la del cambio |
+| A la matriz se le cambia el nombre | Antes salía como `NO ES DEL PLUGIN` + `FALTA`. Ahora la busca por su huella y dice `RENOMBRADO` |
+| `registro-preventa.json` | Queda oculto |
+
+### `registrar_control.ps1 -Actualizar`, en una copia del Excel de control
+
+| Datos | Resultado |
+|---|---|
+| Sin `antes` | Se niega: *"-Actualizar exige el valor que se espera encontrar"* |
+| `antes` distinto de lo que dice la celda | Se niega: *"J400 dice [$61 083,58] y se esperaba [$99,99]: alguien la cambio, no toco nada"* |
+| `antes` igual a lo que dice la celda | Guarda |
+
+El rollback del mismo día pasó a usar `antes` a mitad de camino: las
+filas de la #11 de Preventa en adelante se devolvieron comprobando que
+cada celda tuviera el monto esperado.

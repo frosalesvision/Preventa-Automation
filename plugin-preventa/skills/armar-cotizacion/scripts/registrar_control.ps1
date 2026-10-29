@@ -19,6 +19,8 @@
 #   El numero de oferta solo no alcanza: cada cliente lleva su consecutivo (hay dos T5-0000012-26).
 # corregir.json, para -Actualizar: {"buscar": {...igual que arriba...}, "celdas": {...igual que fila.json...}}
 #   Misma regla de UNA fila; muestra cada celda antes -> despues y no toca las columnas que no trae.
+#   Cada celda lleva "antes": el valor que se espera encontrar, ej. {"texto": "$2 000,00", "formato": "@",
+#   "antes": "$1 500,00"}. Si la celda dice otra cosa, alguien la cambio y no se toca nada (R28).
 #
 # Sin -Guardar: muestra lo que haria y cierra sin guardar.
 # Con -Guardar termina con verificar_onedrive.ps1 (R26): sale con codigo 1 si no quedo en la nube.
@@ -110,6 +112,15 @@ try {
         $cols = @($D.celdas.PSObject.Properties.Name)
         $antes = @{}
         foreach ($c in $cols) { $antes[$c] = $ws.Range("$c$f").Text }
+        # R28: cada celda trae el valor que se espera encontrar; si alguien la cambio, no se toca nada
+        foreach ($c in $cols) {
+            $x = $D.celdas.$c
+            if ($x.PSObject.Properties.Name -notcontains "antes") { throw "falta 'antes' en $c : -Actualizar exige el valor que se espera encontrar (R28)" }
+            $cel = $ws.Range("$c$f")
+            if ((Txt $cel.Value2) -ne (Txt $x.antes) -and (Txt $cel.Text) -ne (Txt $x.antes)) {
+                throw ("$c$f dice [{0}] y se esperaba [{1}]: alguien la cambio, no toco nada (R28)" -f (Txt $cel.Text), (Txt $x.antes))
+            }
+        }
         foreach ($c in $cols) { Escribir $ws $c $f $D.celdas.$c }
         $excel.Calculate()
         foreach ($c in $cols) { Write-Output ("{0}{1}: [{2}] -> [{3}]" -f $c, $f, $antes[$c], $ws.Range("$c$f").Text) }

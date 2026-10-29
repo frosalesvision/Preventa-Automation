@@ -64,9 +64,15 @@ equipo (`T4-0000010-26 Equipos Edwards.pdf`):
 <carpeta de la cotización>\Matriz-Oferta\<número de oferta> <descripción corta>.pdf
 ```
 
-Si ya existe un PDF con ese nombre, **preguntá**: reemplazarlo, o
-guardarlo con ` V2` al final, igual que se versiona la matriz. Mostrá la
-ruta completa y esperá el sí: **es el documento que sale de la empresa.**
+Si ya existe un PDF de esa cotización (con ese nombre o con otro que le
+puso una persona), **advertí antes de nada (R28)**: corré
+`armar-cotizacion/scripts/huella.py revisar` y decí si ese PDF lo creó el
+plugin o una persona, y si la matriz cambió desde entonces. Lo que se
+propone es guardar el nuevo con ` V2` al final, igual que se versiona la
+matriz. Reemplazar es la última opción y solo si el asesor la pide con
+todas las letras. Nunca se renombra, mueve ni borra el PDF de otra
+persona. Mostrá la ruta completa y esperá el sí: **es el documento que
+sale de la empresa.** Después de exportar, `huella.py anotar` con el PDF.
 En una cotización nueva ese sí es el de la vista previa de montos (R25),
 que ya mostraba el nombre del PDF: no se vuelve a preguntar.
 

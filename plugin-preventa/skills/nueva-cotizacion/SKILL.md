@@ -58,6 +58,7 @@ preguntar; lo que no se sabe **siempre** se pregunta.
 | 11 | **Margen %** | **27,4%, el estándar. No proponer cambiarlo.** Aclarar que se puede cambiar a mano en el Excel, y que hacerlo en `Equipos` mueve también `OPEX GV` |
 | 12 | **Mano de obra** | Días y personas: se preguntan siempre. Los precios —hora, día, alimentación, kilometraje— vienen por defecto en `MANO DE OBRA` del machote y se cambian ahí si el proyecto lo pide (R8). **La mano de obra va en `OPEX GV` y los materiales de instalación en `MATERIALES`, nunca en `Equipos`** (preventa, 2026-10-21; gerencia, 2026-10-27); la cotización los muestra juntos en una línea (fila 72). Ver `armar-cotizacion`. Si es un **precio cerrado** y redondo ($30), avisá que no se usan números cerrados y proponé uno con decimales ($29,25); elige el asesor (R23) |
 | 12b | **Viajes al sitio** | Cuántos viajes, cuántos vehículos y si hay hospedaje (cuántas noches y cuánto la noche). **Se preguntan**: solo los kilómetros salen de la tabla de destinos (R9). Si dan el combustible **en colones y por viaje** ("₡35.000 ida y vuelta"), va así en la matriz (`MANO DE OBRA!N5`, con los viajes en `L5`): no lo conviertas ni lo repartas por día. Al confirmar, mostrá la conversión ("₡35.000 = $71,43 al TC 490"). Ver `armar-cotizacion` |
+| 12c | **Configuración del sistema** | Si lleva mano de obra: **días de configuración, personas y combustible por día**, aparte de la instalación. Se pregunta siempre y no tiene valor por defecto: el pedido de ventas no la trae, la pone preventa. Alimentación y hospedaje en cero salvo que diga otra cosa. Si no lleva, se deja vacía (R27). Ver `armar-cotizacion` |
 | 13 | **Financiamiento** | **Siempre preguntar**, sin importar el tamaño del proyecto. Si va: plazo y tasa. Si no: la columna `Financ.` queda vacía (R13) |
 | 14 | **Tipo de cambio** | **Proponer el de la pestaña `Tipo de Cambio` del catálogo y preguntar si se mantiene:** *"En el catálogo tenemos el tipo de cambio X, ¿seguimos con ese o lo cambiás para este proyecto?"*. Si la pestaña está vacía, preguntar cuál usar. El que se elija queda en la cotización; la pestaña del catálogo no se toca (R7) |
 | 15 | **Vigencia** | Días de validez de la oferta y fecha límite de entrega |
@@ -170,8 +171,8 @@ catálogo para la próxima vez.
 
 ⚠️ **Lo que la ficha pregunta y no busca en ninguna tabla.** Hay datos
 que dependen del sitio y no de un catálogo: **la cantidad de material de
-instalación**, los **días y personas** de mano de obra, y los **viajes y
-vehículos**. Para esos no existe —a propósito— una tabla de referencia:
+instalación**, los **días y personas** de mano de obra y de
+configuración, y los **viajes y vehículos**. Para esos no existe —a propósito— una tabla de referencia:
 guardarlos como valor fijo le daría a una estimación la autoridad de una
 fuente de verdad, y después nadie la cuestiona. Se preguntan en cada
 cotización y **se pueden dejar en blanco** si el proyecto no los lleva.
@@ -234,6 +235,9 @@ copiar literal):
 - "¿Es con o sin IVA?"
 - "¿Querés que incluya también accesorios de instalación (bases,
   soportes) o solo el equipo principal?"
+- "Aparte de la instalación, ¿cuántos días de configuración van, con
+  cuántas personas y cuánto de combustible por día?" (si lleva mano de
+  obra: el pedido de ventas casi nunca la trae, R27)
 
 Si el usuario responde parcialmente o con nueva ambigüedad, repreguntá
 puntual solo sobre eso — no reinicies la tanda completa.
@@ -357,6 +361,10 @@ volver a preguntar lo que ya se aceptó:
    con `-Guardar`).
 4. El PDF, **en la misma carpeta que la matriz** (`Matriz-Oferta/`),
    nunca en otra ni solo en el chat.
+4b. La huella de lo que creó el plugin (R28):
+   [`huella.py`](../armar-cotizacion/scripts/huella.py)` anotar
+   "<carpeta de la cotización>" "<matriz>" "<PDF>"`. Es lo que permite
+   saber después si alguien los cambió.
 5. Que OneDrive haya subido todo (R26):
    [`verificar_onedrive.ps1`](../armar-cotizacion/scripts/verificar_onedrive.ps1)
    con la carpeta de la cotización y los dos Excels de control. Tiene que
@@ -388,6 +396,39 @@ la mano lo que va a mandar.
    actualizado, accesorio sin match exacto, brecha de presupuesto, correo
    del contacto que no se sabe, etc.) — nunca cierres el resumen dando
    algo por resuelto que en realidad quedó a medias.
+
+## Antes de cambiar algo que ya existe: advertir y proponer una V2 (R28)
+
+Preventa casi siempre retoca lo que arma el plugin: el nombre de un
+archivo, un número, una línea de configuración. **Lo que cambió una
+persona es la versión real.** Por eso, antes de tocar cualquier cosa que
+ya existe —matriz, PDF, nombre o carpeta de un archivo, fila de control—,
+aunque lo pida el asesor en el chat:
+
+1. Corré [`huella.py`](../armar-cotizacion/scripts/huella.py)` revisar
+   "<carpeta de la cotización>"`.
+2. Mandá una advertencia y esperá la respuesta. Por ejemplo:
+
+   > ⚠️ Antes de cambiar nada: `Matriz Hilton Curio prioridad 3 .xlsx` la
+   > creó el plugin el 28/10 y después la guardó Alessandro Lazzarotto el
+   > 28/10 a las 13:38, con cambios. Quiero agregarle 2 días de
+   > configuración. No la voy a tocar: te propongo una **V2**
+   > (`… V2.xlsx`, y su PDF), y la de ahora queda como está. ¿Sobre cuál
+   > versión la armo?
+   > 1. La de ahora, con los cambios de Alessandro (recomendada)
+   > 2. La que creó el plugin el 28/10 (está en el historial de versiones
+   >    de OneDrive)
+   > 3. De nuevo desde el pedido original
+   >
+   > Si preferís cambiar el archivo directamente, decímelo con todas las
+   > letras.
+3. Con la respuesta, armá la V2 por el "Caso 2" de `armar-cotizacion`, y
+   anotá su huella. Si cambia el monto, preguntá si se corrige la fila de
+   control (con `-Actualizar`, que exige el valor que espera encontrar).
+
+**Nunca se renombra, se mueve ni se borra** un archivo que no creó el
+plugin o que cambió una persona, ni para "ordenar" la carpeta: se avisa y
+lo decide una persona.
 
 ## Caso: cambio de marca o versión sobre una cotización existente
 
