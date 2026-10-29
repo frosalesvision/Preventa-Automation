@@ -357,8 +357,12 @@ volver a preguntar lo que ya se aceptó:
    con `-Guardar`).
 4. El PDF, **en la misma carpeta que la matriz** (`Matriz-Oferta/`),
    nunca en otra ni solo en el chat.
-5. Que OneDrive haya subido todo (estado 2). Si un Excel de control se
-   queda subiendo, ver `armar-cotizacion`.
+5. Que OneDrive haya subido todo (R26):
+   [`verificar_onedrive.ps1`](../armar-cotizacion/scripts/verificar_onedrive.ps1)
+   con la carpeta de la cotización y los dos Excels de control. Tiene que
+   terminar en `TODO SINCRONIZADO`; si un Excel se queda en "falta subir",
+   el script lo destraba solo. Si falla igual, se para y se le dice al
+   asesor qué archivo quedó sin subir: la cotización no está terminada.
 
 Si en cualquier momento falla un acceso (carpeta compartida, Excels de
 control), corré [`verificar-entorno`](../verificar-entorno/SKILL.md) y
@@ -378,7 +382,8 @@ la mano lo que va a mandar.
    [`seguimiento-correo`](../seguimiento-correo/SKILL.md): para, asunto,
    cuerpo y firma. Nunca se envía; el asesor lo manda con el PDF adjunto.
 3. **El resumen:** carpeta (ruta completa), número de oferta, totales, en
-   qué fila quedó cada Excel de control y el estado de OneDrive. Aclará
+   qué fila quedó cada Excel de control y la última línea de
+   `verificar_onedrive.ps1` (`TODO SINCRONIZADO: N archivos`), tal cual. Aclará
    explícitamente lo que haya quedado pendiente de confirmar (precio no
    actualizado, accesorio sin match exacto, brecha de presupuesto, correo
    del contacto que no se sabe, etc.) — nunca cierres el resumen dando

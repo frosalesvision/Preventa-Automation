@@ -54,6 +54,7 @@ ya no esperan aprobación de preventa.
 | R23 | Un precio cerrado al cliente no va redondo ($29,25, no $30); y la cotización que ve el cliente, sin renglones en blanco | preventa (2026-10-19), primer caso real | vigente |
 | R24 | Avigilon: no hay lista; el precio lo da el distribuidor por proyecto y es el costo tal cual | Fabián (2026-10-28) | vigente |
 | R25 | Orden de una cotización: tabla de montos para aceptar o rechazar; con el sí se crea todo (carpeta, matriz, control, PDF en la carpeta de la matriz) y se entrega el PDF a la vista y el borrador del correo | Fabián (2026-10-28), después de una cotización real | vigente |
+| R26 | Nada está terminado hasta que OneDrive lo subió: `verificar_onedrive.ps1` después de cada escritura y en la entrega | Fabián (2026-10-28), después de revisar las cotizaciones reales | vigente |
 
 Lo que quedaba abierto con preventa y contabilidad, y cómo lo cerró
 Fabián, está en [`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
@@ -2005,6 +2006,37 @@ Por qué: una tabla se corrige en el chat sin costo; una fila de control ya
 sincronizada o un PDF ya generado no. Y la cotización no está terminada
 hasta que el asesor tiene en la mano lo que va a mandar: el PDF y el texto
 del correo.
+
+---
+
+## R26 — Nada está terminado hasta que OneDrive lo subió
+
+**Estado: vigente desde el 2026-10-28.** Fabián: *"ocupo que siempre
+valide que se sincronizó en el OneDrive"*.
+
+1. **Después de escribir algo en OneDrive** (matriz, PDF, Excels de
+   control, catálogo) se corre
+   `armar-cotizacion/scripts/verificar_onedrive.ps1` con los archivos o
+   carpetas que se tocaron. Espera hasta que todo esté en la nube: estado
+   2 (sincronizado), o 1 si es un archivo de otra persona que no se
+   descargó a esta PC.
+2. **Si un Excel se queda en "falta subir" (estado 4) o en "sincronización
+   pendiente" (estado 10)**, el script lo abre
+   por Excel en lectura y escritura y lo cierra sin guardar, que es lo que
+   lo destraba. Nunca se reinicia OneDrive.
+3. **Falla, y se dice tal cual,** si algo no subió, si alguien tiene un
+   archivo abierto (`~$`) o si una ruta pasa de 259 caracteres: Windows y
+   Excel no la abren, y si la subió otra PC, esta ni la puede descargar.
+4. `exportar_pdf.ps1` y `registrar_control.ps1 -Guardar` lo corren solos
+   al terminar. Al cerrar la cotización se corre una vez más sobre la
+   carpeta entera y los dos Excels de control, y **la entrega muestra el
+   resultado** (`TODO SINCRONIZADO: N archivos`). Si falla, la cotización
+   no se da por terminada.
+
+Por qué: un archivo que quedó solo en esta PC no lo ve nadie del equipo, y
+un Excel de control trabado en "falta subir" se pisa con la versión de otra
+persona. En la revisión del 2026-10-28 aparecieron PDFs con rutas de más
+de 259 caracteres que esta PC no podía ni descargar.
 
 ---
 

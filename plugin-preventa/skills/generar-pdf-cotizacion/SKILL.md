@@ -85,7 +85,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/exportar_pdf.ps1 -Ma
 
 Hace lo de abajo y además se niega si hay celdas en error, corchetes sin
 llenar, una ruta de más de 259 o un PDF que ya existe. Al final dice
-cuántas páginas salieron, contadas en el PDF.
+cuántas páginas salieron, contadas en el PDF, y si el PDF está en OneDrive
+espera a que suba (`verificar_onedrive.ps1`, R26): si no sube, sale con
+código 1 y el PDF no se da por entregado.
+
+El nombre del PDF lo decide el asesor, pero la ruta completa no puede
+pasar de 259 caracteres, tampoco si se renombra a mano después: en la
+revisión del 2026-10-28 había PDFs renombrados a mano con rutas de 260 a
+269, que esta PC no podía ni descargar.
 
 ⚠️ **Los totales nunca se parten, y la escala la calcula el script**
 (2026-10-27, dos cotizaciones reales):

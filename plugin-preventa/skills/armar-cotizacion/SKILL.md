@@ -577,7 +577,11 @@ anulada, buscándola por contenido (cliente + número de oferta), y solo si
 coincide una sola fila. Con `-Actualizar` corrige la fila ya registrada de
 una cotización que cambió (descripción, monto), con la misma búsqueda; no
 se agrega una fila nueva por la misma oferta. El número de oferta solo no
-alcanza: cada cliente lleva su consecutivo. Encabezados medidos ese día: `Control de
+alcanza: cada cliente lleva su consecutivo. Con `-Guardar` termina corriendo
+[`scripts/verificar_onedrive.ps1`](scripts/verificar_onedrive.ps1) sobre el
+Excel (R26): sale con código 1 si no quedó en la nube. Ese mismo script se
+corre sobre la carpeta de la cotización después de copiar la matriz, y al
+cerrar sobre la carpeta y los dos Excels juntos. Encabezados medidos ese día: `Control de
 cotizaciones 2026` en la **fila 2** (A Fecha solicitud · C Empleado, con
 la inicial: `A`/`K` · D Cliente · E Descripción · G Fecha de la oferta ·
 I Número · J Monto sin IVA, como texto con `$` · K `=+NETWORKDAYS(A<f>,$K$1)`

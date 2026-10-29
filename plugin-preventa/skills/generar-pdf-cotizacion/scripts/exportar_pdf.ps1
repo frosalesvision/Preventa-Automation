@@ -6,6 +6,7 @@
 #
 # No exporta si: la pestana tiene celdas en error, la ruta del PDF pasa de 259 caracteres
 # (Windows y Excel no la abren) o el PDF ya existe (se decide con el asesor: reemplazar o V2).
+# En OneDrive termina con verificar_onedrive.ps1 (R26): sale con codigo 1 si no quedo en la nube.
 param(
     [Parameter(Mandatory = $true)][string]$Matriz,
     [Parameter(Mandatory = $true)][string]$Pdf,
@@ -144,4 +145,9 @@ try {
 finally {
     $excel.Quit()
     [System.Runtime.InteropServices.Marshal]::ReleaseComObject($excel) | Out-Null
+}
+# R26: no esta hecho hasta que OneDrive lo subio
+if ($Pdf -like "*OneDrive*") {
+    & (Join-Path $PSScriptRoot "..\..\armar-cotizacion\scripts\verificar_onedrive.ps1") $Pdf
+    exit $LASTEXITCODE
 }

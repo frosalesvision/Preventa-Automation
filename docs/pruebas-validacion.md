@@ -2321,3 +2321,35 @@ Dos detalles que aparecieron al probarlo: la etiqueta `Total FOB` está en
 la columna E en `Equipos` y en la D en las otras pestañas, y con
 `python -I` se ignora `PYTHONIOENCODING`, así que el script fija UTF-8
 en la salida (si no, las tildes de las descripciones salen rotas).
+
+## La verificación de OneDrive (2026-10-28, regla R26)
+
+Fabián pidió que siempre se valide que OneDrive subió lo que se escribió.
+Lo hace `armar-cotizacion/scripts/verificar_onedrive.ps1`;
+`exportar_pdf.ps1` y `registrar_control.ps1 -Guardar` lo corren solos al
+terminar.
+
+### Cómo se comprobó
+
+| Caso | Resultado |
+|---|---|
+| Carpeta de una cotización real + los dos Excels de control | `TODO SINCRONIZADO: 4 archivos`, código 0 |
+| Una carpeta fuera de OneDrive (`%TEMP%`) | `FUERA DE ONEDRIVE`, código 1 |
+| Las 9 carpetas de cotizaciones reales del 27 y 28 de octubre | Todo en la nube, pero falla por 4 PDFs subidos desde otra PC con rutas de 260 a 269 caracteres, que esta PC no puede ni descargar |
+| `exportar_pdf.ps1` a una carpeta de prueba en OneDrive | El PDF sube y el script termina con `TODO SINCRONIZADO` |
+| `registrar_control.ps1` sobre una copia recién pegada | Se niega a escribir porque la copia todavía no había subido (estado 4) |
+| `registrar_control.ps1 -Actualizar -Guardar` sobre esa copia ya subida | Guarda, y la verificación falla: la copia se quedó en estado 10 ("Sincronización pendiente" en el Explorador) aun después de abrirla y cerrarla. El script no la dio por buena |
+
+Cuatro cosas que aparecieron:
+
+- **Estado 1** es un archivo que está en la nube y no se descargó a esta
+  PC (lo subió otra persona). Cuenta como subido.
+- **Estado 10** es "Sincronización pendiente". Al principio el script no
+  lo conocía; ahora también intenta destrabarlo y muestra el texto del
+  Explorador.
+- **Rutas largas:** el Explorador devuelve en nombre corto 8.3
+  (`T5-000~2.PDF`) los archivos con rutas de más de 259 caracteres, y así
+  se saltaban el aviso. Ahora la ruta se arma con el nombre real.
+- **Prueba en estado 10:** la copia de prueba era un Excel de control
+  copiado a otra biblioteca. Los Excels de control reales, guardados el
+  mismo día con el mismo script, pasaron a estado 2 en menos de un minuto.

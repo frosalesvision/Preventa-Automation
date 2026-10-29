@@ -21,6 +21,7 @@
 #   Misma regla de UNA fila; muestra cada celda antes -> despues y no toca las columnas que no trae.
 #
 # Sin -Guardar: muestra lo que haria y cierra sin guardar.
+# Con -Guardar termina con verificar_onedrive.ps1 (R26): sale con codigo 1 si no quedo en la nube.
 # Seguridad: no corre sin OneDrive sincronizado; respaldo antes de abrir; apaga el Autoguardado;
 # no escribe si la fila destino ya tiene algo en una columna a escribir; relee .Text de cada celda.
 param(
@@ -143,4 +144,9 @@ try {
 finally {
     $excel.Quit()
     [System.Runtime.InteropServices.Marshal]::ReleaseComObject($excel) | Out-Null
+}
+# R26: no esta hecho hasta que OneDrive lo subio
+if ($Guardar -and $Ruta -like "*OneDrive*") {
+    & (Join-Path $PSScriptRoot "verificar_onedrive.ps1") $Ruta
+    exit $LASTEXITCODE
 }
