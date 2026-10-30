@@ -57,6 +57,7 @@ ya no esperan aprobación de preventa.
 | R26 | Nada está terminado hasta que OneDrive lo subió: `verificar_onedrive.ps1` después de cada escritura y en la entrega | Fabián (2026-10-28), después de revisar las cotizaciones reales | vigente |
 | R27 | Configuración del sistema: días, personas y combustible se preguntan aparte de la instalación, en cada cotización con mano de obra; van en el segundo bloque de `MANO DE OBRA` y en su propia línea de `OPEX GV` | Fabián (2026-10-29), por cómo las arma Alessandro | vigente |
 | R28 | Si una persona cambió algo, el plugin no lo toca: antes de cualquier cambio sobre algo que ya existe, avisa y propone una V2 | Preventa y Fabián (2026-10-29), después de tener que deshacer una corrección | vigente |
+| R29 | IVA dentro del precio unitario: para un cliente exento, cuando preventa lo pide, el 13% va en el precio de cada línea de `Equipos` y `OPEX GV` (no en el costo nacionalizado) y la cotización queda exenta | Preventa (2026-10-29), CCSS #2 | vigente, a pedido |
 
 Lo que quedaba abierto con preventa y contabilidad, y cómo lo cerró
 Fabián, está en [`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
@@ -2137,6 +2138,48 @@ Por qué: el 2026-10-29 el plugin "corrigió" las 7 cotizaciones Hilton que
 Alessandro había ajustado a mano. Renombró sus PDFs, sacó PDFs de las
 carpetas y cambió montos de control, y hubo que deshacer todo. Lo que
 cambió una persona es la versión real hasta que ella diga otra cosa.
+
+---
+
+## R29 — IVA dentro del precio unitario, para un cliente exento
+
+**Estado: vigente desde el 2026-10-29, solo cuando preventa lo pide.**
+Apareció en la CCSS #2, una licitación reducida para el Área de Salud de
+Paquera:
+
+> *"necesito que se le agregue el 13% de IVA, y que el mismo sea cobrado
+> en el precio unitario, no en el costo nacionalizado… al estar sumando
+> el 13% de IVA en las hojas de Equipos y OPEX, a nivel de la hoja de
+> cotización se debe eliminar el 13% IVA, ya que el cliente está en la
+> lista de los exentos"*
+
+Es distinto del IVA de línea de R2. Ese es un costo nuestro y lleva
+margen encima. Este es el 13% del precio de venta, sumado a cada precio
+unitario.
+
+1. **Cómo se calcula** (lo eligió preventa entre dos opciones): primero
+   el precio sin IVA (costo nacionalizado + administración + utilidad), y
+   encima el 13%. El IVA no lleva utilidad, administración ni DAI. Da lo
+   mismo que si el IVA fuera en la cotización, solo que dentro de cada
+   línea. Ejemplo: QNV-C8083R, $348 de costo, importada: sin IVA
+   $454,70, con IVA **$513,81**.
+2. **Dónde:** en `Equipos` y `OPEX GV`, en todas sus líneas, con
+   `armar-cotizacion/scripts/iva_en_precio.py`, que agrega las celdas al
+   JSON de `llenar_matriz.ps1`:
+   - `Equipos`: el IVA (`I`) pasa a ser el 13% de K+L+N, y el DAI (`J`),
+     el costo nacionalizado (`K`) y el precio (`O`) se ajustan a eso.
+   - `OPEX GV`: lo mismo con `H`, `I`, `J` y `N`.
+
+   Las fórmulas cambian **solo en esa matriz**, no en el machote.
+   `MATERIALES` no se toca: si hay líneas ahí, el script avisa.
+3. **La cotización queda exenta** (`Datos del proyecto!B15` = `si`), para
+   no cobrar el IVA dos veces.
+4. **La fila UTILIDAD cuenta el IVA como ganancia.** La tabla de montos
+   (`vista_previa_montos.py`) muestra aparte el IVA que va en los precios
+   y la utilidad real. En la CCSS #2 la hoja decía $16.783,42, y la
+   utilidad real era $9.745,21 (18%).
+5. **No se aplica sola.** Se usa cuando preventa lo pide para esa
+   cotización. Que un cliente sea exento no basta (ver R3).
 
 ---
 

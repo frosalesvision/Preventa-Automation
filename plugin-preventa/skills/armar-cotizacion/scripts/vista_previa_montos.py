@@ -101,6 +101,18 @@ def tabla_interna(titulo, filas, con_importado):
     print("| | **Total** |%s | **%s** | | **%s** |" % (vacias, plata(tc), plata(tv)))
 
 
+def iva_en_precio(ws, desde, hasta, cant, iva, nac, adm, mar, precio):
+    """IVA que va dentro del precio unitario (R29): en esas lineas el precio es margen + costo +
+    administracion + IVA. Con el IVA dentro del costo (lo normal), el precio no lo suma aparte: da 0."""
+    total = 0
+    for r in range(desde, hasta):
+        q, i = num(ws.cell(r, cant).value), num(ws.cell(r, iva).value)
+        base = num(ws.cell(r, nac).value) + num(ws.cell(r, adm).value) + num(ws.cell(r, mar).value)
+        if q > 0 and i > 0 and abs(num(ws.cell(r, precio).value) - base - i) < 0.005:
+            total += i * q
+    return total
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     if len(sys.argv) != 2:
@@ -147,8 +159,14 @@ def main():
     mt, _ = lineas(hoja(wb, "MATERIALES"), 1, 3, 4, 14, 15, col_imp=2)
     tabla_interna("MATERIALES", mt, True)
     utilidad = hoja(wb, "Equipos").cell(fin_eq + 1, 16).value
+    iva_e = iva_en_precio(hoja(wb, "Equipos"), 6, fin_eq, cant=4, iva=9, nac=11, adm=12, mar=14, precio=15)
+    iva_o = iva_en_precio(hoja(wb, "OPEX GV"), 6, 16, cant=3, iva=8, nac=10, adm=11, mar=13, precio=14)
     if isinstance(utilidad, (int, float)):
         print("\nUtilidad de Equipos (P%d): %s" % (fin_eq + 1, plata(utilidad)))
+    if iva_e or iva_o:
+        # R29: el IVA va dentro del precio unitario; la fila UTILIDAD lo cuenta como ganancia
+        print("IVA dentro de los precios (R29): Equipos %s, OPEX GV %s, en total %s. Utilidad real de Equipos, sin el IVA: %s" % (
+            plata(iva_e), plata(iva_o), plata(iva_e + iva_o), plata(num(utilidad) - iva_e)))
 
     print("\n### Controles\n")
     k = num(cot.cell(sub, 11).value)

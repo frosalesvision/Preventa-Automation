@@ -2398,3 +2398,22 @@ avisar y proponer una V2.
 El rollback del mismo día pasó a usar `antes` a mitad de camino: las
 filas de la #11 de Preventa en adelante se devolvieron comprobando que
 cada celda tuviera el monto esperado.
+
+## IVA dentro del precio unitario (2026-10-29, regla R29)
+
+La CCSS #2 se armó a mano con las fórmulas cambiadas. Para probar el
+script, se le sacaron al JSON todas esas celdas (el IVA, el DAI, el costo
+y el precio de `Equipos` y `OPEX GV`, y la exención). Después se corrió
+`iva_en_precio.py` y se armó la matriz de nuevo, fuera de `CLIENTES`.
+
+| Qué se midió | Matriz entregada | Rearmada con el script |
+|---|---|---|
+| QNV-C8083R, precio unitario | $513,81 | $513,81 |
+| SUBTOTAL / IMPUESTO / TOTAL | $61.217,95 / $0 / $61.217,95 | igual |
+| Errores, `K74` = SUBTOTAL | 0, sí | 0, sí |
+
+La tabla de montos agrega una línea con el IVA que va dentro de los
+precios: Equipos $7.038,21 y OPEX GV $4,56. También muestra la utilidad
+real de `Equipos`, $9.745,21, porque la fila UTILIDAD dice $16.783,42. En
+una matriz normal, la del borrador de la Hilton #14, esa línea no
+aparece.

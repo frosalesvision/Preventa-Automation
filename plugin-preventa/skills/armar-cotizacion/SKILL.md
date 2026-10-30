@@ -297,6 +297,14 @@ a mostrar. El flujo completo está en `nueva-cotizacion`, pasos 6 a 8.
 
      Al confirmar con el asesor, mostrá la conversión: *"₡35.000 ida y
      vuelta = $71,43 al tipo de cambio 490, 1 viaje"*.
+   - **IVA dentro del precio unitario** (R29, solo si preventa lo pide,
+     para un cliente exento): después de armar el JSON, correr
+     [`scripts/iva_en_precio.py`](scripts/iva_en_precio.py)` "<datos.json>"`.
+     Agrega las celdas para que el 13% vaya en el precio de cada línea de
+     `Equipos` y `OPEX GV` (no en el costo nacionalizado) y deja la
+     cotización exenta. En la tabla de montos, decí cuánto IVA va dentro
+     de los precios y cuál es la utilidad real: la fila UTILIDAD lo cuenta
+     como ganancia.
    - **La configuración del sistema** (R27, desde 2026-10-29) va aparte,
      en el segundo bloque de `MANO DE OBRA ` ("MO"), fila 21: `C21` 8,9 y
      `D21` 48, como la fila 5 (`D21` trae `=C21*8`: va con
