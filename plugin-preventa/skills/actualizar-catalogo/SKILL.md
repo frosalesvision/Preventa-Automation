@@ -866,7 +866,14 @@ existentes.
 
 Si agregás una subcategoría nueva: primero a `scripts/taxonomia.py`,
 después regenerás `_listas!E` y ampliás el rango de la validación. Si se
-hace al revés, `buscar-equipo` no la va a encontrar.
+hace al revés, `buscar-equipo` no la va a encontrar. Lo segundo lo hace
+[`scripts/agregar_subcategoria.ps1`](scripts/agregar_subcategoria.ps1)` -Categoria "<categoría>"
+-Subcategoria "<nueva>" [-Guardar]`. Agrega la subcategoría al final de
+`_listas` (columnas C y E) y amplía el desplegable de
+`Catalogo!E`. Saca respaldo, apaga el Autoguardado, no corre sin OneDrive
+sincronizado y al guardar verifica que suba (R26). Así entró
+`Control de acceso > Puerta / porton automatico` el 2026-10-30, para los
+operadores FAAC de la TEC #8.
 
 ⚠️ **Guardar el catálogo con `openpyxl` borra los desplegables.** No
 soporta la extensión x14 de la validación con rango en otra hoja y la
