@@ -2417,3 +2417,43 @@ precios: Equipos $7.038,21 y OPEX GV $4,56. También muestra la utilidad
 real de `Equipos`, $9.745,21, porque la fila UTILIDAD dice $16.783,42. En
 una matriz normal, la del borrador de la Hilton #14, esa línea no
 aparece.
+
+## Lista de precios de Hanwha de noviembre (2026-11-05)
+
+Primera vez que se actualiza una lista entera sobre filas que ya existen.
+Se probó en una copia del catálogo, después sobre el real sin guardar, y
+después se guardó. El resumen de `preparar_lista_hanwha.py` se contrastó
+con un script aparte, que comparó el respaldo, el catálogo final y la lista.
+
+| Qué se midió | Antes | Después |
+|---|---|---|
+| Filas del catálogo | 12.425 | 12.417 |
+| Filas de `Hanwha Vision America` | 1.381 | 1.373 |
+| Precio igual / sube / baja | | 1.000 / 252 / 0 |
+| Quitadas por EOL / nuevas | | 129 / 121 |
+| Filas Hanwha en EOL | | 0 |
+| Modelos vigentes de la lista que faltan | | 0 |
+| Filas Hanwha con compra distinta de lista × 50% | | 0 |
+| Filas de otros proveedores que cambiaron | | 0 (las 11.044, en las 28 columnas) |
+| Otras pestañas | | solo cambian el conteo de `Proveedores` y `Compatibilidad de Accesorios` |
+| Pares de `Compatibilidad de Accesorios` | 1.247 | 1.263 |
+| Avisos de `verificar-catalogo.py` | 5 | 5 (los mismos, de la fila vacía) |
+
+Lo que apareció al probar:
+
+- **El catálogo agrega una nota propia a las filas de liquidación**
+  (`Precio de stock limitado / liquidacion`). Al comparar contra la lista, las
+  31 filas de `Limited Stock` parecían corregidas por una persona. Ahora se
+  compara sin esa nota y se conserva.
+- **Tres modelos nuevos con nombre o categoría engañosos:** los PVM nuevos
+  vienen en `Monitors` y no en `PVM`, y `White Cover for TID-A800 Video
+  Intercom` caía en Intercomunicador por la palabra "intercom". Se agregaron
+  dos reglas a `taxonomia.py`. Simuladas sobre todo el catálogo, solo cambian lo
+  que diría el clasificador en una fila, IMHD-27PVM, que no se tocó.
+- **El estado 4 no siempre significa que falta subir.** El guardado de
+  accesorios (10:39) siguió en "Sincronización pendiente" 25 minutos, aun
+  después de abrir y cerrar el archivo dos veces. Pero la nube ya lo tenía: a
+  las 11:03, SharePoint mostraba versión 73.0, la misma hora y el mismo tamaño,
+  sin bloqueos, y el SHA-256 del archivo descargado era igual al del local. El
+  indicador de esta PC era el que estaba atrasado. Ver "Formato y presentación"
+  en `actualizar-catalogo`.

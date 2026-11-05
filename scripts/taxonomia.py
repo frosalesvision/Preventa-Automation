@@ -512,7 +512,11 @@ PRIORITARIAS = [
     (("Accesorio de instalacion", "Cubierta / carcasa"),
      ["smoked dome", "clear dome", "dome smoked", "dome clear", "dome cover", "sm dome",
       "hard coated", "hard-coated", "dome casing", "dome cl ", "mesh cover",
-      "tamper-resistant cover"]),
+      "tamper-resistant cover",
+      # "White Cover for TID-A800 Video Intercom" (lista Hanwha nov-2026): si no, "intercom" gana
+      "cover for tid-"]),
+    # Lista Hanwha nov-2026: los PVM nuevos vienen en la categoria "Monitors", no en "PVM"
+    (("Monitor y visualizacion", "Monitor publico (PVM)"), ["public view monitor"]),
     (("Accesorio de instalacion", "Caja / housing"),
      ["conduit back box", "conduit backbox", "conduit top box"]),
     (("Accesorio de instalacion", "Montaje"),

@@ -206,6 +206,54 @@ catálogo viene aparte y no se actualiza desde el portal.
 de la cuenta de GV (vendedor asignado, correos, identificadores). Los
 scripts solo toman campos de producto.
 
+### Lista de precios nueva de Hanwha (probado 2026-11-05)
+
+Hanwha manda su lista en Excel cada pocos meses (agosto y noviembre de
+2026), con las pestañas `New`, `HVA Pricelist`, `Limited Stock` (a veces
+oculta) y `EOL Product`. El descuento no se toca: sigue en `Descuentos por
+proveedor` y el precio de compra se recalcula solo.
+
+**Pasos:**
+
+1. **Copiar la lista** a `Catalogos Proveedor/`, sin borrar la anterior.
+2. **Preparar** (solo lee): `python -I scripts/preparar_lista_hanwha.py
+   "<catálogo>" "<lista nueva>" "<lista anterior>" "<carga.json>"
+   <fecha de la lista AAAA-MM-DD>`. La fecha es la que dice la lista
+   (*"New & Change in November 1, 2026"*), no la del día de la carga. El
+   resumen trae los aumentos por subcategoría, los saltos de más de +50%, lo
+   que pasó a EOL y sus reemplazos, y lo nuevo por categoría.
+3. **Probar sobre una copia**: `scripts/cargar_lista_hanwha.ps1 -Ruta
+   <copia> -Datos <carga.json> -Guardar`, y `verificar-catalogo.py <copia>`.
+4. **Mostrar el resumen y esperar el OK.**
+5. **Cargar el real**, primero sin `-Guardar` y después con `-Guardar`. Saca
+   respaldo, apaga el Autoguardado, no toca una fila que cambió desde que se
+   preparó y al guardar verifica que OneDrive lo suba (R26).
+6. **Regenerar `Compatibilidad de Accesorios`** (ver esa sección) y volver a
+   correr `verificar-catalogo.py`.
+
+**Qué hace con cada fila de `Hanwha Vision America`:**
+
+- **Sigue vigente:** precio si cambió, fecha de la lista, archivo y pestaña
+  de origen, y los datos que el fabricante cambió. Categoría y subcategoría
+  no se tocan.
+- **Pasó a EOL:** se quita de la tabla (Fabián, 2026-11-05). `buscar-equipo`
+  no tiene regla para EOL y lo ofrecería como cualquier otro, con un precio
+  que además ya no se actualiza. El reemplazo de cada modelo queda en la
+  pestaña `EOL Product` de la lista guardada. Las cotizaciones hechas no
+  cambian: el precio queda escrito en cada matriz.
+- **Está en la lista y no en el catálogo:** fila nueva, al final de la tabla.
+- **Una persona cambió un dato (R28):** cada campo se pisa solo si en el
+  catálogo está vacío o tiene lo que decía la lista anterior. Si tiene otra
+  cosa, se conserva y sale en el resumen.
+
+**Dos precios para un modelo:** Hanwha puede publicar el general y el de
+`Limited Stock`. Se conserva el que ya tiene el catálogo mientras siga
+publicado, con su nota de liquidación. `Limited Stock` no es EOL: esos se
+siguen vendiendo hasta que se acaben, y se quedan.
+
+Las filas de modelos Hanwha cargadas con otro proveedor (Anixter, Syscom) no
+se tocan, aunque el modelo pase a EOL: el resumen las lista para avisarlas.
+
 ## Columnas del catálogo (26, orden fijo por prioridad — actualizado 2026-09-28)
 
 El orden de columnas **no es alfabético ni de conveniencia técnica**:
@@ -508,6 +556,18 @@ Reglas de formato a mantener:
   el catálogo en Excel (también sirve por COM) y cerrarlo sin guardar;
   Office termina la subida y el estado pasa a `2`. Y antes de escribir
   otra vez, esperar a que esté en `2`.
+
+  **Si sigue en `4` después de eso, mirar la nube antes de dar la subida
+  por trabada** (visto el 2026-11-05: 25 minutos en `4` con la nube ya al
+  día). La ruta real sale de `FullRemotePath` en
+  `HKCU:\Software\SyncEngines\Providers\OneDrive`. Con la sesión de la
+  persona en el navegador, solo leyendo, en la API de SharePoint
+  (`GetFileByServerRelativeUrl('<ruta>')`): `TimeLastModified`, `Length` y
+  `UIVersionLabel` dicen qué versión hay; `LockedByUser` y `CheckOutType`
+  dicen si hay un bloqueo o una desprotección; y `/$value` baja el archivo
+  para comparar su SHA-256 con el local (`Get-FileHash`). Si coincide, está en
+  la nube: el indicador de esta PC es el que quedó atrasado. Nunca se
+  reemplaza el archivo desde el navegador mientras siga pendiente.
 - Anchos de columna pensados para lectura rápida: Nombre y Descripción
   anchas, Archivo de origen ancha (los nombres de archivo reales son
   largos), campos de código (HTS/ECCN/EAN) angostos.
@@ -670,7 +730,8 @@ precio de lista. Ver la regla R4 en
 **Verificación adicional que sí salió limpia:** el pricelist del
 fabricante tiene una pestaña `EOL Product` con 57 SKU descontinuados.
 Se comprobó que **ninguno** se coló al catálogo. Al cargar una versión
-nueva de ese pricelist, repetir el chequeo: cotizar un producto
+nueva de ese pricelist, `preparar_lista_hanwha.py` repite el chequeo (ver
+"Lista de precios nueva de Hanwha"): cotizar un producto
 descontinuado es un error caro y silencioso. Esa misma pestaña trae el
 **reemplazo recomendado** de cada SKU — útil si alguna vez el cliente
 pide un modelo viejo por nombre.
