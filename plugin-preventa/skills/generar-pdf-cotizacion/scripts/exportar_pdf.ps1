@@ -67,7 +67,8 @@ try {
     }
     $filaTotal = 0
     for ($r = $ultima + 1; $r -le $ultima + 15 -and $filaTotal -eq 0; $r++) {
-        for ($c = 1; $c -le 12; $c++) { if (([string]$h.Cells.Item($r, $c).Value2).Trim() -eq "TOTAL") { $filaTotal = $r; break } }
+        # en la financiada la fila dice "TOTAL MENSUAL"
+        for ($c = 1; $c -le 12; $c++) { if (([string]$h.Cells.Item($r, $c).Value2).Trim() -match '^TOTAL( MENSUAL)?$') { $filaTotal = $r; break } }
     }
     if ($ultimaLinea -eq 0 -or $filaTotal -eq 0) { throw "no encontre la ultima linea o la fila del TOTAL" }
 

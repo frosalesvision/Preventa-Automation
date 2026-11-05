@@ -2457,3 +2457,23 @@ Lo que apareció al probar:
   sin bloqueos, y el SHA-256 del archivo descargado era igual al del local. El
   indicador de esta PC era el que estaba atrasado. Ver "Formato y presentación"
   en `actualizar-catalogo`.
+
+---
+
+## Oferta dividida por sistema (R31) y más líneas en `OPEX GV` (2026-11-05)
+
+Se probó en `%TEMP%`, sin tocar `CLIENTES` ni los Excels de control. Las dos
+llaves del JSON son opcionales: sin ellas, `llenar_matriz.ps1` no entra a ese código.
+
+| Prueba | Resultado |
+|---|---|
+| Rearmar desde el machote una cotización real de 18 líneas y 4 títulos, con `oferta_por_sistema` y `opex_filas_extra`, y compararla celda por celda con la matriz de títulos hechos a mano | 10.516 celdas con valor y 4 diferencias, todas en `COTIZACION (Financ)` oculta, que ahora también lleva los títulos. Las pestañas visibles quedan iguales |
+| Una cotización normal, sin las llaves, contra su borrador de antes del cambio | 10.458 celdas, 0 diferencias. `vista_previa_montos.py` no muestra títulos |
+| Vista previa y PDF con títulos | Los cuatro títulos en la tabla de montos y en el PDF, con los totales juntos |
+| Financiada con títulos (`exportar_pdf.ps1 -Financiada`) | Títulos visibles, 2 páginas |
+| Con `iva_en_precio.py` y 3 filas extra | Las fórmulas del IVA llegan a la última línea de `OPEX GV`, el IVA dentro de los precios es igual al impuesto de la versión sin esa opción, K74 igual al subtotal y 0 errores |
+
+Lo que destapó la prueba de la financiada: `exportar_pdf.ps1 -Financiada` fallaba
+en **cualquier** cotización financiada, con o sin títulos. Buscaba una fila que
+dijera `TOTAL`, y en esa pestaña dice `TOTAL MENSUAL`. Se corrigió y se probó
+también sin títulos.

@@ -305,6 +305,22 @@ a mostrar. El flujo completo está en `nueva-cotizacion`, pasos 6 a 8.
      cotización exenta. En la tabla de montos, decí cuánto IVA va dentro
      de los precios y cuál es la utilidad real: la fila UTILIDAD lo cuenta
      como ganancia.
+   - **Oferta dividida por sistema** (R31, solo si el pedido lo pide: no se
+     ofrece ni se pregunta). Las líneas de cada sistema van seguidas en
+     `Equipos`, con una fila de título entre un sistema y otro (solo `B`, sin
+     cantidad ni costo). En el JSON de `llenar_matriz.ps1`, la llave
+     `"oferta_por_sistema": {"primer_titulo": "<sistema 1>",
+     "filas_titulo_equipos": [14, 19]}`. El primer título reemplaza a
+     "Equipos" en la fila 21 de la cotización. Para cerrar con la
+     instalación, la última fila de título va después de la última línea, y
+     queda justo arriba de la línea de la fila 72; sin esa línea (en cero, o
+     en una financiada, que no la tiene) ese título no se pone. Los montos no
+     cambian y no lleva subtotal por sistema.
+   - **Más de 10 líneas en `OPEX GV`** (solo si hacen falta): la llave
+     `"opex_filas_extra": N` agrega N filas con las mismas fórmulas, antes de
+     escribir las celdas. Las líneas pasan a ir de la fila 6 a la 15 + N, y
+     el total baja N filas; las fórmulas de las otras pestañas se ajustan
+     solas. La fila 14 de configuración (R27) no se mueve.
    - **La configuración del sistema** (R27, desde 2026-10-29) va aparte,
      en el segundo bloque de `MANO DE OBRA ` ("MO"), fila 21: `C21` 8,9 y
      `D21` 48, como la fila 5 (`D21` trae `=C21*8`: va con

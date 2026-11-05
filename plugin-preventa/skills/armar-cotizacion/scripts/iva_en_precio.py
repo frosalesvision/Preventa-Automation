@@ -38,7 +38,7 @@ def main():
         poner("Equipos", "J%d" % f, '=IF(C{0}="si",(E{0}+G{0}+H{0})*$J$4,0)'.format(f), True)
         poner("Equipos", "K%d" % f, "=E{0}+G{0}+H{0}+J{0}".format(f), True)
         poner("Equipos", "O%d" % f, "=N{0}+K{0}+L{0}+I{0}".format(f), True)
-    for f in range(6, 16):
+    for f in range(6, 16 + int(d.get("opex_filas_extra", 0))):
         poner("OPEX GV", "H%d" % f, "=(J{0}+K{0}+M{0})*$H$4".format(f), True)
         poner("OPEX GV", "I%d" % f, '=IF(B{0}="si",(D{0}+F{0}+G{0})*$I$4,0)'.format(f), True)
         poner("OPEX GV", "J%d" % f, "=D{0}+F{0}+G{0}+I{0}".format(f), True)

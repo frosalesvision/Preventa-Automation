@@ -58,6 +58,7 @@ ya no esperan aprobación de preventa.
 | R27 | Configuración del sistema: días, personas y combustible se preguntan aparte de la instalación, en cada cotización con mano de obra; van en el segundo bloque de `MANO DE OBRA` y en su propia línea de `OPEX GV` | Fabián (2026-10-29), por cómo las arma Alessandro | vigente |
 | R28 | Si una persona cambió algo, el plugin no lo toca: antes de cualquier cambio sobre algo que ya existe, avisa y propone una V2 | Preventa y Fabián (2026-10-29), después de tener que deshacer una corrección | vigente |
 | R29 | IVA dentro del precio unitario: para un cliente exento, cuando preventa lo pide, el 13% va en el precio de cada línea de `Equipos` y `OPEX GV` (no en el costo nacionalizado) y la cotización queda exenta | Preventa (2026-10-29), CCSS #2 | vigente, a pedido |
+| R31 | Oferta dividida por sistema: títulos por sistema y la instalación al final, solo si el pedido lo pide; no se ofrece ni se pregunta | Preventa y Fabián (2026-11-05), en una cotización real | vigente, a pedido |
 
 Lo que quedaba abierto con preventa y contabilidad, y cómo lo cerró
 Fabián, está en [`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
@@ -2180,6 +2181,37 @@ unitario.
    utilidad real era $9.745,21 (18%).
 5. **No se aplica sola.** Se usa cuando preventa lo pide para esa
    cotización. Que un cliente sea exento no basta (ver R3).
+
+---
+
+## R31 — Oferta dividida por sistema: solo si el pedido lo pide
+
+**Estado: vigente desde el 2026-11-05, solo cuando preventa lo pide.**
+Apareció en una cotización real con tres sistemas:
+
+> *"a nivel de la oferta final se divida en las siguientes modalidades:
+> detección de incendios, CCTV e intrusión, y de último una división más que
+> es la línea de instalación"*
+
+Y Fabián, al pasarlo al plugin: *"como una condición única de que se pidan
+pedidos así... no es siempre"*.
+
+1. **No se aplica sola.** No se ofrece ni se pregunta. Si el pedido no habla
+   de dividir la oferta, sale como siempre, con el título `Equipos`.
+2. **Lo que ve el cliente:** un título por sistema con sus líneas debajo y, de
+   último, el título de instalación con la línea de la fila 72. No lleva
+   subtotal por sistema, porque no se pidió: el SUBTOTAL de la cotización suma
+   toda la columna, y un subtotal ahí contaría doble.
+3. **Los montos no cambian.** Los títulos no tienen cantidad ni precio. Se
+   probó rearmando la cotización real: mismos valores que con los títulos
+   hechos a mano.
+4. **Cómo se carga:** `Equipos` lleva una fila de título entre un sistema y
+   otro, y el JSON de `llenar_matriz.ps1` trae `oferta_por_sistema`. El detalle
+   está en `armar-cotizacion`. Los cambios quedan **solo en esa matriz**, no en
+   el machote.
+5. **Si `OPEX GV` no alcanza** (trae 10 líneas), `opex_filas_extra` le agrega
+   filas a esa matriz. Tampoco se aplica sola, y sirve aunque la oferta no vaya
+   dividida.
 
 ---
 

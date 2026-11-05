@@ -127,9 +127,9 @@ hojas seleccionadas: `SelectedSheets` no tiene ese método y falla.
 trae espacio para 50 líneas; sin ocultarlas, una cotización de una sola
 línea sale en **7 páginas**, cinco de ellas llenas de `0  $ -`. Se
 ocultan **solo las filas cuya cantidad es exactamente cero**: el título
-de sección ("Equipos") y la línea de asteriscos que separa los totales
-no tienen cantidad numérica, y ocultarlas le quitaría información al
-cliente.
+de sección ("Equipos"), los títulos de una oferta dividida por sistema
+(R31) y la línea de asteriscos que separa los totales no tienen cantidad
+numérica, y ocultarlas le quitaría información al cliente.
 
 ⚠️ **Y se cierra SIN guardar.** Ocultar filas es solo para el PDF; la
 matriz no se toca.

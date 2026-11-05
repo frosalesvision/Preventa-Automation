@@ -11,8 +11,9 @@ calcula nada por su cuenta. Solo lectura: nunca guarda (openpyxl borraria
 las imagenes del machote).
 
 Imprime en Markdown:
-  1. Lo que ve el cliente: las lineas de COTIZACION con cantidad, el
-     subtotal, el impuesto (con su tasa) y el total.
+  1. Lo que ve el cliente: las lineas de COTIZACION con cantidad (y los
+     titulos, si la oferta va por sistema), el subtotal, el impuesto (con su
+     tasa) y el total.
   2. El costo interno, que no ve el cliente: Equipos, OPEX GV y MATERIALES,
      con costo y venta por linea.
   3. Los controles: K74 igual al SUBTOTAL y celdas con error.
@@ -145,6 +146,9 @@ def main():
         if isinstance(q, (int, float)) and q > 0:
             print("| %s | %s | %s | %s |" % (cant(q), texto(cot.cell(r, 3).value),
                                            plata(cot.cell(r, 9).value), plata(cot.cell(r, 10).value)))
+        elif q is None and texto(cot.cell(r, 3).value) not in ("", "Equipos"):
+            # titulo de una oferta dividida por sistema (R31)
+            print("| | **%s** | | |" % texto(cot.cell(r, 3).value))
     vs, vi, vt = num(cot.cell(sub, 10).value), num(cot.cell(imp, 10).value), num(cot.cell(tot, 10).value)
     tasa = (vi / vs * 100) if vs else 0
     print("| | **SUBTOTAL** | | **%s** |" % plata(vs))
@@ -154,13 +158,13 @@ def main():
     print("\n### Costo interno (no lo ve el cliente)")
     eq, fin_eq = lineas(hoja(wb, "Equipos"), 2, 4, 5, 15, 16, col_imp=3)
     tabla_interna("Equipos", eq, True)
-    ox, _ = lineas(hoja(wb, "OPEX GV"), 1, 3, 4, 14, 15)
+    ox, fin_ox = lineas(hoja(wb, "OPEX GV"), 1, 3, 4, 14, 15)
     tabla_interna("OPEX GV (mano de obra y lo que preventa puso ahí)", ox, False)
     mt, _ = lineas(hoja(wb, "MATERIALES"), 1, 3, 4, 14, 15, col_imp=2)
     tabla_interna("MATERIALES", mt, True)
     utilidad = hoja(wb, "Equipos").cell(fin_eq + 1, 16).value
     iva_e = iva_en_precio(hoja(wb, "Equipos"), 6, fin_eq, cant=4, iva=9, nac=11, adm=12, mar=14, precio=15)
-    iva_o = iva_en_precio(hoja(wb, "OPEX GV"), 6, 16, cant=3, iva=8, nac=10, adm=11, mar=13, precio=14)
+    iva_o = iva_en_precio(hoja(wb, "OPEX GV"), 6, fin_ox, cant=3, iva=8, nac=10, adm=11, mar=13, precio=14)
     if isinstance(utilidad, (int, float)):
         print("\nUtilidad de Equipos (P%d): %s" % (fin_eq + 1, plata(utilidad)))
     if iva_e or iva_o:
