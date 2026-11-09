@@ -3,12 +3,15 @@
 #   {"celdas": [{"hoja": "Equipos", "celda": "B6", "valor": "..."}, ...],
 #    "leer":   [["<hoja>", "J76"], ...]}
 #   Una celda con formula no se escribe, salvo que traiga "reemplaza_formula": true.
-# Dos llaves opcionales; si no vienen, la matriz sale como siempre:
+# Llaves opcionales; si no vienen, la matriz sale como siempre:
 #   "opex_filas_extra": 3    OPEX GV trae 10 lineas (filas 6-15): agrega filas con las mismas formulas.
 #                            Las lineas pasan a ir de la 6 a la 15 + N; el total baja N filas.
 #   "oferta_por_sistema": {"primer_titulo": "SISTEMA 1", "filas_titulo_equipos": [14, 19]}
 #                            Solo si el pedido lo pide (R31). El primer titulo va en la fila 21 de la
 #                            cotizacion; los demas son filas de Equipos con solo la descripcion.
+#   "arrendamiento": {"plazos": [4, 8, 2], "interes": 0.11, "monto": "subtotal", "inicio": "2026-12-01"}
+#                            Solo si el pedido lo pide (R32): corre arrendamiento.ps1 al final. Todo es opcional
+#                            menos la llave; sin "inicio", el primer dia del mes que viene.
 # Recalcula, lee las celdas de "leer"
 # (valor y texto como lo muestra Excel), cuenta las celdas con error de las
 # hojas visibles y guarda. Excel por COM, nunca openpyxl (borra imagenes).
@@ -105,3 +108,12 @@ finally {
 }
 # Lo que se ve: lineas usadas + 3 y, si no lleva financiamiento, sus pestanas ocultas.
 & (Join-Path $PSScriptRoot "ajustar_vista.ps1") -Ruta $Destino
+# Arrendamiento (R32), solo si el JSON lo trae
+if ($d.arrendamiento) {
+    $arr = @{ Ruta = $Destino }
+    if ($d.arrendamiento.plazos) { $arr.Plazos = [int[]]@($d.arrendamiento.plazos) }
+    if ($d.arrendamiento.interes -ne $null) { $arr.Interes = [double]$d.arrendamiento.interes }
+    if ($d.arrendamiento.monto) { $arr.Monto = [string]$d.arrendamiento.monto }
+    if ($d.arrendamiento.inicio) { $arr.Inicio = [string]$d.arrendamiento.inicio }
+    & (Join-Path $PSScriptRoot "arrendamiento.ps1") @arr
+}

@@ -172,6 +172,19 @@ def main():
         print("IVA dentro de los precios (R29): Equipos %s, OPEX GV %s, en total %s. Utilidad real de Equipos, sin el IVA: %s" % (
             plata(iva_e), plata(iva_o), plata(iva_e + iva_o), plata(num(utilidad) - iva_e)))
 
+    # Arrendamiento (R32): un cuadro por plazo, si la matriz lo trae
+    cuadros = [ws for ws in wb.worksheets if ws.title.startswith("RESUMEN (") and texto(ws["B2"].value) == "CUADRO COSTOS FINANCIEROS"]
+    if cuadros:
+        print("\n### Arrendamiento (no sale en el PDF)\n")
+        print("| Pestaña | Plazo | Monto financiado | Interés | Cuota mensual | Total de cuotas | Costo financiero |")
+        print("|---|---|---|---|---|---|---|")
+        for ws in cuadros:
+            anos = ws["C8"].value
+            print("| %s | %s años (%s cuotas) | %s | %s%% | %s | %s | %s |" % (
+                ws.title, cant(anos), cant(ws["C9"].value), plata(ws["C7"].value),
+                ("%.2f" % (num(ws["E3"].value) * 100)).rstrip("0").rstrip(".").replace(".", ","),
+                plata(ws["C10"].value), plata(ws["C14"].value), plata(ws["C16"].value)))
+
     print("\n### Controles\n")
     k = num(cot.cell(sub, 11).value)
     ok = abs(k - vs) < 0.01

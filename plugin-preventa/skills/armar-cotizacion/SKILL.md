@@ -321,6 +321,16 @@ a mostrar. El flujo completo está en `nueva-cotizacion`, pasos 6 a 8.
      escribir las celdas. Las líneas pasan a ir de la fila 6 a la 15 + N, y
      el total baja N filas; las fórmulas de las otras pestañas se ajustan
      solas. La fila 14 de configuración (R27) no se mueve.
+   - **Arrendamiento** (R32, solo si el pedido lo pide): cuotas del total del
+     proyecto a varios plazos, para preventa o gerencia; no sale en el PDF. La
+     llave `"arrendamiento": {"plazos": [4, 8, 2], "interes": 0.11, "monto":
+     "subtotal", "inicio": "AAAA-MM-DD"}` del JSON (todo opcional menos la
+     llave) corre al final
+     [`scripts/arrendamiento.ps1`](scripts/arrendamiento.ps1), que también se
+     puede correr solo sobre una matriz. Crea `RESUMEN (n)` y `PTMO (n)` por
+     plazo, conectados al SUBTOTAL (o al TOTAL con `"monto": "total"`). No se
+     copian pestañas de otros archivos: traen vínculos a archivos ajenos.
+     `vista_previa_montos.py` muestra las cuotas en su propia tabla.
    - **La configuración del sistema** (R27, desde 2026-10-29) va aparte,
      en el segundo bloque de `MANO DE OBRA ` ("MO"), fila 21: `C21` 8,9 y
      `D21` 48, como la fila 5 (`D21` trae `=C21*8`: va con

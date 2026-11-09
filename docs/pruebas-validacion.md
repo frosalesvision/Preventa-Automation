@@ -2477,3 +2477,26 @@ Lo que destapó la prueba de la financiada: `exportar_pdf.ps1 -Financiada` falla
 en **cualquier** cotización financiada, con o sin títulos. Buscaba una fila que
 dijera `TOTAL`, y en esa pestaña dice `TOTAL MENSUAL`. Se corrigió y se probó
 también sin títulos.
+
+---
+
+## Arrendamiento (R32), 2026-11-09
+
+Se probó en `%TEMP%`, sin tocar `CLIENTES` ni los Excels de control.
+
+| Prueba | Resultado |
+|---|---|
+| `arrendamiento.ps1` solo, sobre una matriz real ya armada, a 4, 8 y 2 años | Las cuotas dan igual que la fórmula financiera calculada aparte (por ejemplo, 4 años al 11%: misma cuota y mismo costo financiero al centavo), y las tres tablas de amortización cierran en saldo cero |
+| Correrlo dos veces sobre la misma matriz | Se niega: "esta matriz ya tiene arrendamiento" |
+| Plazo de 10 años | Se niega: son 120 cuotas y la tabla del PTMO llega a 100 |
+| `-Monto total`, un plazo, sin fecha | Toma el TOTAL y pone como primer pago el primer día del mes siguiente |
+| La llave `arrendamiento` en el JSON de `llenar_matriz.ps1` | Mismas cuotas que los cuadros hechos a mano en la cotización real; mismos vínculos externos y nombres que el machote, nada nuevo; el PTMO del machote sigue oculto si no lleva financiamiento por línea |
+| Una cotización normal, sin la llave | Contra su borrador de antes del cambio solo difieren las fechas del día (`TODAY`) |
+| `vista_previa_montos.py` | Muestra la tabla de cuotas solo cuando la matriz tiene arrendamiento |
+
+Lo que mostró el caso: copiar las pestañas de arrendamiento del archivo que mandó
+preventa trae más de cien nombres con vínculos a archivos de otras personas, y Excel
+se cayó al intentar limpiarlos. Por eso el script arma los cuadros desde cero.
+
+Desde la consola, `-Plazos 4,8,2` llegaba como el número 482 y después como texto;
+el script ahora separa la lista y la convierte a enteros.

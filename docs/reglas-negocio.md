@@ -59,6 +59,7 @@ ya no esperan aprobación de preventa.
 | R28 | Si una persona cambió algo, el plugin no lo toca: antes de cualquier cambio sobre algo que ya existe, avisa y propone una V2 | Preventa y Fabián (2026-10-29), después de tener que deshacer una corrección | vigente |
 | R29 | IVA dentro del precio unitario: para un cliente exento, cuando preventa lo pide, el 13% va en el precio de cada línea de `Equipos` y `OPEX GV` (no en el costo nacionalizado) y la cotización queda exenta | Preventa (2026-10-29), CCSS #2 | vigente, a pedido |
 | R31 | Oferta dividida por sistema: títulos por sistema y la instalación al final, solo si el pedido lo pide; no se ofrece ni se pregunta | Preventa y Fabián (2026-11-05), en una cotización real | vigente, a pedido |
+| R32 | Arrendamiento: cuotas del total del proyecto a varios plazos (por defecto 4, 8 y 2 años al 11%), cada una con su tabla de amortización; solo si se pide, y no sale en el PDF | Preventa y Fabián (2026-11-09), en una cotización real | vigente, a pedido |
 
 Lo que quedaba abierto con preventa y contabilidad, y cómo lo cerró
 Fabián, está en [`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
@@ -2212,6 +2213,44 @@ pedidos así... no es siempre"*.
 5. **Si `OPEX GV` no alcanza** (trae 10 líneas), `opex_filas_extra` le agrega
    filas a esa matriz. Tampoco se aplica sola, y sirve aunque la oferta no vaya
    dividida.
+
+---
+
+## R32 — Arrendamiento: cuotas del proyecto a varios plazos, solo si se pide
+
+**Estado: vigente desde el 2026-11-09, solo cuando preventa lo pide.**
+Preventa mandó un archivo propio como "machote para todas las ofertas" porque
+traía un formato de arrendamiento que necesitan de vez en cuando. Al revisarlo,
+ese formato es el mismo cuadro de costos financieros y la misma tabla de
+amortización que ya tenía el machote del plugin (R13), pero calculado sobre el
+**total del proyecto** y a **varios plazos a la vez** (2, 4 y 8 años, al 11%).
+Fabián: *"¿se podría adaptar ahí?"*. Se adaptó, y no se cambió el machote:
+
+- el archivo era una versión vieja del machote (14 líneas en `Equipos`, sin
+  `Datos del proyecto` ni las mejoras posteriores);
+- traía en pestañas ocultas datos de otros proyectos, que viajarían en cada
+  oferta;
+- sus pestañas de arrendamiento traen más de cien nombres con vínculos a
+  archivos de otras personas, y su monto estaba escrito a mano, sin conexión con
+  la cotización.
+
+1. **No se aplica sola.** Se arma cuando el pedido pide arrendamiento, cuotas o
+   financiamiento del proyecto a plazos. Sin pedido, la matriz sale como siempre.
+2. **Qué agrega:** por cada plazo, una pestaña `RESUMEN (n)` (total venta,
+   anticipos, total a financiar, interés, plazo, cuota mensual y anual, total de
+   cuotas y costo financiero) y su `PTMO (n)`, copia del PTMO del machote
+   conectada a ese cuadro. El PTMO del machote, el del financiamiento por línea
+   (R13), no se toca.
+3. **El monto sale de la cotización:** el SUBTOTAL, sin IVA, como el
+   financiamiento por línea; con el total, si así lo piden. Si cambia un margen o
+   una línea, las cuotas se recalculan solas.
+4. **Por defecto** 4, 8 y 2 años al 11%, sin prima, con el primer pago el primer
+   día del mes siguiente. Todo se puede cambiar en cada cuadro. La tabla del PTMO
+   llega a 100 cuotas: más de 8 años no entra.
+5. **No sale en el PDF.** Es para preventa y gerencia. La tabla de montos lo
+   muestra aparte.
+6. **Cómo:** `armar-cotizacion/scripts/arrendamiento.ps1` sobre la matriz, o la
+   llave `arrendamiento` del JSON de `llenar_matriz.ps1`.
 
 ---
 
