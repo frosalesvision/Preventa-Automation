@@ -41,7 +41,9 @@ def main():
     if sucio:
         print("Aviso: hay cambios sin commitear que NO se van a publicar:\n" + sucio + "\n")
 
-    rutas = [r for r in git("ls-files", "-z", "--", *CARPETAS).decode("utf-8").split("\0") if r]
+    # La lista sale de HEAD, no del indice: un archivo preparado (git add) y sin commitear no
+    # existe en HEAD, y con ls-files el "git show HEAD:" de abajo fallaba (2026-11-10).
+    rutas = [r for r in git("ls-tree", "-r", "-z", "--name-only", "HEAD", "--", *CARPETAS).decode("utf-8").split("\0") if r]
     nuevo = {r: git("show", f"HEAD:{r}") for r in rutas}
     assert not any("recursos-originales" in r for r in nuevo)
     h = lambda b: hashlib.sha256(b).hexdigest()
