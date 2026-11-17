@@ -156,7 +156,8 @@ def puntuar(req, verifs, cat, hoy, excluidas):
             "pct": round(100 * len(c) / tot), "pot": round(100 * (len(c) + len(q)) / tot),
             "nc": len(c), "nn": len(n), "nq": len(q), "tot": tot,
             "cumple": [etq[i["n"]] for i in c],
-            "falta": [f"{etq[i['n']]} ({i.get('dato', '')})" for i in n],
+            "falta": [f"{etq[i['n']]} → {sin_piden(i.get('dato', ''))}" for i in n],
+            "no_cumple": [{"pide": etq[i["n"]], "tiene": i.get("dato", "")} for i in n],
             "sin": [etq[i["n"]] for i in q],
             "fila": fila["fila"] if fila else None,
             "codigo": fila["codigo"] if fila else v.get("codigo"),
@@ -169,6 +170,13 @@ def puntuar(req, verifs, cat, hoy, excluidas):
             "fuentes": v.get("fuentes", []), "notas": v.get("notas", ""),
         })
     return res
+
+
+def sin_piden(dato):
+    """El "piden X" sobra: lo que pide ya va antes de la flecha."""
+    dato = re.sub(r"\s*\((?:piden?)\s[^)]*\)", "", str(dato))
+    dato = re.sub(r"[;,]\s*piden?\s[^;]*", "", dato)
+    return dato.strip(" ;,")
 
 
 def dinero(x):
@@ -202,7 +210,7 @@ def fila_md(x):
         ", ".join(x["cumple"]) or "—", "; ".join(x["falta"]) or "—", ", ".join(x["sin"]) or "—"]) + " |"
 
 
-ENCABEZADO = ("| Línea | Código | Producto | Proveedor | Compra (días) | Match | Cumple | Falta | Sin comprobar |\n"
+ENCABEZADO = ("| Línea | Código | Producto | Proveedor | Compra (días) | Match | Cumple | No cumple: pide → tiene | Sin comprobar |\n"
               "|---|---|---|---|---|---|---|---|---|")
 
 

@@ -171,8 +171,13 @@ python -I scripts/puntaje_match.py "<requisitos.json>" "<carpeta con verif_*.jso
 ## Paso 6 — Mostrar la vista previa en el chat
 
 Columnas: **Línea · Código · Producto · Proveedor · Compra (días) · Match ·
-Cumple · Falta · Sin comprobar.** Marca y proveedor siempre (R30). Si todas las
-filas de una tabla tienen el mismo proveedor, puede ir una vez arriba.
+Cumple · No cumple · Sin comprobar.** Marca y proveedor siempre (R30). Si todas
+las filas de una tabla tienen el mismo proveedor, puede ir una vez arriba.
+
+En "No cumple", cada renglón es **lo que pide → lo que tiene el modelo**
+("**64 zonas de privacidad** → 32 zonas"), y el título lo dice: "No cumple: lo
+que pide → lo que tiene". Un título como "Falta (lo que tiene)" confunde: Fabián
+lo leyó como "o lo tiene o le falta" (2026-11-17).
 
 Antes de las tablas, el resumen del Paso 2 y cómo leer el porcentaje. Después:
 
