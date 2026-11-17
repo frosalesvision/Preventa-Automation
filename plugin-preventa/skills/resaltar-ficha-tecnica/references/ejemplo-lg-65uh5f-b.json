@@ -1,0 +1,20 @@
+{
+  "_que_es": "Mapeo real usado el 2026-10-19: LG 65UH5F-B, impresion de la pagina web de LG (etiqueta arriba, valor abajo), contra un cartel de monitor LED 65. Modelo para fichas web.",
+  "marcas": [
+    {"pagina": 1, "fila": "Tamaño de pantalla", "valor_abajo": true, "valores": ["*"], "punto": "4"},
+    {"pagina": 1, "fila": "Tecnología del panel", "valor_abajo": true, "valores": ["*"], "punto": "1"},
+    {"pagina": 1, "fila": "Relación de aspecto", "valor_abajo": true, "valores": ["*"], "punto": "6"},
+    {"pagina": 1, "fila": "Resolución nativa", "valor_abajo": true, "valores": ["*"], "punto": "3"},
+    {"pagina": 1, "fila": "Ángulo de visualización (H x V)", "valor_abajo": true, "valores": ["*"], "punto": "5"},
+    {"pagina": 1, "fila": "Horas de funcionamiento", "valor_abajo": true, "valores": ["*"]},
+    {"pagina": 1, "fila": "Entrada", "valor_abajo": true, "valores": ["HDMI (3), DP"], "punto": "7"},
+    {"pagina": 1, "fila": "Control externo", "valor_abajo": true, "valores": ["RJ45 (LAN)"], "punto": "7"},
+
+    {"pagina": 2, "fila": "Interfaz de montaje estándar VESA", "valor_abajo": true, "valores": ["*"], "punto": "11"},
+    {"pagina": 2, "fila": "Suministro de energía", "valor_abajo": true, "valores": ["*"], "punto": "8"},
+    {"pagina": 2, "fila": "ErP (productos relacionados con la energía) / Energy Star", "valor_abajo": true, "valores": ["Sí (Energy Star 8.0)"], "punto": "13"},
+
+    {"pagina": 3, "fila": "Básico", "valor_abajo": true, "valores": ["Control remoto, Cable de alimentación", "HDMI"], "punto": "9·10"},
+    {"pagina": 3, "fila": "Opcional", "valor_abajo": true, "valores": ["pared (LSW350B)"], "punto": "11"}
+  ]
+}
