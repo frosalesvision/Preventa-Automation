@@ -58,8 +58,10 @@ ya no esperan aprobación de preventa.
 | R27 | Configuración del sistema: días, personas y combustible se preguntan aparte de la instalación, en cada cotización con mano de obra; van en el segundo bloque de `MANO DE OBRA` y en su propia línea de `OPEX GV` | Fabián (2026-10-29), por cómo las arma Alessandro | vigente |
 | R28 | Si una persona cambió algo, el plugin no lo toca: antes de cualquier cambio sobre algo que ya existe, avisa y propone una V2 | Preventa y Fabián (2026-10-29), después de tener que deshacer una corrección | vigente |
 | R29 | IVA dentro del precio unitario: para un cliente exento, cuando preventa lo pide, el 13% va en el precio de cada línea de `Equipos` y `OPEX GV` (no en el costo nacionalizado) y la cotización queda exenta | Preventa (2026-10-29), CCSS #2 | vigente, a pedido |
+| R30 | Modelos desde un pliego: se comparan todas las marcas aunque el pedido nombre una, la tabla dice marca y proveedor, y con la descripción del catálogo nunca se dice "cumple" | Fabián (2026-11-05), en un estudio de mercado real | vigente |
 | R31 | Oferta dividida por sistema: títulos por sistema y la instalación al final, solo si el pedido lo pide; no se ofrece ni se pregunta | Preventa y Fabián (2026-11-05), en una cotización real | vigente, a pedido |
 | R32 | Arrendamiento: cuotas del total del proyecto a varios plazos (por defecto 4, 8 y 2 años al 11%), cada una con su tabla de amortización; solo si se pide, y no sale en el PDF | Preventa y Fabián (2026-11-09), en una cotización real | vigente, a pedido |
+| R33 | Cercanía a un pliego con porcentaje: requisitos que cumplen según la ficha oficial ÷ requisitos de la línea, con lo que falta y lo sin comprobar aparte; tres modos (más cercanos, una marca, marca + más cercanos) | Fabián (2026-11-17), en un pliego municipal escaneado | vigente |
 
 Lo que quedaba abierto con preventa y contabilidad, y cómo lo cerró
 Fabián, está en [`pendientes-comercial.md`](pendientes-comercial.md). Cómo se verifica
@@ -2185,6 +2187,35 @@ unitario.
 
 ---
 
+## R30 — Modelos desde un pliego: todas las marcas, y sin "cumple" sin ficha
+
+**Estado: vigente desde el 2026-11-05.** Apareció en un estudio de mercado
+municipal, un alquiler de cámaras por demanda. Preventa pidió identificar
+los modelos para registrarlos con Hanwha "en caso de cumplir con todo lo
+solicitado". El primer análisis comparó solo Hanwha y la tabla no decía la
+marca. Fabián preguntó de qué marca eran y por qué no se habían validado
+otros productos. Al repasar el catálogo, otras marcas se acercaban más en
+varias líneas.
+
+1. **Se busca en todas las marcas, aunque el pedido nombre una.** El
+   registro dice qué se va a registrar, no dónde se mira. La marca pedida
+   va primero y, si otra se acerca más, se dice.
+2. **La tabla siempre dice marca y proveedor**, además del costo, los días
+   del precio (R12), el estado y las brechas.
+3. **Con la descripción del catálogo nunca se dice "cumple".** Solo después
+   de comparar contra la ficha del fabricante. Antes de eso, el estado es
+   muy cerca, con brechas, por confirmar, no cumple o no hay.
+4. **Lo que excluye marcas se cita con la línea del documento.** Si no queda
+   claro a qué aplica, se pregunta.
+5. **Lo que no cuadra en el documento se dice antes de los modelos:** líneas
+   sin precio, requisitos sin línea, falta de cantidades.
+6. **Es análisis.** No se crea nada en `CLIENTES` ni en los Excels de
+   control, y lo que no se sabe se pregunta.
+
+El paso a paso está en "Modo pliego" de `buscar-equipo`.
+
+---
+
 ## R31 — Oferta dividida por sistema: solo si el pedido lo pide
 
 **Estado: vigente desde el 2026-11-05, solo cuando preventa lo pide.**
@@ -2251,6 +2282,37 @@ Fabián: *"¿se podría adaptar ahí?"*. Se adaptó, y no se cambió el machote:
    muestra aparte.
 6. **Cómo:** `armar-cotizacion/scripts/arrendamiento.ps1` sobre la matriz, o la
    llave `arrendamiento` del JSON de `llenar_matriz.ps1`.
+
+---
+
+## R33 — Cercanía a un pliego con porcentaje, verificada contra la ficha
+
+**Estado: vigente desde el 2026-11-17.** Fabián, con un pliego municipal de 45
+páginas escaneadas, la segunda vez que había que decir qué tan cerca están los
+productos del catálogo de lo que pide un documento: *"queremos ver una tabla con
+porcentaje de match, con qué hace match, qué hace falta, y qué no se pudo
+comprobar, que tenga el código, nombre de producto, precio y proveedor"*, y que
+sirva para los más cercanos de cualquier marca, para una sola marca o para una
+marca y además los más cercanos.
+
+1. **El porcentaje es requisitos que cumplen ÷ requisitos de la línea**, y cumple
+   solo lo que respalda la ficha o la página oficial del fabricante. El catálogo
+   sirve para elegir a quién verificar, nunca para sumar (R30).
+2. **Al lado va el techo:** "hasta X %" si lo que no se pudo comprobar sale bien.
+   Lo que no cumple va con el valor real; lo que no se pudo comprobar, aparte.
+3. **Los requisitos se cuentan agrupados.** Entre 6 y 20 por línea, los que
+   separan un modelo de otro; lo que va junto ("IP66, IP67, IK10") es uno solo y
+   cumple solo si cumple todo. Así el porcentaje no se infla con renglones fáciles.
+4. **Tres modos:** los más cercanos de cualquier marca; una sola marca; o una
+   marca y además los más cercanos de las demás, en dos tablas. Si el pedido nombra
+   una marca y no dice "solo", se recomienda el tercero (R30).
+5. **La tabla lleva** línea, código, producto, proveedor, precio de compra con sus
+   días (R12), porcentaje, lo que cumple, lo que falta y lo que no se pudo
+   comprobar. Primero se muestra en el chat; un PDF o un Excel, solo si lo piden.
+6. **Es análisis (R30):** no se crea nada en `CLIENTES` ni en los Excels de
+   control.
+
+El paso a paso y los scripts están en el skill `comparar-especificaciones`.
 
 ---
 

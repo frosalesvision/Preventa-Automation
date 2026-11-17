@@ -1,6 +1,6 @@
 ---
 name: buscar-equipo
-description: Busca marca y modelo específico de un equipo (cámara, control de acceso, alarma, etc.) que cumpla al 100% con una especificación técnica dada, usando el catálogo de proveedores de Grupo Visión CR (mantenido por `actualizar-catalogo`). Para cámaras y otros equipos que necesitan hardware de instalación, también identifica bases/soportes/lentes/accesorios compatibles y pregunta al asesor si quiere incluirlos. Usar cuando el usuario pide encontrar un equipo que cumpla ciertas especificaciones, pide ayuda para elegir marca/modelo para una licitación o cotización, pide armar el listado completo de equipo+accesorios para un proyecto, o necesita recalcular accesorios al cambiar de marca en un proyecto existente.
+description: Busca marca y modelo específico de un equipo (cámara, control de acceso, alarma, etc.) que cumpla al 100% con una especificación técnica dada, usando el catálogo de proveedores de Grupo Visión CR (mantenido por `actualizar-catalogo`). Si llega un pliego, cartel, solicitud de cotización o estudio de mercado, compara línea por línea todas las marcas y dice qué cumple y qué no, sin crear nada. También identifica accesorios de instalación compatibles y pregunta si se incluyen. Usar cuando piden encontrar un equipo que cumpla ciertas especificaciones, elegir marca/modelo para una licitación o cotización, identificar o recomendar modelos a partir de especificaciones técnicas, saber qué productos tenemos que se adapten, qué modelos registrar con un fabricante (ej. registro con Hanwha), ver distintas formas de cotizar un pliego, armar el listado de equipo+accesorios de un proyecto, o recalcular accesorios al cambiar de marca.
 ---
 
 # Buscar equipo
@@ -386,6 +386,8 @@ la marca. Eso se cotiza con el distribuidor.
   el catálogo y traé sus datos.
 - Una lista de varios equipos de una vez (ej. todo el listado de un
   proyecto) — procesá uno por uno, mismo criterio.
+- Un documento con especificaciones por línea (pliego, cartel, solicitud
+  de cotización, estudio de mercado) — ver "Modo pliego" abajo.
 
 ## Paso 2 — Accesorios de instalación (agregado 2026-09-01)
 
@@ -486,6 +488,150 @@ InVid/Milesight para las mismas 400 cámaras):
    de cobertura abajo), decilo explícitamente y sugerí confirmar el
    mount directamente con el proveedor antes de cotizar la mano de
    obra de instalación.
+
+## Modo pliego: identificar modelos desde un documento (R30, 2026-11-05)
+
+Para cuando llega un pliego, un cartel, una solicitud de cotización o un
+estudio de mercado con especificaciones por línea, y piden identificar
+modelos, recomendar lo que tenemos, saber qué registrar con un fabricante
+o ver formas de cotizarlo.
+
+**Es análisis, no cotización.** No se crea nada en `CLIENTES` ni en los
+Excels de control, y la respuesta va por chat como borrador. Si después
+piden armarla, sigue [`nueva-cotizacion`](../nueva-cotizacion/SKILL.md).
+
+**Lo que no se sabe se pregunta.** Cantidades, plazo, quién cubre un
+requisito del oferente: nada de eso se supone.
+
+### 1. Leer los documentos como texto
+
+Copiá cada documento a su propia carpeta nueva en la carpeta temporal de
+la sesión y sacá el texto con el script de `resaltar-ficha-tecnica`. Lee
+`.docx` (con sus tablas) y `.pdf`; no hace OCR.
+
+```
+python -I ../resaltar-ficha-tecnica/scripts/resaltar_ficha.py texto "<documento>" "<documento.txt>"
+```
+
+### 2. Decir primero qué pide el documento
+
+Antes de hablar de modelos, resumí:
+
+- **Trámite, modalidad y plazo:** estudio de mercado o licitación; compra
+  o alquiler; cuánto es firme y cuánto son prórrogas.
+- **Cantidades.** Si no vienen, decilo. Nunca las estimes.
+- **Si la tabla de precios y el anexo técnico no calzan.** En un caso real
+  la tabla traía 12 líneas y el anexo 16: cuatro no tenían dónde cotizarse.
+- **Lo que piden sin línea de precio:** software, servidores, fibra,
+  monitoreo, postes, personal certificado.
+- **Lo que excluye marcas, con la línea del documento que lo dice.** Por
+  ejemplo, NDAA 889 deja fuera a Hikvision y Dahua, que esa ley nombra. Si
+  no queda claro a qué líneas aplica, preguntá. Con marca amarrada rige
+  R18.
+
+Si el texto parece copiado de la ficha de una marca, avisalo como
+impresión, no como hecho, y empezá por las fichas de esa marca. En el caso
+real, preventa reconoció la marca y varias líneas calzaban casi palabra por
+palabra con su ficha. Si un modelo tiene que cumplir el 100%, comparalo
+contra la ficha oficial, no contra el catálogo: la de Hanwha está en
+`hanwhavision.com/en/products/camera/network/<tipo>/<modelo>/`.
+
+### 3. Buscar en todas las marcas, aunque el pedido nombre una
+
+"Modelos para registrar con Hanwha" dice qué se va a registrar, no dónde
+se mira. La marca pedida va primero y, si otra se acerca más, se dice. En
+el primer análisis real se comparó solo la marca pedida, y eso escondió
+una cámara dual a 30 fps cuando la pedida daba 15, y una PTZ con
+limpiaparabrisas cuando la pedida no lo traía.
+
+Por cada línea, quedate con los 5 a 8 requisitos que separan un modelo de
+otro. Los que se repiten en todas (garantía, ONVIF, TPM) van una sola vez,
+aparte.
+
+```
+python -I scripts/buscar_catalogo.py "4 ?[x*] ?5 ?mp|5 ?mp ?x ?4|20 ?mp" --regex --cat Camara --por-marca 3 --detalle 150
+```
+
+`--por-marca` cuenta por marca y muestra las más baratas de cada una.
+`--detalle` trae la descripción, porque en marcas como Axis el nombre no
+dice las especificaciones.
+
+Cuidados, medidos el 2026-11-05:
+
+- **Cada marca lo escribe distinto:** `4x5 MP`, `4*5MP`, `20MP`, `5MP x 4`.
+  Probá variantes: una búsqueda vacía no prueba que el equipo no exista.
+- **Una palabra puede engañar.** `dual` trae cámaras de "iluminación
+  dual", no de dos lentes. Leé la fila antes de proponerla.
+- **981 filas no tienen marca**, sobre todo de portales (ahí está Dahua de
+  Tectel). Salen como `(sin marca)`: leé el nombre.
+- **Avigilon casi no está en el catálogo:** solo la línea Ava y licencias,
+  por Sekunet. El resto se pide al distribuidor (R24). Decí que falta; no
+  la des por descartada.
+- **Un precio viejo no descarta, se marca** (R12). Ese día, Hanwha tenía
+  4 días, InVid 69, Axis 400 y Pelco más de 650.
+
+### 4. Clasificar sin exagerar
+
+| Estado | Cuándo |
+|---|---|
+| **Cumple, verificado** | se comparó punto por punto contra la ficha del fabricante |
+| **Muy cerca** | según el catálogo, solo falla en detalles menores |
+| **Con brechas** | falla en algo que el documento pide con número |
+| **Por confirmar** | el catálogo no trae los datos que deciden |
+| **No cumple** | falla en lo principal de la línea |
+| **No hay** | nada en el catálogo; decí qué clase de proveedor haría falta |
+
+**Con la descripción del catálogo nunca se dice "cumple".** Se dice de
+dónde salió la comparación, y que falta la ficha.
+
+### 5. Entregar la tabla
+
+Una fila por candidato: la marca pedida, si hay una, y la otra que más se
+acerque.
+
+| Línea | Qué pide | Marca | Modelo | Proveedor | Compra | Días | Estado | En qué no cumple |
+|---|---|---|---|---|---|---|---|---|
+
+**Marca y proveedor van siempre** (Fabián, 2026-11-05: una tabla con solo
+el modelo no se entiende). `Compra` es el costo, no el precio al cliente.
+
+**Si la piden en PDF:** un modelo por renglón, con su línea repetida en cada
+fila, para que al copiarla no se parta. Si no cumple en varias cosas, va una
+fila por cada grupo de diferencias.
+
+Debajo de la tabla: los requisitos comunes, lo que no hay en el catálogo y
+las preguntas que quedan.
+
+### 6. Lo que sigue
+
+- **Porcentaje de match y tablas por modo:** si piden qué tan cerca está cada
+  modelo, con porcentaje, o comparar una marca contra las demás, seguí
+  [`comparar-especificaciones`](../comparar-especificaciones/SKILL.md) (R33).
+  Verifica cada candidato contra la ficha oficial y lee PDF escaneados.
+- **Ficha:** para pasar a "Cumple, verificado", usá
+  [`resaltar-ficha-tecnica`](../resaltar-ficha-tecnica/SKILL.md).
+- **Registro con un fabricante (R5):** la lista lleva solo las filas de esa
+  marca, con sus brechas. Si no cumple, se dice; registrar igual lo decide
+  preventa. No se manda nada: queda como borrador.
+- **Mensaje para preventa:** corto. El resultado, lo que no cuadra y lo que
+  tienen que decidir, como preguntas.
+
+### 7. Si piden formas de cotizarlo
+
+Mostrá las decisiones que cambian el precio, con una recomendación. Decide
+preventa:
+
+- **Trámite:** define los porcentajes (R6).
+- **Alquiler mensual:** el machote lo calcula en `COTIZACION (Financ)`,
+  `Financiamiento` y `PTMO`.
+- **Plazo:** amortizar con las prórrogas baja la cuota, pero es un riesgo
+  si solo una parte del plazo está firme.
+- **Lo que no tiene línea de precio:** prorratearlo en cada unidad, con un
+  volumen supuesto y escrito, o plantearlo como cargo aparte.
+- **Marca:** una sola o mezcla. Con mezcla, confirmá que el software de
+  video las soporte todas.
+- **Alcance:** qué se subcontrata o queda fuera, y si la empresa cumple los
+  requisitos del oferente (certificaciones, personal, centro de monitoreo).
 
 ## Formato de salida
 
@@ -629,3 +775,7 @@ preventa (una búsqueda por especificación de punta a punta, con y sin
 accesorios, un caso de cambio de marca, y el fallback de lista buscable
 para marcas sin match exacto). Antes de llamar esto "Funcional", correr
 al menos un caso real de cada uno con Fabián o el equipo de ventas.
+
+**Modo pliego:** salió de un estudio de mercado real (2026-11-05), que se
+analizó a mano antes de escribirlo. Falta que preventa lo use y que se
+compruebe que el skill se activa con el plugin instalado.

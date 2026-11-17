@@ -2458,6 +2458,24 @@ Lo que apareció al probar:
   indicador de esta PC era el que estaba atrasado. Ver "Formato y presentación"
   en `actualizar-catalogo`.
 
+## Modo pliego (2026-11-05, regla R30)
+
+Se probó con un estudio de mercado real, sin crear nada en `CLIENTES`.
+
+| Qué se probó | Resultado |
+|---|---|
+| `resaltar_ficha.py texto` con los dos `.docx` | Están las 12 líneas de precio y las 16 del anexo. Apareció un error: el 72% del texto del anexo era XML, porque el patrón de `<w:t>` también agarraba `<w:tab>` y `<w:tc>`. Corregido y vuelto a correr |
+| `buscar_catalogo.py 12v 9ah --sub bateria` | sigue funcionando como antes |
+| `--regex --cat Camara --por-marca 2 --detalle 70`, 4×5 MP | 8 candidatos de 4 marcas: Hanwha, Axis, Milesight y Arecom Vision |
+| `--marca avigilon` y una palabra con tilde | filtra la marca y no le importa la tilde |
+| `--regex` con `\D` | la mayúscula del patrón no se pierde al normalizar |
+| Elegir skill leyendo solo las descripciones, con 8 pedidos: 3 de pliego, 1 de equipo suelto y 4 de otros skills | 8 de 8 al skill esperado. Es una simulación: falta probarlo con el plugin instalado |
+
+Lo que mostró el caso: comparar todas las marcas cambió el resultado. En 2×5 MP,
+la Hanwha daba 15 fps y una Axis 30. En PTZ de 8 MP, la Hanwha no traía
+limpiaparabrisas y una Milesight sí. Todo salió de las descripciones del catálogo:
+falta comparar contra las fichas.
+
 ---
 
 ## Oferta dividida por sistema (R31) y más líneas en `OPEX GV` (2026-11-05)
@@ -2500,3 +2518,28 @@ se cayó al intentar limpiarlos. Por eso el script arma los cuadros desde cero.
 
 Desde la consola, `-Plazos 4,8,2` llegaba como el número 482 y después como texto;
 el script ahora separa la lista y la convierte a enteros.
+
+---
+
+## Comparar especificaciones con porcentaje (R33), 2026-11-17
+
+Caso real: un pliego municipal de 45 páginas escaneadas, 15 líneas, en modo
+`marca+cercanos` con Hanwha. Sin crear nada en `CLIENTES` ni en el repo: los
+datos del caso quedaron en la carpeta temporal de la sesión.
+
+| Prueba | Resultado |
+|---|---|
+| `paginas_a_imagen.py` con el PDF escaneado | 45 imágenes recortadas al contenido, legibles con el zoom por defecto. Avisa "Ninguna trae texto". Con `--paginas 1-2,45`, solo esas tres |
+| `puntaje_match.py` contra el cálculo hecho a mano el mismo día | 58 pares modelo-línea, **0 diferencias** en porcentaje, techo, código y precio. Todos encontraron su fila del catálogo |
+| Modelo con nombre largo ("AXIS S1296 Rack 192 TB (02543-001)") | Encuentra la fila por el código entre paréntesis. Un software con dos licencias en el nombre tomaba la equivocada: por eso la verificación lleva `codigo` |
+| Modo `marca` con Axis, y `cercanos` con 2 por línea | Las líneas sin candidato de esa marca salen como "No hay candidato verificado"; en `cercanos`, dos filas por línea |
+| `--modo marca` sin `--marca` | Se niega |
+| Una verificación con un requisito de menos, un estado "cumple" y un modelo repetido | No calcula y lista los tres errores |
+| Un modelo de una marca excluida por el pliego (Hikvision por NDAA) | Avisa y no lo pone en las tablas |
+| Activación leyendo solo las descripciones | Falta: probar con el plugin instalado |
+
+Lo que mostró el caso: verificar contra las fichas cambió varias conclusiones del
+catálogo. Una cámara de placas que el catálogo anunciaba con IR de 590 ft tiene 50
+m según su ficha. Cuatro modelos que seguían en el catálogo están descontinuados.
+Y el lector de placas de Hanwha no lista a Costa Rica entre sus países.
+
